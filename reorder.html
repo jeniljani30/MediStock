@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediStock — Reorder History</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ══════════════════════════════════════════════
+           MEDISTOCK DESIGN SYSTEM VARIABLES (UNIFIED MASTER)
+           ══════════════════════════════════════════════ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #08090c;
+            --bg-secondary: #0e1015;
+            --bg-tertiary: #151720;
+            --bg-card: rgba(20, 22, 30, 0.65);
+            --bg-glass: rgba(255, 255, 255, 0.025);
+            --bg-glass-hover: rgba(255, 255, 255, 0.055);
+            --bg-glass-card: rgba(255, 255, 255, 0.035);
+
+            --text-primary: #f0f0f5;
+            --text-secondary: #9a9ab0;
+            --text-tertiary: #6b6b80;
+            --text-muted: #4a4a5a;
+
+            --blue: #4a90f5;
+            --blue-bright: #6ba3ff;
+            --blue-dim: rgba(74, 144, 245, 0.12);
+            --blue-glow: rgba(74, 144, 245, 0.25);
+            --teal: #2dd4bf;
+            --teal-dim: rgba(45, 212, 191, 0.10);
+            --teal-glow: rgba(45, 212, 191, 0.20);
+            --green: #34d399;
+            --green-dim: rgba(52, 211, 153, 0.10);
+            --orange: #fb923c;
+            --orange-dim: rgba(251, 146, 60, 0.10);
+            --red: #f87171;
+            --red-dim: rgba(248, 113, 113, 0.10);
+
+            --border: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(255, 255, 255, 0.12);
+            --border-accent: rgba(74, 144, 245, 0.25);
+            --border-teal: rgba(45, 212, 191, 0.3);
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.35);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.4);
+            --shadow-xl: 0 20px 80px rgba(0,0,0,0.5);
+
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            --nav-height: 68px;
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.55;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        ::selection { background: var(--blue); color: white; }
+        a { text-decoration: none; color: inherit; }
+
+        /* Scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+
+        /* ══════════════════════════════════════════════
+           APPLICATION NAVIGATION BAR
+           ══════════════════════════════════════════════ */
+        .nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: var(--nav-height);
+            z-index: 1000;
+            background: rgba(8, 9, 12, 0.88);
+            backdrop-filter: blur(24px) saturate(1.3);
+            -webkit-backdrop-filter: blur(24px) saturate(1.3);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-inner {
+            max-width: 1720px;
+            margin: 0 auto;
+            padding: 0 28px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-left-group {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-logo-icon {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, var(--blue), var(--teal));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.8rem;
+            color: white;
+            box-shadow: 0 0 20px rgba(74, 144, 245, 0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            padding: 7px 15px;
+            font-size: 0.83rem;
+            font-weight: 500;
+            color: var(--text-tertiary);
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+            background: var(--bg-glass);
+        }
+
+        .nav-links a.active {
+            color: var(--blue-bright);
+            background: var(--blue-dim);
+            border: 1px solid rgba(74, 144, 245, 0.2);
+            font-weight: 600;
+        }
+
+        .nav-right-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .procure-status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 12px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .procure-beacon {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--teal);
+            box-shadow: 0 0 8px var(--teal);
+            animation: pulse-beacon 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-beacon {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .state-tester-select {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-tertiary);
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 0.72rem;
+            cursor: pointer;
+            outline: none;
+        }
+
+        /* ══════════════════════════════════════════════
+           REORDER HISTORY CONTAINER
+           ══════════════════════════════════════════════ */
+        .reorder-container {
+            padding-top: calc(var(--nav-height) + 20px);
+            padding-bottom: 60px;
+            max-width: 1720px;
+            margin: 0 auto;
+            padding-left: 28px;
+            padding-right: 28px;
+        }
+
+        /* ── PAGE HEADER ── */
+        .reorder-header-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+
+        .reorder-title-group h1 {
+            font-size: 1.65rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .reorder-title-group p {
+            font-size: 0.84rem;
+            color: var(--text-tertiary);
+        }
+
+        /* ── SUMMARY TICKER (4 METRIC CARDS) ── */
+        .summary-cards-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1000px) {
+            .summary-cards-row { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 550px) {
+            .summary-cards-row { grid-template-columns: 1fr; }
+        }
+
+        .summary-kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 18px 20px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.25s var(--ease-out-expo);
+        }
+
+        .summary-kpi-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .s-kpi-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .s-kpi-lbl {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-tertiary);
+        }
+
+        .s-kpi-val {
+            font-size: 1.55rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #ffffff;
+            font-family: var(--font-mono);
+            margin-bottom: 4px;
+        }
+
+        .s-kpi-sub {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* ── SECTION 8: HOW REORDERS ARE GENERATED (INTELLIGENCE CONNECTION) ── */
+        .pipeline-connection-strip {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 16px 28px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pipeline-connection-strip::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--blue), var(--teal), transparent);
+        }
+
+        .pipe-top-text {
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--teal);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pipe-nodes-flex {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            overflow-x: auto;
+            scrollbar-width: none;
+            gap: 12px;
+        }
+        .pipe-nodes-flex::-webkit-scrollbar { display: none; }
+
+        .pipe-node-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.74rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .pipe-node-num {
+            width: 22px; height: 22px;
+            border-radius: 6px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            color: var(--blue-bright);
+        }
+
+        .pipe-arrow {
+            color: var(--text-muted);
+            opacity: 0.4;
+            font-size: 0.75rem;
+        }
+
+        /* ══════════════════════════════════════════════
+           SECTION 2, 5 & 6: REORDER ACTIVITY TABLE & FILTERS
+           ══════════════════════════════════════════════ */
+        .reorder-table-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 26px 28px;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+        }
+
+        .filter-ribbon-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .search-field-wrap {
+            position: relative;
+            min-width: 320px;
+            max-width: 440px;
+            flex: 1;
+        }
+
+        .search-icon-svg {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 15px; height: 15px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .search-reorder-input {
+            width: 100%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 9px 16px 9px 38px;
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .search-reorder-input:focus { border-color: var(--blue-bright); }
+
+        .filter-pills-cluster {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .filter-pill-btn {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-tertiary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-pill-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--border-hover);
+        }
+
+        .filter-pill-btn.active {
+            background: var(--bg-glass-hover);
+            color: var(--text-primary);
+            border-color: rgba(255,255,255,0.22);
+            font-weight: 600;
+        }
+
+        /* ── TABLE STYLING ── */
+        .reorder-master-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.8rem;
+        }
+
+        .reorder-master-table th {
+            text-align: left;
+            padding: 12px 14px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-tertiary);
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .reorder-master-table td {
+            padding: 15px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.025);
+            color: var(--text-secondary);
+        }
+
+        .reorder-master-table tbody tr {
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .reorder-master-table tbody tr:hover td {
+            background: var(--bg-glass-hover);
+        }
+
+        .ro-id-badge {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--blue-bright);
+            background: var(--blue-dim);
+            padding: 2px 7px;
+            border-radius: 4px;
+            border: 1px solid rgba(74, 144, 245, 0.2);
+            white-space: nowrap;
+        }
+
+        .ro-med-cell {
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ro-med-sub {
+            font-size: 0.68rem;
+            color: var(--text-tertiary);
+            font-weight: 400;
+            margin-top: 2px;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 100px;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+        }
+
+        .status-recommended { background: var(--blue-dim); color: var(--blue-bright); border: 1px solid rgba(74, 144, 245, 0.25); }
+        .status-pending { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(251, 146, 60, 0.25); }
+        .status-ordered { background: var(--teal-dim); color: var(--teal); border: 1px solid rgba(45, 212, 191, 0.25); }
+        .status-completed { background: var(--green-dim); color: var(--green); border: 1px solid rgba(52, 211, 153, 0.25); }
+        .status-cancelled { background: rgba(255,255,255,0.04); color: var(--text-muted); border: 1px solid var(--border); }
+
+        .btn-view-reorder {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-view-reorder:hover {
+            color: var(--blue-bright);
+            border-color: var(--blue);
+            background: var(--blue-dim);
+        }
+
+        /* ══════════════════════════════════════════════
+           SECTION 9, 10, 11: STATES (EMPTY, LOADING, ERROR)
+           ══════════════════════════════════════════════ */
+        .state-container-box {
+            padding: 60px 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .state-icon-circle {
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            color: var(--text-tertiary);
+        }
+
+        .state-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 6px;
+        }
+
+        .state-desc {
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+            max-width: 400px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .skeleton-row-box {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.025);
+        }
+
+        .skel-block {
+            height: 16px;
+            background: var(--bg-glass);
+            border-radius: 4px;
+            animation: shimmer-skel 2s infinite ease-in-out;
+        }
+
+        @keyframes shimmer-skel {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        /* ══════════════════════════════════════════════
+           SECTION 4: REORDER DETAIL PANEL (SLIDE-OUT DRAWER)
+           ══════════════════════════════════════════════ */
+        .reorder-drawer {
+            position: fixed;
+            top: 0; right: 0; bottom: 0;
+            width: 520px;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-hover);
+            box-shadow: -20px 0 60px rgba(0,0,0,0.7);
+            z-index: 1500;
+            transform: translateX(100%);
+            transition: transform 0.35s var(--ease-out-expo);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .reorder-drawer.open {
+            transform: translateX(0);
+        }
+
+        .drawer-head {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            background: rgba(8, 9, 12, 0.6);
+        }
+
+        .drawer-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 6px;
+        }
+
+        .drawer-close:hover { color: white; background: var(--bg-glass); }
+
+        .drawer-scroll-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .d-block-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-tertiary);
+            margin-bottom: 10px;
+        }
+
+        .d-grid-snapshot {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+
+        .d-snap-item {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 12px 14px;
+        }
+
+        .ds-lbl {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .ds-val {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #ffffff;
+            font-family: var(--font-mono);
+        }
+
+        /* Action History Timeline */
+        .timeline-steps-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .tl-step {
+            display: flex;
+            gap: 14px;
+            position: relative;
+            padding-bottom: 20px;
+        }
+
+        .tl-step:last-child { padding-bottom: 0; }
+
+        .tl-left-line {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 20px;
+            flex-shrink: 0;
+        }
+
+        .tl-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            z-index: 2;
+        }
+
+        .tl-dot.done { background: var(--teal); box-shadow: 0 0 8px var(--teal); }
+        .tl-dot.active { background: var(--blue-bright); box-shadow: 0 0 8px var(--blue-bright); animation: pulse-beacon 1s infinite; }
+
+        .tl-bar {
+            width: 2px;
+            flex: 1;
+            background: rgba(255,255,255,0.06);
+            margin-top: 4px;
+        }
+
+        .tl-step.done .tl-bar { background: var(--teal-dim); }
+
+        .tl-content { flex: 1; }
+
+        .tl-name {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .tl-time {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ═══════════════════════════════════════════════
+         APPLICATION NAVIGATION
+         ═══════════════════════════════════════════════ -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <div class="nav-left-group">
+                <a href="index.html" class="nav-logo">
+                    <div class="nav-logo-icon">M</div>
+                    <span>MediStock</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="inventory.html">Inventory</a></li>
+                    <li><a href="simulator.html">What-If Simulator</a></li>
+                    <li><a href="reorder.html" class="active">Reorder History</a></li>
+                    <li><a href="index.html#how-it-works">Settings</a></li>
+                </ul>
+            </div>
+
+            <div class="nav-right-group">
+                <div class="procure-status-badge">
+                    <span class="procure-beacon"></span>
+                    Procurement Sync: Connected
+                </div>
+
+                <!-- API State Test Dropdown -->
+                <select class="state-tester-select" id="apiStateSelector" onchange="handleStateSimulation(this.value)">
+                    <option value="live">API State: Live Data Stream</option>
+                    <option value="loading">API State: Loading Skeleton</option>
+                    <option value="empty">API State: Empty Repository</option>
+                    <option value="error">API State: Network Error</option>
+                </select>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════════
+         REORDER HISTORY CONTAINER
+         ═══════════════════════════════════════════════ -->
+    <div class="reorder-container">
+
+        <!-- HEADER -->
+        <div class="reorder-header-row">
+            <div class="reorder-title-group">
+                <div style="font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue-bright); margin-bottom: 4px;">
+                    Enterprise Inventory Operations
+                </div>
+                <h1>Reorder History</h1>
+                <p>Track inventory replenishment decisions and reorder activity.</p>
+            </div>
+        </div>
+
+        <!-- SUMMARY CARDS (SECTION 1) -->
+        <div class="summary-cards-row">
+            <div class="summary-kpi-card">
+                <div class="s-kpi-top">
+                    <span class="s-kpi-lbl">Total Reorder Events</span>
+                    <span style="color: var(--blue-bright);">●</span>
+                </div>
+                <div class="s-kpi-val" id="kpiTotalEvents">--</div>
+                <div class="s-kpi-sub">Lifetime Model Recommendations</div>
+            </div>
+
+            <div class="summary-kpi-card">
+                <div class="s-kpi-top">
+                    <span class="s-kpi-lbl" style="color: var(--orange);">Pending Reorders</span>
+                    <span style="color: var(--orange);">▲</span>
+                </div>
+                <div class="s-kpi-val" id="kpiPending" style="color: var(--orange);">--</div>
+                <div class="s-kpi-sub">Awaiting Procurement Review</div>
+            </div>
+
+            <div class="summary-kpi-card">
+                <div class="s-kpi-top">
+                    <span class="s-kpi-lbl" style="color: var(--green);">Completed Reorders</span>
+                    <span style="color: var(--green);">✓</span>
+                </div>
+                <div class="s-kpi-val" id="kpiCompleted" style="color: var(--green);">--</div>
+                <div class="s-kpi-sub">Fulfilled &amp; Stock Received</div>
+            </div>
+
+            <div class="summary-kpi-card">
+                <div class="s-kpi-top">
+                    <span class="s-kpi-lbl" style="color: var(--teal);">Total Units Reordered</span>
+                    <span style="color: var(--teal);">■</span>
+                </div>
+                <div class="s-kpi-val" id="kpiTotalUnits" style="color: var(--teal);">--</div>
+                <div class="s-kpi-sub">Volume Across All Purchase Orders</div>
+            </div>
+        </div>
+
+        <!-- HOW REORDERS ARE GENERATED (SECTION 8) -->
+        <div class="pipeline-connection-strip">
+            <div class="pipe-top-text">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                How Reorders Are Generated (ML Decision-Support Architecture)
+            </div>
+            <div class="pipe-nodes-flex">
+                <div class="pipe-node-item">
+                    <span class="pipe-node-num">01</span>
+                    <span>Current Inventory</span>
+                </div>
+                <span class="pipe-arrow">→</span>
+                <div class="pipe-node-item">
+                    <span class="pipe-node-num">02</span>
+                    <span>Demand Prediction</span>
+                </div>
+                <span class="pipe-arrow">→</span>
+                <div class="pipe-node-item">
+                    <span class="pipe-node-num">03</span>
+                    <span>Inventory Coverage</span>
+                </div>
+                <span class="pipe-arrow">→</span>
+                <div class="pipe-node-item">
+                    <span class="pipe-node-num">04</span>
+                    <span>Stock-out Risk</span>
+                </div>
+                <span class="pipe-arrow">→</span>
+                <div class="pipe-node-item">
+                    <span class="pipe-node-num">05</span>
+                    <span>Reorder Recommendation</span>
+                </div>
+                <span class="pipe-arrow">→</span>
+                <div class="pipe-node-item">
+                    <span class="pipe-node-num">06</span>
+                    <span>Reorder Action</span>
+                </div>
+                <span class="pipe-arrow">→</span>
+                <div class="pipe-node-item">
+                    <span class="pipe-node-num" style="border-color: var(--teal); color: var(--teal);">07</span>
+                    <span style="color: var(--teal); font-weight: 700;">Reorder History</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- REORDER ACTIVITY TABLE CARD (SECTION 2 & 5) -->
+        <div class="reorder-table-card">
+            <div class="filter-ribbon-row">
+                <div class="search-field-wrap">
+                    <svg class="search-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <input type="text" class="search-reorder-input" id="searchReorderInput" placeholder="Search medicine, SKU, or reorder ID..." oninput="handleSearch(this.value)">
+                </div>
+
+                <div class="filter-pills-cluster">
+                    <button class="filter-pill-btn active" onclick="setFilter('all', this)">All</button>
+                    <button class="filter-pill-btn" onclick="setFilter('Recommended', this)">Recommended</button>
+                    <button class="filter-pill-btn" onclick="setFilter('Pending', this)">Pending</button>
+                    <button class="filter-pill-btn" onclick="setFilter('Ordered', this)">Ordered</button>
+                    <button class="filter-pill-btn" onclick="setFilter('Completed', this)">Completed</button>
+                    <button class="filter-pill-btn" onclick="setFilter('Cancelled', this)">Cancelled</button>
+                </div>
+            </div>
+
+            <!-- DYNAMIC VIEWPORT (Table, Loading Skeleton, Empty State, Error State) -->
+            <div id="reorderViewport">
+                <!-- Populated dynamically by script -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 4: REORDER DETAIL SLIDE-OUT DRAWER
+         ═══════════════════════════════════════════════ -->
+    <div class="reorder-drawer" id="reorderDrawer">
+        <div class="drawer-head">
+            <div>
+                <span class="ro-id-badge" id="dReorderId">RO-2026-9482</span>
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: #ffffff; margin-top: 4px;" id="dMedicineName">Amoxicillin + Clavulanic Acid</h3>
+                <span style="font-size: 0.72rem; color: var(--text-tertiary);" id="dCategory">Antibiotics · Oral Solid Dosage</span>
+            </div>
+            <button class="drawer-close" onclick="closeDrawer()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <div class="drawer-scroll-body">
+            <!-- Inventory Snapshot -->
+            <div class="d-block-title">Inventory Snapshot at Recommendation Time</div>
+            <div class="d-grid-snapshot">
+                <div class="d-snap-item">
+                    <div class="ds-lbl">Stock at Trigger</div>
+                    <div class="ds-val" id="dStock">1,420 Units</div>
+                </div>
+                <div class="d-snap-item">
+                    <div class="ds-lbl">Predicted Demand</div>
+                    <div class="ds-val" id="dDemand" style="color: var(--teal);">3,850 Units</div>
+                </div>
+                <div class="d-snap-item">
+                    <div class="ds-lbl">Days-to-Stockout</div>
+                    <div class="ds-val" id="dCoverage" style="color: var(--red);">9 Days</div>
+                </div>
+                <div class="d-snap-item">
+                    <div class="ds-lbl">Risk Level</div>
+                    <div class="ds-val" id="dRisk" style="color: var(--red);">High Risk</div>
+                </div>
+            </div>
+
+            <!-- Recommendation Details -->
+            <div class="d-block-title">Recommendation Parameters</div>
+            <div style="background: var(--bg-glass); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; margin-bottom: 22px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-size: 0.74rem; color: var(--text-tertiary);">Recommended Quantity:</span>
+                    <span style="font-size: 0.95rem; font-weight: 800; color: #ffffff; font-family: var(--font-mono);" id="dQty">3,500 Units</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-size: 0.74rem; color: var(--text-tertiary);">Verified Supplier Lead Time:</span>
+                    <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);" id="dLeadTime">14 Days</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="font-size: 0.74rem; color: var(--text-tertiary);">System Trigger Timestamp:</span>
+                    <span style="font-size: 0.74rem; font-family: var(--font-mono); color: var(--text-muted);" id="dTimestamp">Sep 26, 2026 · 09:42:10</span>
+                </div>
+            </div>
+
+            <!-- System Reason -->
+            <div class="d-block-title">Model Decision Derivation</div>
+            <div style="background: rgba(74, 144, 245, 0.06); border: 1px solid rgba(74, 144, 245, 0.2); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 24px;">
+                <div style="font-size: 0.76rem; font-weight: 700; color: var(--blue-bright); margin-bottom: 3px;" id="dReasonTitle">High Stock-out Risk</div>
+                <div style="font-size: 0.72rem; color: var(--text-secondary); line-height: 1.5;" id="dReasonDesc">
+                    Days-until-stockout dropped below supplier lead time buffer due to accelerating 14-day consumption velocity. Immediate procurement required.
+                </div>
+            </div>
+
+            <!-- Action History Progression Timeline -->
+            <div class="d-block-title">Action History Lifecycle</div>
+            <div class="timeline-steps-wrap" id="drawerTimeline">
+                <!-- Populated dynamically -->
+            </div>
+
+            <!-- Action Button -->
+            <div style="margin-top: 10px;" id="drawerActionSlot">
+                <!-- Action button populated dynamically based on state -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         PURCHASE ORDER CONFIRMATION MODAL
+         ═══════════════════════════════════════════════ -->
+    <div id="purchaseModal" style="display:none; position:fixed; inset:0; z-index:3000; background:rgba(0,0,0,0.72); backdrop-filter:blur(8px); align-items:center; justify-content:center;">
+        <div style="background:var(--bg-secondary); border:1px solid var(--border-accent); border-radius:var(--radius-xl); padding:32px; width:100%; max-width:480px; box-shadow:var(--shadow-xl); position:relative;">
+            <!-- Header -->
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+                <div>
+                    <div style="font-size:0.68rem; font-family:var(--font-mono); color:var(--blue-bright); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:4px;">Purchase Order Confirmation</div>
+                    <div style="font-size:1.15rem; font-weight:700; color:#fff;">Issue Stock Purchase</div>
+                </div>
+                <button onclick="closePurchaseModal()" style="background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--text-secondary); width:32px; height:32px; border-radius:8px; cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center;">&#x2715;</button>
+            </div>
+
+            <!-- Medicine Info — populated from backend API, not hardcoded -->
+            <div style="background:var(--bg-glass-card); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; margin-bottom:20px;">
+                <div style="font-size:0.65rem; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:8px;">Medicine Details (from Database)</div>
+                <div style="font-size:1rem; font-weight:600; color:#fff; margin-bottom:4px;" id="poMedicineName">—</div>
+                <div style="font-size:0.75rem; color:var(--text-secondary); font-family:var(--font-mono);" id="poMedicineId">—</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px;">
+                    <div>
+                        <div style="font-size:0.63rem; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.08em;">Current Stock (SQLite)</div>
+                        <div style="font-size:1.05rem; font-weight:700; color:var(--orange); margin-top:2px;" id="poCurrentStock">—</div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.63rem; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.08em;">Recommended Qty</div>
+                        <div style="font-size:1.05rem; font-weight:700; color:var(--blue-bright); margin-top:2px;" id="poRecommendedQty">—</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User-entered purchase quantity -->
+            <div style="margin-bottom:20px;">
+                <label for="poPurchaseQty" style="display:block; font-size:0.72rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px;">
+                    Purchase Quantity (units) <span style="color:var(--red);">*</span>
+                </label>
+                <input type="number" id="poPurchaseQty" min="1" step="1" placeholder="Enter quantity to purchase..."
+                    style="width:100%; background:var(--bg-glass); border:1px solid var(--border-accent); border-radius:var(--radius-md); padding:12px 14px; color:#fff; font-size:1rem; font-family:var(--font-sans); outline:none;"
+                    onkeydown="if(event.key==='Enter') confirmPurchaseOrder()">
+                <div style="font-size:0.65rem; color:var(--text-tertiary); margin-top:6px;">Enter units to purchase. Must be a positive whole number.</div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display:flex; gap:10px;">
+                <button onclick="closePurchaseModal()" style="flex:1; padding:12px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:var(--radius-md); color:var(--text-secondary); cursor:pointer; font-size:0.85rem;">
+                    Cancel
+                </button>
+                <button id="poConfirmBtn" onclick="confirmPurchaseOrder()" style="flex:2; padding:12px; background:linear-gradient(135deg,var(--blue),#3b6fd4); border:none; border-radius:var(--radius-md); color:#fff; cursor:pointer; font-size:0.9rem; font-weight:600;">
+                    Confirm Purchase &amp; Update Stock
+                </button>
+            </div>
+            <div id="poStatusMsg" style="margin-top:12px; font-size:0.76rem; text-align:center; min-height:18px;"></div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SCRIPTS: SERVICE LAYER & DYNAMIC RENDERING
+         ═══════════════════════════════════════════════ -->
+    <script src="medistock-api.js"></script>
+    <script>
+    (function() {
+        'use strict';
+
+        // ── REORDER HISTORY REPOSITORY (CONNECTED TO MEDISTOCK DATA ARCHITECTURE) ──
+        let reorderRecords = [
+            {
+                id: 'RO-2026-9482',
+                medicineId: 'amx',
+                medicineName: 'Amoxicillin + Clavulanic Acid',
+                sku: 'SKU #AMX-625',
+                category: 'Antibiotics & Antimicrobials',
+                date: 'Sep 26, 2026 · 09:42',
+                stock: 1420,
+                demand: 3850,
+                daysCoverage: 9,
+                risk: 'High Risk',
+                riskColor: 'var(--red)',
+                recommendedQty: 3500,
+                leadTime: '14 Days',
+                reason: 'High stock-out risk',
+                reasonDetail: 'Consumption run-rate projects stock depletion in 9 days, breaching the 14-day distributor delivery lead time.',
+                status: 'Pending',
+                timeline: [
+                    { name: 'Recommendation Generated', time: 'Sep 26, 09:42:10', done: true },
+                    { name: 'Reviewed by Pharmacist', time: 'Sep 26, 09:45:02', done: true },
+                    { name: 'Purchase Order Initiated', time: 'Pending PO Sign-off', done: false, active: true },
+                    { name: 'Stock Received & Reconciled', time: '--', done: false }
+                ]
+            },
+            {
+                id: 'RO-2026-8802',
+                medicineId: 'ins',
+                medicineName: 'Insulin Glargine Pen (100 U/mL)',
+                sku: 'SKU #INS-100',
+                category: 'Endocrine & Cold Chain',
+                date: 'Sep 26, 2026 · 08:15',
+                stock: 420,
+                demand: 960,
+                daysCoverage: 14,
+                risk: 'Low Stock',
+                riskColor: 'var(--orange)',
+                recommendedQty: 800,
+                leadTime: '12 Days',
+                reason: 'Low inventory',
+                reasonDetail: 'On-hand cold-chain inventory breached safety threshold. Standard automated replenishment triggered.',
+                status: 'Recommended',
+                timeline: [
+                    { name: 'Recommendation Generated', time: 'Sep 26, 08:15:22', done: true },
+                    { name: 'Reviewed by Pharmacist', time: 'Pending Review', done: false, active: true },
+                    { name: 'Purchase Order Initiated', time: '--', done: false },
+                    { name: 'Stock Received & Reconciled', time: '--', done: false }
+                ]
+            },
+            {
+                id: 'RO-2026-7411',
+                medicineId: 'cef',
+                medicineName: 'Ceftriaxone Sodium Vial 1g',
+                sku: 'SKU #CEF-1000',
+                category: 'Antibiotics & Injectables',
+                date: 'Sep 25, 2026 · 16:30',
+                stock: 0,
+                demand: 1200,
+                daysCoverage: 0,
+                risk: 'Expired',
+                riskColor: 'var(--red)',
+                recommendedQty: 1500,
+                leadTime: '8 Days',
+                reason: 'Expired batch quarantined',
+                reasonDetail: 'Batch #CEF-1104 expired and quarantined. Usable stock is zero; emergency replacement PO dispatched.',
+                status: 'Ordered',
+                timeline: [
+                    { name: 'Recommendation Generated', time: 'Sep 25, 16:30:14', done: true },
+                    { name: 'Reviewed by Pharmacist', time: 'Sep 25, 16:35:40', done: true },
+                    { name: 'Purchase Order Initiated', time: 'Sep 25, 16:50:00 (PO #4902)', done: true },
+                    { name: 'Stock Received & Reconciled', time: 'Expected Sep 28', done: false, active: true }
+                ]
+            },
+            {
+                id: 'RO-2026-6190',
+                medicineId: 'azi',
+                medicineName: 'Azithromycin USP 500mg',
+                sku: 'SKU #AZI-500',
+                category: 'Antibiotics & Antimicrobials',
+                date: 'Sep 24, 2026 · 11:10',
+                stock: 2180,
+                demand: 2900,
+                daysCoverage: 22,
+                risk: 'Expiring Soon',
+                riskColor: 'var(--orange)',
+                recommendedQty: 1200,
+                leadTime: '10 Days',
+                reason: 'FEFO near-expiry draw',
+                reasonDetail: 'Accelerated FEFO dispensing will deplete Batch #AZI-3011 within 18 days. Restock ordered for buffer continuation.',
+                status: 'Completed',
+                timeline: [
+                    { name: 'Recommendation Generated', time: 'Sep 24, 11:10:05', done: true },
+                    { name: 'Reviewed by Pharmacist', time: 'Sep 24, 11:22:18', done: true },
+                    { name: 'Purchase Order Initiated', time: 'Sep 24, 12:00:15 (PO #4881)', done: true },
+                    { name: 'Stock Received & Reconciled', time: 'Sep 26, 07:45:00 · Verified', done: true }
+                ]
+            },
+            {
+                id: 'RO-2026-5501',
+                medicineId: 'met',
+                medicineName: 'Metformin Hydrochloride 850mg',
+                sku: 'SKU #MET-850',
+                category: 'Endocrine & Diabetes Care',
+                date: 'Sep 22, 2026 · 14:00',
+                stock: 5100,
+                demand: 4200,
+                daysCoverage: 36,
+                risk: 'Healthy',
+                riskColor: 'var(--teal)',
+                recommendedQty: 2500,
+                leadTime: '14 Days',
+                reason: 'Scheduled periodic replenishment',
+                reasonDetail: 'Routine 30-day cyclical order generated to maintain minimum safe operating baseline.',
+                status: 'Completed',
+                timeline: [
+                    { name: 'Recommendation Generated', time: 'Sep 22, 14:00:00', done: true },
+                    { name: 'Reviewed by Pharmacist', time: 'Sep 22, 14:15:30', done: true },
+                    { name: 'Purchase Order Initiated', time: 'Sep 22, 15:30:00 (PO #4720)', done: true },
+                    { name: 'Stock Received & Reconciled', time: 'Sep 25, 10:20:00 · Verified', done: true }
+                ]
+            },
+            {
+                id: 'RO-2026-4410',
+                medicineId: 'sal',
+                medicineName: 'Salbutamol Inhaler 100mcg',
+                sku: 'SKU #SAL-100',
+                category: 'Respiratory & Pulmonary',
+                date: 'Sep 20, 2026 · 10:20',
+                stock: 600,
+                demand: 1900,
+                daysCoverage: 11,
+                risk: 'High Risk',
+                riskColor: 'var(--red)',
+                recommendedQty: 1500,
+                leadTime: '14 Days',
+                reason: 'Demand increase',
+                reasonDetail: 'Epidemiological weather trend model projected sudden demand surge.',
+                status: 'Cancelled',
+                timeline: [
+                    { name: 'Recommendation Generated', time: 'Sep 20, 10:20:12', done: true },
+                    { name: 'Reviewed by Pharmacist', time: 'Sep 20, 10:45:00', done: true },
+                    { name: 'Cancelled by Inventory Lead', time: 'Sep 20, 11:00:00 · Substituted with alternative SKU', done: true }
+                ]
+            }
+        ];
+
+        let activeFilter = 'all';
+        let searchQuery = '';
+        let currentState = 'live';
+        let selectedRecordId = null;
+
+        // ── COMPUTE SUMMARY METRICS DYNAMICALLY ──
+        function updateSummaryKPIs() {
+            if (currentState !== 'live') {
+                document.getElementById('kpiTotalEvents').textContent = '--';
+                document.getElementById('kpiPending').textContent = '--';
+                document.getElementById('kpiCompleted').textContent = '--';
+                document.getElementById('kpiTotalUnits').textContent = '--';
+                return;
+            }
+
+            const total = reorderRecords.length;
+            const pending = reorderRecords.filter(r => r.status === 'Pending' || r.status === 'Recommended').length;
+            const completed = reorderRecords.filter(r => r.status === 'Completed').length;
+            const totalUnits = reorderRecords.reduce((acc, r) => acc + (r.recommendedQty || 0), 0);
+
+            document.getElementById('kpiTotalEvents').textContent = total;
+            document.getElementById('kpiPending').textContent = pending;
+            document.getElementById('kpiCompleted').textContent = completed;
+            document.getElementById('kpiTotalUnits').textContent = `${totalUnits.toLocaleString()} Units`;
+        }
+
+        // ── RENDER VIEWPORT (TABLE / SKELETON / EMPTY / ERROR) ──
+        function renderViewport() {
+            const viewport = document.getElementById('reorderViewport');
+
+            if (currentState === 'loading') {
+                viewport.innerHTML = `
+                    <div style="padding: 10px 0;">
+                        <div class="skeleton-row-box"><div class="skel-block" style="width: 100px;"></div><div class="skel-block" style="width: 90px;"></div><div class="skel-block" style="width: 180px;"></div><div class="skel-block" style="width: 80px;"></div><div class="skel-block" style="width: 80px;"></div><div class="skel-block" style="width: 100px;"></div></div>
+                        <div class="skeleton-row-box"><div class="skel-block" style="width: 100px;"></div><div class="skel-block" style="width: 90px;"></div><div class="skel-block" style="width: 180px;"></div><div class="skel-block" style="width: 80px;"></div><div class="skel-block" style="width: 80px;"></div><div class="skel-block" style="width: 100px;"></div></div>
+                        <div class="skeleton-row-box"><div class="skel-block" style="width: 100px;"></div><div class="skel-block" style="width: 90px;"></div><div class="skel-block" style="width: 180px;"></div><div class="skel-block" style="width: 80px;"></div><div class="skel-block" style="width: 80px;"></div><div class="skel-block" style="width: 100px;"></div></div>
+                        <div class="skeleton-row-box"><div class="skel-block" style="width: 100px;"></div><div class="skel-block" style="width: 90px;"></div><div class="skel-block" style="width: 180px;"></div><div class="skel-block" style="width: 80px;"></div><div class="skel-block" style="width: 80px;"></div><div class="skel-block" style="width: 100px;"></div></div>
+                    </div>
+                `;
+                return;
+            }
+
+            if (currentState === 'error') {
+                viewport.innerHTML = `
+                    <div class="state-container-box">
+                        <div class="state-icon-circle" style="color: var(--red); border-color: rgba(248,113,113,0.3);">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg>
+                        </div>
+                        <div class="state-title">Unable to load reorder history</div>
+                        <div class="state-desc">The connection to the procurement backend service timed out. Please check network connectivity and retry.</div>
+                        <button class="btn-reset-nav" style="color: var(--blue-bright); border-color: var(--blue);" onclick="handleStateSimulation('live')">
+                            Retry Connection
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            // Filter records
+            const q = searchQuery.toLowerCase().trim();
+            const filtered = reorderRecords.filter(r => {
+                const matchStatus = (activeFilter === 'all') || (r.status === activeFilter);
+                const str = `${r.id} ${r.medicineName} ${r.sku} ${r.category} ${r.reason}`.toLowerCase();
+                const matchSearch = !q || str.includes(q);
+                return matchStatus && matchSearch;
+            });
+
+            if (currentState === 'empty' || filtered.length === 0) {
+                viewport.innerHTML = `
+                    <div class="state-container-box">
+                        <div class="state-icon-circle">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1z"/><path d="M10 12h4"/></svg>
+                        </div>
+                        <div class="state-title">No reorder activity yet</div>
+                        <div class="state-desc">Reorder recommendations and automated purchase orders generated by MediStock will appear here.</div>
+                        <button class="btn-reset-nav" onclick="handleStateSimulation('live')">Load Sample Records</button>
+                    </div>
+                `;
+                return;
+            }
+
+            // Render Table
+            let tableHtml = `
+                <div style="overflow-x: auto;">
+                    <table class="reorder-master-table">
+                        <thead>
+                            <tr>
+                                <th>Date &amp; Time</th>
+                                <th>Reorder ID</th>
+                                <th>Medicine &amp; SKU</th>
+                                <th>Stock at Event</th>
+                                <th>Predicted Demand</th>
+                                <th>Recommended Qty</th>
+                                <th>System Reason</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            filtered.forEach(r => {
+                let statusClass = 'status-recommended';
+                if (r.status === 'Pending') statusClass = 'status-pending';
+                else if (r.status === 'Ordered') statusClass = 'status-ordered';
+                else if (r.status === 'Completed') statusClass = 'status-completed';
+                else if (r.status === 'Cancelled') statusClass = 'status-cancelled';
+
+                tableHtml += `
+                    <tr onclick="openDrawer('${r.id}')">
+                        <td style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-tertiary);">${r.date}</td>
+                        <td><span class="ro-id-badge">${r.id}</span></td>
+                        <td>
+                            <div class="ro-med-cell">
+                                <span>${r.medicineName}</span>
+                                <span class="ro-med-sub">${r.sku} · ${r.category}</span>
+                            </div>
+                        </td>
+                        <td style="font-family: var(--font-mono); font-weight: 600; color: var(--text-primary);">${r.stock.toLocaleString()}</td>
+                        <td style="font-family: var(--font-mono); color: var(--teal);">${r.demand.toLocaleString()}</td>
+                        <td style="font-family: var(--font-mono); font-weight: 800; color: #ffffff;">${r.recommendedQty.toLocaleString()} Units</td>
+                        <td>
+                            <span style="font-size: 0.74rem; color: var(--text-secondary);">${r.reason}</span>
+                        </td>
+                        <td>
+                            <span class="status-badge ${statusClass}">● ${r.status}</span>
+                        </td>
+                        <td>
+                            <button class="btn-view-reorder" onclick="event.stopPropagation(); openDrawer('${r.id}')">Details</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHtml += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            viewport.innerHTML = tableHtml;
+        }
+
+        // ── FILTER & SEARCH HANDLERS ──
+        window.setFilter = function(filterVal, btn) {
+            document.querySelectorAll('.filter-pill-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            activeFilter = filterVal;
+            renderViewport();
+        };
+
+        window.handleSearch = function(query) {
+            searchQuery = query;
+            renderViewport();
+        };
+
+        window.handleStateSimulation = function(val) {
+            currentState = val;
+            document.getElementById('apiStateSelector').value = val;
+            updateSummaryKPIs();
+            renderViewport();
+        };
+
+        // ── SLIDE-OUT DRAWER ──
+        window.openDrawer = function(id) {
+            const r = reorderRecords.find(item => item.id === id);
+            if (!r) return;
+            selectedRecordId = id;
+
+            document.getElementById('dReorderId').textContent = r.id;
+            document.getElementById('dMedicineName').textContent = r.medicineName;
+            document.getElementById('dCategory').textContent = `${r.sku} · ${r.category}`;
+
+            document.getElementById('dStock').textContent = `${r.stock.toLocaleString()} Units`;
+            document.getElementById('dDemand').textContent = `${r.demand.toLocaleString()} Units`;
+            document.getElementById('dCoverage').textContent = `${r.daysCoverage} Days`;
+            document.getElementById('dCoverage').style.color = r.riskColor;
+            document.getElementById('dRisk').textContent = r.risk;
+            document.getElementById('dRisk').style.color = r.riskColor;
+
+            document.getElementById('dQty').textContent = `${r.recommendedQty.toLocaleString()} Units`;
+            document.getElementById('dLeadTime').textContent = r.leadTime;
+            document.getElementById('dTimestamp').textContent = r.date;
+
+            document.getElementById('dReasonTitle').textContent = r.reason.toUpperCase();
+            document.getElementById('dReasonDesc').textContent = r.reasonDetail;
+
+            // Render Timeline
+            const tlContainer = document.getElementById('drawerTimeline');
+            tlContainer.innerHTML = '';
+            r.timeline.forEach(step => {
+                const item = document.createElement('div');
+                item.className = `tl-step ${step.done ? 'done' : ''}`;
+                item.innerHTML = `
+                    <div class="tl-left-line">
+                        <div class="tl-dot ${step.done ? 'done' : (step.active ? 'active' : '')}"></div>
+                        <div class="tl-bar"></div>
+                    </div>
+                    <div class="tl-content">
+                        <div class="tl-name">${step.name}</div>
+                        <div class="tl-time">${step.time}</div>
+                    </div>
+                `;
+                tlContainer.appendChild(item);
+            });
+
+            // Action slot
+            const actionSlot = document.getElementById('drawerActionSlot');
+            if (r.status === 'Recommended' || r.status === 'Pending') {
+                actionSlot.innerHTML = `
+                    <button class="btn-header-sale" style="width: 100%; justify-content: center; padding: 12px;" onclick="advanceReorderStatus('${r.id}')">
+                        Approve &amp; Issue Purchase Order (PO)
+                    </button>
+                `;
+            } else if (r.status === 'Ordered') {
+                actionSlot.innerHTML = `
+                    <button class="btn-header-sale" style="width: 100%; justify-content: center; padding: 12px; background: linear-gradient(135deg, var(--teal), #0d9488);" onclick="completeReorder('${r.id}')">
+                        Confirm Delivery &amp; Reconcile Inventory
+                    </button>
+                `;
+            } else {
+                actionSlot.innerHTML = `
+                    <div style="font-size: 0.74rem; color: var(--text-muted); text-align: center; padding: 10px;">
+                        This reorder cycle is ${r.status.toLowerCase()}. No further action required.
+                    </div>
+                `;
+            }
+
+            actionSlot.innerHTML += `
+                <a href="medicine-detail.html?id=${r.medicineId || 'amx'}" class="btn-header-sale" style="width: 100%; justify-content: center; padding: 10px; margin-top: 8px; background: rgba(45,212,191,0.12); color: var(--teal); border: 1px solid var(--border-teal); text-decoration: none;">
+                    View Complete Medicine Intelligence &rarr;
+                </a>
+            `;
+
+            document.getElementById('reorderDrawer').classList.add('open');
+        };
+
+        window.closeDrawer = function() {
+            document.getElementById('reorderDrawer').classList.remove('open');
+        };
+
+        window.advanceReorderStatus = async function(id) {
+            // Find the reorder record to get medicine details
+            const r = reorderRecords.find(rec => rec.id === id);
+            if (!r) {
+                alert('Reorder record not found. Please refresh the page.');
+                return;
+            }
+
+            // Populate the purchase modal with actual DB values (no hardcoded stock/qty)
+            document.getElementById('poMedicineName').textContent = r.medicineName || '—';
+            document.getElementById('poMedicineId').textContent = `Medicine ID: ${r.medicineId || '—'}`;
+            document.getElementById('poCurrentStock').textContent = r.stock != null ? `${Number(r.stock).toLocaleString()} units` : '—';
+            document.getElementById('poRecommendedQty').textContent = r.recommendedQty != null ? `${Number(r.recommendedQty).toLocaleString()} units` : '—';
+            document.getElementById('poPurchaseQty').value = '';
+            document.getElementById('poStatusMsg').textContent = '';
+            document.getElementById('poStatusMsg').style.color = '';
+
+            const btn = document.getElementById('poConfirmBtn');
+            btn.disabled = false;
+            btn.textContent = 'Confirm Purchase & Update Stock';
+            btn.style.background = '';
+
+            // Store the current reorder context for confirmPurchaseOrder
+            window._activePurchaseReorderId = id;
+            window._activePurchaseMedicineId = r.medicineId;
+
+            // Show modal (use flex display so it centres properly)
+            const modal = document.getElementById('purchaseModal');
+            modal.style.display = 'flex';
+            setTimeout(() => document.getElementById('poPurchaseQty').focus(), 80);
+        };
+
+        window.closePurchaseModal = function() {
+            document.getElementById('purchaseModal').style.display = 'none';
+            window._activePurchaseReorderId = null;
+            window._activePurchaseMedicineId = null;
+        };
+
+        window.confirmPurchaseOrder = async function() {
+            const reorderId  = window._activePurchaseReorderId;
+            const medicineId = window._activePurchaseMedicineId;
+            const qtyInput   = document.getElementById('poPurchaseQty');
+            const statusMsg  = document.getElementById('poStatusMsg');
+            const btn        = document.getElementById('poConfirmBtn');
+
+            const quantity = parseInt(qtyInput.value, 10);
+            if (!quantity || quantity <= 0 || !Number.isInteger(quantity)) {
+                statusMsg.style.color = 'var(--red)';
+                statusMsg.textContent = 'Please enter a valid positive whole number for quantity.';
+                qtyInput.focus();
+                return;
+            }
+
+            if (!reorderId || !medicineId) {
+                statusMsg.style.color = 'var(--red)';
+                statusMsg.textContent = 'Session error — please close and reopen the drawer.';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+            statusMsg.style.color = 'var(--text-secondary)';
+            statusMsg.textContent = 'Updating SQLite inventory...';
+
+            try {
+                const result = await window.MediStockAPI.issuePurchaseOrder(reorderId, medicineId, quantity);
+                btn.textContent = `Stock Updated +${quantity.toLocaleString()} Units ✓`;
+                btn.style.background = 'var(--teal)';
+                statusMsg.style.color = 'var(--green)';
+                statusMsg.textContent = `New stock: ${result.updated_usable_stock != null ? Number(result.updated_usable_stock).toLocaleString() + ' units' : 'updated'}. Risk: ${result.updated_risk_level || '—'}.`;
+
+                // Reload reorder data from backend then close modal
+                await loadBackendReorders();
+                setTimeout(closePurchaseModal, 1600);
+            } catch (err) {
+                btn.disabled = false;
+                btn.textContent = 'Confirm Purchase & Update Stock';
+                btn.style.background = '';
+                statusMsg.style.color = 'var(--red)';
+                statusMsg.textContent = `Error: ${err.message}`;
+            }
+        };
+
+        window.completeReorder = async function(id) {
+            try {
+                await window.MediStockAPI.updateReorderStatus(id, 'Completed');
+                await loadBackendReorders();
+                openDrawer(id);
+            } catch (err) {
+                alert(`Status update failed: ${err.message}`);
+            }
+        };
+
+        // ── REAL BACKEND DATA INTEGRATION (TIER 1) ──
+        async function loadBackendReorders() {
+            try {
+                const apiData = await window.MediStockAPI.getReorderHistory('all');
+                if (apiData && apiData.length > 0) {
+                    reorderRecords = apiData.map(r => ({
+                        id: r.reorder_id,
+                        medicineId: r.medicine_id,
+                        medicineName: r.medicine_name,
+                        sku: `SKU #${r.medicine_id}`,
+                        category: r.category,
+                        date: `${r.created_date} · 09:00`,
+                        stock: r.current_stock,
+                        demand: r.predicted_demand,
+                        daysCoverage: Math.max(0, Math.floor(r.current_stock / Math.max(1, r.predicted_demand / 30))),
+                        risk: r.risk_level,
+                        riskColor: r.risk_level.includes('Critical') ? 'var(--red)' : (r.risk_level.includes('High') ? 'var(--red)' : 'var(--orange)'),
+                        recommendedQty: r.recommended_qty,
+                        leadTime: `${r.lead_time_days} Days`,
+                        reason: r.reason,
+                        reasonDetail: `${r.reason} Estimated procurement cost: ₹${(r.estimated_cost_inr || 0).toLocaleString()}.`,
+                        status: r.status,
+                        timeline: [
+                            { name: 'Recommendation Generated', time: r.created_date, done: true },
+                            { name: 'Pharmacist Review', time: 'Telemetry Evaluated', done: r.status !== 'Recommended' },
+                            { name: 'Purchase Order Issued', time: r.status === 'Ordered' || r.status === 'Completed' ? 'Dispatched' : 'Pending', done: r.status === 'Ordered' || r.status === 'Completed', active: r.status === 'Approved' },
+                            { name: 'Stock Ingested into Shelf', time: r.status === 'Completed' ? 'Verified' : '--', done: r.status === 'Completed', active: r.status === 'Ordered' }
+                        ]
+                    }));
+                    currentState = 'live';
+                    updateSummaryKPIs();
+                    renderViewport();
+                }
+            } catch (err) {
+                console.warn('[MediStock Reorders] Backend sync notice:', err.message);
+                updateSummaryKPIs();
+                renderViewport();
+            }
+        }
+
+        // Initialize with real backend data
+        loadBackendReorders();
+
+    })();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,2479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediStock — Inventory Intelligence Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ══════════════════════════════════════════════
+           MEDISTOCK DESIGN SYSTEM VARIABLES (UNIFIED MASTER)
+           ══════════════════════════════════════════════ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #08090c;
+            --bg-secondary: #0e1015;
+            --bg-tertiary: #151720;
+            --bg-card: rgba(20, 22, 30, 0.65);
+            --bg-glass: rgba(255, 255, 255, 0.025);
+            --bg-glass-hover: rgba(255, 255, 255, 0.055);
+            --bg-glass-card: rgba(255, 255, 255, 0.035);
+
+            --text-primary: #f0f0f5;
+            --text-secondary: #9a9ab0;
+            --text-tertiary: #6b6b80;
+            --text-muted: #4a4a5a;
+
+            --blue: #4a90f5;
+            --blue-bright: #6ba3ff;
+            --blue-dim: rgba(74, 144, 245, 0.12);
+            --blue-glow: rgba(74, 144, 245, 0.25);
+            --teal: #2dd4bf;
+            --teal-dim: rgba(45, 212, 191, 0.10);
+            --teal-glow: rgba(45, 212, 191, 0.20);
+            --green: #34d399;
+            --green-dim: rgba(52, 211, 153, 0.10);
+            --orange: #fb923c;
+            --orange-dim: rgba(251, 146, 60, 0.10);
+            --red: #f87171;
+            --red-dim: rgba(248, 113, 113, 0.10);
+
+            --border: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(255, 255, 255, 0.12);
+            --border-accent: rgba(74, 144, 245, 0.25);
+            --border-teal: rgba(45, 212, 191, 0.3);
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.35);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.4);
+            --shadow-xl: 0 20px 80px rgba(0,0,0,0.5);
+
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            --nav-height: 68px;
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.55;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        ::selection { background: var(--blue); color: white; }
+        a { text-decoration: none; color: inherit; }
+
+        /* Scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+
+        /* ══════════════════════════════════════════════
+           APPLICATION NAVIGATION BAR
+           ══════════════════════════════════════════════ */
+        .nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: var(--nav-height);
+            z-index: 1000;
+            background: rgba(8, 9, 12, 0.88);
+            backdrop-filter: blur(24px) saturate(1.3);
+            -webkit-backdrop-filter: blur(24px) saturate(1.3);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-inner {
+            max-width: 1720px;
+            margin: 0 auto;
+            padding: 0 28px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-left-group {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-logo-icon {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, var(--blue), var(--teal));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.8rem;
+            color: white;
+            box-shadow: 0 0 20px rgba(74, 144, 245, 0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            padding: 7px 15px;
+            font-size: 0.83rem;
+            font-weight: 500;
+            color: var(--text-tertiary);
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+            background: var(--bg-glass);
+        }
+
+        .nav-links a.active {
+            color: var(--blue-bright);
+            background: var(--blue-dim);
+            border: 1px solid rgba(74, 144, 245, 0.2);
+            font-weight: 600;
+        }
+
+        .nav-right-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .ml-engine-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 12px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .ml-beacon {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--teal);
+            box-shadow: 0 0 8px var(--teal);
+            animation: pulse-beacon 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-beacon {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .btn-header-sale {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 18px;
+            background: linear-gradient(135deg, var(--blue) 0%, #5a7cf5 100%);
+            color: white;
+            font-size: 0.82rem;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(74, 144, 245, 0.25);
+            transition: all 0.25s ease;
+        }
+
+        .btn-header-sale:hover {
+            box-shadow: 0 0 28px rgba(74, 144, 245, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .user-profile-pill {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 4px 10px 4px 5px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 26px; height: 26px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.65rem;
+            color: var(--blue-bright);
+        }
+
+        /* ══════════════════════════════════════════════
+           DASHBOARD MAIN CONTAINER
+           ══════════════════════════════════════════════ */
+        .dashboard-container {
+            padding-top: calc(var(--nav-height) + 20px);
+            padding-bottom: 60px;
+            max-width: 1720px;
+            margin: 0 auto;
+            padding-left: 28px;
+            padding-right: 28px;
+        }
+
+        /* ── DASHBOARD HEADER & BREADCRUMB ── */
+        .dash-header-section {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-bottom: 26px;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+
+        .dash-title-group h1 {
+            font-size: 1.65rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .dash-title-group p {
+            font-size: 0.84rem;
+            color: var(--text-tertiary);
+        }
+
+        .dash-actions-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .horizon-switch-group {
+            display: flex;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 3px;
+        }
+
+        .horizon-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-tertiary);
+            padding: 6px 14px;
+            font-size: 0.74rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .horizon-btn.active {
+            background: var(--blue-dim);
+            color: var(--blue-bright);
+            border: 1px solid rgba(74, 144, 245, 0.2);
+        }
+
+        .horizon-btn:hover:not(.active) { color: var(--text-primary); }
+
+        .btn-dash-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 8px 14px;
+            border-radius: var(--radius-md);
+            font-size: 0.76rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-dash-action:hover {
+            color: var(--text-primary);
+            border-color: var(--border-hover);
+            background: var(--bg-glass-hover);
+        }
+
+        /* ══════════════════════════════════════════════
+           SECTION 4: KEY INVENTORY KPIS (7 CARDS)
+           ══════════════════════════════════════════════ */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        @media (max-width: 1400px) {
+            .kpi-row { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        @media (max-width: 900px) {
+            .kpi-row { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 480px) {
+            .kpi-row { grid-template-columns: 1fr; }
+        }
+
+        .kpi-dash-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 18px 18px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.25s var(--ease-out-expo);
+        }
+
+        .kpi-dash-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .kpi-top-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .kpi-dash-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-tertiary);
+        }
+
+        .kpi-icon-wrap {
+            width: 26px; height: 26px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .kpi-dash-val {
+            font-size: 1.45rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #ffffff;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            font-family: var(--font-mono);
+        }
+
+        .kpi-dash-val .kpi-placeholder-line {
+            height: 20px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            animation: shimmer 2.5s infinite ease-in-out;
+            display: inline-block;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
+        .kpi-dash-sub {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Distinct KPI states */
+        .kpi-dash-card.state-risk { border-left: 3px solid var(--red); }
+        .kpi-dash-card.state-low { border-left: 3px solid var(--orange); }
+        .kpi-dash-card.state-reorder { border-left: 3px solid var(--teal); }
+        .kpi-dash-card.state-demand { border-left: 3px solid var(--blue); }
+        .kpi-dash-card.state-expiring { border-left: 3px solid var(--orange); }
+        .kpi-dash-card.state-expired { border-left: 3px solid #7f1d1d; }
+
+        /* ══════════════════════════════════════════════
+           SECTION 6 & 8: DEMAND INTELLIGENCE + CRITICAL ALERTS
+           ══════════════════════════════════════════════ */
+        .analytics-alerts-grid {
+            display: grid;
+            grid-template-columns: 1fr 440px;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+
+        @media (max-width: 1200px) {
+            .analytics-alerts-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── DEMAND INTELLIGENCE CARD ── */
+        .demand-intel-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 26px 28px;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .demand-intel-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--blue), var(--teal), transparent);
+        }
+
+        .card-header-flex {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .sec-title-h2 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-legend-row {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            font-size: 0.72rem;
+            color: var(--text-tertiary);
+        }
+
+        .chart-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .c-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+        .demand-chart-stage {
+            position: relative;
+            height: 280px;
+            border-bottom: 1px solid var(--border);
+            border-left: 1px solid var(--border);
+            padding: 10px 10px 0 10px;
+            margin-bottom: 18px;
+        }
+
+        .demand-chart-stage svg { width: 100%; height: 100%; }
+
+        .chart-scrubber-hairline {
+            position: absolute;
+            top: 0; bottom: 0;
+            width: 1px;
+            background: linear-gradient(to bottom, transparent, var(--blue-bright), transparent);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 10;
+        }
+
+        .chart-scrubber-dot {
+            position: absolute;
+            top: 50%; left: -3.5px;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--blue-bright);
+            box-shadow: 0 0 10px var(--blue-glow);
+        }
+
+        .chart-hud-pill {
+            position: absolute;
+            background: rgba(14, 16, 22, 0.94);
+            border: 1px solid rgba(74, 144, 245, 0.3);
+            border-radius: 8px;
+            padding: 7px 12px;
+            font-size: 0.7rem;
+            color: var(--text-primary);
+            pointer-events: none;
+            opacity: 0;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            z-index: 15;
+            white-space: nowrap;
+        }
+
+        .chart-metrics-footer {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding-top: 14px;
+        }
+
+        .cm-cell {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+        }
+
+        .cm-lbl {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .cm-val {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+        }
+
+        /* ── CRITICAL ALERTS PANEL ── */
+        .alerts-panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .alerts-tab-pills {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .alert-filter-btn {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            color: var(--text-tertiary);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .alert-filter-btn.active {
+            background: var(--blue-dim);
+            border-color: rgba(74, 144, 245, 0.3);
+            color: var(--blue-bright);
+        }
+
+        .alerts-list-scroll {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .alert-item-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .alert-item-card:hover {
+            border-color: var(--border-hover);
+            transform: translateX(2px);
+        }
+
+        .alert-item-card.crit {
+            border-left: 3px solid var(--red);
+            background: linear-gradient(165deg, rgba(248, 113, 113, 0.05) 0%, transparent 100%);
+        }
+
+        .alert-item-card.warn {
+            border-left: 3px solid var(--orange);
+            background: linear-gradient(165deg, rgba(251, 146, 60, 0.05) 0%, transparent 100%);
+        }
+
+        .alert-item-card.info {
+            border-left: 3px solid var(--teal);
+            background: linear-gradient(165deg, rgba(45, 212, 191, 0.05) 0%, transparent 100%);
+        }
+
+        .alert-dot-beacon {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+
+        .alert-body-content { flex: 1; }
+
+        .alert-row-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+
+        .alert-med-name {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .alert-timestamp {
+            font-size: 0.62rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
+
+        .alert-desc-text {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            line-height: 1.45;
+            margin-bottom: 6px;
+        }
+
+        .alert-tag-pill {
+            display: inline-block;
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+
+        /* ══════════════════════════════════════════════
+           SECTION 9 & 10 & 13: EXPIRY WATCH + RISK & COVERAGE
+           ══════════════════════════════════════════════ */
+        .mid-insights-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+
+        @media (max-width: 1100px) {
+            .mid-insights-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── EXPIRY WATCH CARD ── */
+        .expiry-watch-dash-panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .fefo-banner-strip {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: var(--teal-dim);
+            border: 1px solid rgba(45, 212, 191, 0.22);
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+            font-size: 0.72rem;
+            color: var(--teal);
+            font-weight: 500;
+        }
+
+        .expiry-batch-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.76rem;
+        }
+
+        .expiry-batch-table th {
+            text-align: left;
+            padding: 8px 12px;
+            font-size: 0.62rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-tertiary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .expiry-batch-table td {
+            padding: 11px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.025);
+            color: var(--text-secondary);
+        }
+
+        .expiry-batch-table tr:hover td { background: var(--bg-glass); }
+
+        .fefo-p1-tag {
+            background: var(--teal);
+            color: #08090c;
+            font-weight: 700;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            padding: 2px 7px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .fefo-queue-tag {
+            background: rgba(255,255,255,0.06);
+            color: var(--text-secondary);
+            font-size: 0.6rem;
+            padding: 2px 7px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .fefo-expired-tag {
+            background: var(--red-dim);
+            color: var(--red);
+            font-size: 0.6rem;
+            padding: 2px 7px;
+            border-radius: 4px;
+            display: inline-block;
+            font-weight: 700;
+        }
+
+        /* ── INVENTORY COVERAGE & RISK BREAKDOWN ── */
+        .coverage-risk-panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .risk-distribution-bar {
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.06);
+            display: flex;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .risk-seg-healthy { width: 64%; background: var(--teal); }
+        .risk-seg-low { width: 16%; background: var(--orange); }
+        .risk-seg-risk { width: 12%; background: var(--red); }
+        .risk-seg-over { width: 8%; background: var(--blue); }
+
+        .risk-legend-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+
+        .rl-item {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 10px 12px;
+        }
+
+        .rl-head {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .rl-val {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #ffffff;
+            font-family: var(--font-mono);
+        }
+
+        .coverage-runway-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .runway-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.74rem;
+            gap: 14px;
+        }
+
+        .runway-med { width: 160px; color: var(--text-primary); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .runway-track {
+            flex: 1;
+            height: 6px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .runway-fill { height: 100%; border-radius: 3px; }
+
+        .runway-days { width: 90px; text-align: right; font-family: var(--font-mono); font-size: 0.72rem; }
+
+        /* ══════════════════════════════════════════════
+           SECTION 11: FULL ENTERPRISE INVENTORY TABLE
+           ══════════════════════════════════════════════ */
+        .table-section-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+        }
+
+        .table-filter-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .tbl-search-box {
+            position: relative;
+            min-width: 280px;
+        }
+
+        .tbl-search-input {
+            width: 100%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 8px 14px 8px 36px;
+            color: var(--text-primary);
+            font-size: 0.78rem;
+            outline: none;
+        }
+
+        .tbl-search-input:focus { border-color: var(--blue-bright); }
+
+        .tbl-search-icon {
+            position: absolute;
+            left: 12px; top: 50%;
+            transform: translateY(-50%);
+            width: 14px; height: 14px;
+            color: var(--text-muted);
+        }
+
+        .tbl-filter-pills {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .tbl-pill-btn {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-tertiary);
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tbl-pill-btn.active {
+            border-color: rgba(255,255,255,0.2);
+            color: var(--text-primary);
+            background: var(--bg-glass-hover);
+        }
+
+        .master-inventory-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.8rem;
+        }
+
+        .master-inventory-table th {
+            text-align: left;
+            padding: 12px 14px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-tertiary);
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .master-inventory-table td {
+            padding: 14px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.025);
+            color: var(--text-secondary);
+        }
+
+        .master-inventory-table tbody tr {
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .master-inventory-table tbody tr:hover td {
+            background: var(--bg-glass-hover);
+        }
+
+        .table-row-selected td {
+            background: rgba(74, 144, 245, 0.06) !important;
+            border-bottom-color: rgba(74, 144, 245, 0.2) !important;
+        }
+
+        .tbl-med-col {
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tbl-med-sub {
+            font-size: 0.68rem;
+            color: var(--text-tertiary);
+            font-family: var(--font-mono);
+            font-weight: 400;
+            margin-top: 2px;
+        }
+
+        .btn-table-action {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-table-action:hover {
+            color: var(--blue-bright);
+            border-color: var(--blue);
+            background: var(--blue-dim);
+        }
+
+        /* ══════════════════════════════════════════════
+           SECTION 14: MEDICINE INSIGHT PANEL (SLIDE-OUT DRAWER)
+           ══════════════════════════════════════════════ */
+        .insight-drawer {
+            position: fixed;
+            top: 0; right: 0; bottom: 0;
+            width: 520px;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-hover);
+            box-shadow: -20px 0 60px rgba(0,0,0,0.7);
+            z-index: 1500;
+            transform: translateX(100%);
+            transition: transform 0.35s var(--ease-out-expo);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .insight-drawer.open {
+            transform: translateX(0);
+        }
+
+        .drawer-top-bar {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            background: rgba(8, 9, 12, 0.6);
+        }
+
+        .drawer-close-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 6px;
+        }
+
+        .drawer-close-btn:hover { color: white; background: var(--bg-glass); }
+
+        .drawer-body-scroll {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .drawer-risk-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        /* ══════════════════════════════════════════════
+           SECTION 12: SIMULATED MEDICINE SALE MODAL
+           ══════════════════════════════════════════════ */
+        .sale-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(4, 5, 8, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .sale-modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .sale-modal-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-hover);
+            border-radius: var(--radius-xl);
+            width: 100%;
+            max-width: 660px;
+            padding: 32px;
+            box-shadow: var(--shadow-xl);
+            transform: scale(0.96) translateY(8px);
+            transition: transform 0.3s var(--ease-out-expo);
+        }
+
+        .sale-modal-overlay.active .sale-modal-box {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-telemetry-flow {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            display: none;
+        }
+
+        .modal-telemetry-flow.active { display: block; }
+
+        .tele-step-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.74rem;
+            color: var(--text-muted);
+            margin-bottom: 7px;
+        }
+
+        .tele-step-row.done { color: var(--teal); font-weight: 600; }
+        .tele-step-row.active { color: var(--blue-bright); font-weight: 600; }
+
+        .tele-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .tele-step-row.done .tele-dot { background: var(--teal); box-shadow: 0 0 8px var(--teal); }
+        .tele-step-row.active .tele-dot { background: var(--blue-bright); box-shadow: 0 0 8px var(--blue-bright); animation: pulse-beacon 1s infinite; }
+    </style>
+</head>
+<body>
+
+    <!-- ═══════════════════════════════════════════════
+         APPLICATION NAVIGATION
+         ═══════════════════════════════════════════════ -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <div class="nav-left-group">
+                <a href="index.html" class="nav-logo">
+                    <div class="nav-logo-icon">M</div>
+                    <span>MediStock</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="dashboard.html" class="active">Dashboard</a></li>
+                    <li><a href="inventory.html">Inventory</a></li>
+                    <li><a href="simulator.html">What-If Simulator</a></li>
+                    <li><a href="reorder.html">Reorder History</a></li>
+                    <li><a href="index.html#how-it-works">Settings</a></li>
+                </ul>
+            </div>
+
+            <div class="nav-right-group">
+                <div class="ml-engine-badge">
+                    <span class="ml-beacon"></span>
+                    ML Forecast Model: Online (v2.4-Infer)
+                </div>
+                <button class="btn-header-sale" onclick="openSaleModal()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                    Record Sale
+                </button>
+                <div class="user-profile-pill" title="Active Pharmacy Session">
+                    <div class="user-avatar">MP</div>
+                    <div style="display: flex; flex-direction: column; text-align: left; line-height: 1.15;">
+                        <span style="font-weight: 600; color: var(--text-primary); font-size: 0.72rem;">MedPlus Chemist</span>
+                        <span style="font-size: 0.60rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em;">Chemist</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════════
+         DASHBOARD CONTAINER
+         ═══════════════════════════════════════════════ -->
+    <div class="dashboard-container">
+
+        <!-- HEADER SECTION -->
+        <div class="dash-header-section">
+            <div class="dash-title-group">
+                <div style="font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue-bright); margin-bottom: 4px;">
+                    Enterprise Inventory Command
+                </div>
+                <h1>Inventory Intelligence</h1>
+                <p>Monitor demand, inventory risk, expiry, and replenishment in one place.</p>
+            </div>
+
+            <div class="dash-actions-bar">
+                <div id="healthScoreBadge" style="display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); border-radius: 6px; font-size: 0.74rem;">
+                    <span style="color: var(--text-tertiary); text-transform: uppercase; font-weight: 600;">Health Index:</span>
+                    <span id="healthScoreVal" style="font-weight: 800; font-family: var(--font-mono); color: var(--orange);">--%</span>
+                    <span id="healthRatingVal" style="color: var(--text-secondary); font-size: 0.7rem;">Evaluating...</span>
+                </div>
+                <div class="horizon-switch-group">
+                    <button class="horizon-btn" onclick="setHorizon(7, this)">7 Days</button>
+                    <button class="horizon-btn" onclick="setHorizon(14, this)">14 Days</button>
+                    <button class="horizon-btn active" onclick="setHorizon(30, this)">30-Day ML Horizon</button>
+                    <button class="horizon-btn" onclick="setHorizon(90, this)">90-Day Seasonal</button>
+                </div>
+                <button class="btn-dash-action" onclick="refreshDashboardTelemetry()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                    Refresh Models
+                </button>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 4: KEY INVENTORY KPIS (7 CARDS)
+             ═══════════════════════════════════════════════ -->
+        <div class="kpi-row">
+            <!-- 1. Total Medicines -->
+            <div class="kpi-dash-card">
+                <div class="kpi-top-meta">
+                    <span class="kpi-dash-label">Total Medicines</span>
+                    <div class="kpi-icon-wrap" style="background: var(--blue-dim); color: var(--blue-bright);">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>
+                    </div>
+                </div>
+                <div class="kpi-dash-val" id="kpiTotalMed">142 <span style="font-size: 0.72rem; color: var(--text-tertiary);">SKUs</span></div>
+                <div class="kpi-dash-sub">Active Pharmaceutical Catalog</div>
+            </div>
+
+            <!-- 2. Low Stock -->
+            <div class="kpi-dash-card state-low">
+                <div class="kpi-top-meta">
+                    <span class="kpi-dash-label" style="color: var(--orange);">Low Stock</span>
+                    <div class="kpi-icon-wrap" style="background: var(--orange-dim); color: var(--orange);">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                    </div>
+                </div>
+                <div class="kpi-dash-val" id="kpiLowStock" style="color: var(--orange);">18 <span style="font-size: 0.72rem; color: var(--orange);">Items</span></div>
+                <div class="kpi-dash-sub">Below Safe Buffer Threshold</div>
+            </div>
+
+            <!-- 3. High Risk -->
+            <div class="kpi-dash-card state-risk">
+                <div class="kpi-top-meta">
+                    <span class="kpi-dash-label" style="color: var(--red);">High Risk</span>
+                    <div class="kpi-icon-wrap" style="background: var(--red-dim); color: var(--red);">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg>
+                    </div>
+                </div>
+                <div class="kpi-dash-val" id="kpiHighRisk" style="color: var(--red);">9 <span style="font-size: 0.72rem; color: var(--red);">Critical</span></div>
+                <div class="kpi-dash-sub">Elevated Stock-Out Probability</div>
+            </div>
+
+            <!-- 4. Predicted Demand -->
+            <div class="kpi-dash-card state-demand">
+                <div class="kpi-top-meta">
+                    <span class="kpi-dash-label">Predicted Demand</span>
+                    <div class="kpi-icon-wrap" style="background: var(--blue-dim); color: var(--blue-bright);">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m7 16 4-8 4 4 4-6"/></svg>
+                    </div>
+                </div>
+                <div class="kpi-dash-val" id="kpiPredictedDemand" style="color: var(--blue-bright);">18.4k <span style="font-size: 0.72rem; color: var(--blue-bright);">Units</span></div>
+                <div class="kpi-dash-sub">ML Projected 30-Day Velocity</div>
+            </div>
+
+            <!-- 5. Reorder Required -->
+            <div class="kpi-dash-card state-reorder">
+                <div class="kpi-top-meta">
+                    <span class="kpi-dash-label" style="color: var(--teal);">Reorder Required</span>
+                    <div class="kpi-icon-wrap" style="background: var(--teal-dim); color: var(--teal);">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-7a2 2 0 0 0-2 2v10M16 3l4 4-4 4M4 17h7a2 2 0 0 0 2-2V5M8 21l-4-4 4-4"/></svg>
+                    </div>
+                </div>
+                <div class="kpi-dash-val" id="kpiReorderRequired" style="color: var(--teal);">14 <span style="font-size: 0.72rem; color: var(--teal);">Orders</span></div>
+                <div class="kpi-dash-sub">Replenishment Actions Pending</div>
+            </div>
+
+            <!-- 6. Near Expiry -->
+            <div class="kpi-dash-card state-expiring">
+                <div class="kpi-top-meta">
+                    <span class="kpi-dash-label" style="color: var(--orange);">Near Expiry</span>
+                    <div class="kpi-icon-wrap" style="background: var(--orange-dim); color: var(--orange);">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                    </div>
+                </div>
+                <div class="kpi-dash-val" id="kpiNearExpiry" style="color: var(--orange);">6 <span style="font-size: 0.72rem; color: var(--orange);">Batches</span></div>
+                <div class="kpi-dash-sub">Approaching 30-Day Window</div>
+            </div>
+
+            <!-- 7. Expired -->
+            <div class="kpi-dash-card state-expired">
+                <div class="kpi-top-meta">
+                    <span class="kpi-dash-label" style="color: #fca5a5;">Expired</span>
+                    <div class="kpi-icon-wrap" style="background: rgba(239, 68, 68, 0.2); color: var(--red);">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3v4M8 3v4M2 11h20"/></svg>
+                    </div>
+                </div>
+                <div class="kpi-dash-val" id="kpiExpired" style="color: #fca5a5;">1 <span style="font-size: 0.72rem; color: #fca5a5;">Locked</span></div>
+                <div class="kpi-dash-sub">Quarantined from Dispensing</div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 6 & 8: DEMAND INTELLIGENCE + CRITICAL ALERTS
+             ═══════════════════════════════════════════════ -->
+        <div class="analytics-alerts-grid" id="demand-intelligence">
+
+            <!-- DEMAND INTELLIGENCE (LARGE CHART) -->
+            <div class="demand-intel-card">
+                <div class="card-header-flex">
+                    <div>
+                        <div class="sec-title-h2">
+                            Demand Intelligence &amp; ML Horizon
+                        </div>
+                        <p style="font-size: 0.74rem; color: var(--text-tertiary); margin-top: 3px;">
+                            Neural time-series forecasting distinguishing historical consumption from projected demand horizon.
+                        </p>
+                    </div>
+
+                    <div class="chart-legend-row">
+                        <div class="chart-legend-item">
+                            <span class="c-dot" style="background: var(--blue);"></span>
+                            <span>Historical Usage</span>
+                        </div>
+                        <div class="chart-legend-item">
+                            <span class="c-dot" style="background: var(--teal);"></span>
+                            <span>ML Forecast (Confidence Band)</span>
+                        </div>
+                        <div class="chart-legend-item">
+                            <span class="c-dot" style="background: var(--green);"></span>
+                            <span>Current Stock Buffer</span>
+                        </div>
+                        <div class="chart-legend-item">
+                            <span class="c-dot" style="background: var(--orange);"></span>
+                            <span>Reorder Boundary</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive SVG Chart -->
+                <div class="demand-chart-stage" id="demandChartStage">
+                    <div class="chart-scrubber-hairline" id="chartHairline"><div class="chart-scrubber-dot"></div></div>
+                    <div class="chart-hud-pill" id="chartHud">
+                        <div style="font-weight: 700; color: var(--teal);" id="hudPhaseLabel">Historical Baseline</div>
+                        <div id="hudDescLabel">Demand: Normal Trend</div>
+                    </div>
+
+                    <svg viewBox="0 0 800 240" preserveAspectRatio="none" id="mainDemandSvg">
+                        <defs>
+                            <linearGradient id="svgHistGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="rgba(74, 144, 245, 0.28)"/>
+                                <stop offset="100%" stop-color="rgba(74, 144, 245, 0)"/>
+                            </linearGradient>
+                            <linearGradient id="svgPredGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="rgba(45, 212, 191, 0.22)"/>
+                                <stop offset="100%" stop-color="rgba(45, 212, 191, 0)"/>
+                            </linearGradient>
+                        </defs>
+
+                        <!-- Horizontal Grid Lines -->
+                        <line x1="0" y1="50" x2="800" y2="50" stroke="rgba(255,255,255,0.025)" stroke-width="1"/>
+                        <line x1="0" y1="100" x2="800" y2="100" stroke="rgba(255,255,255,0.025)" stroke-width="1"/>
+                        <line x1="0" y1="150" x2="800" y2="150" stroke="rgba(255,255,255,0.025)" stroke-width="1"/>
+                        <line x1="0" y1="200" x2="800" y2="200" stroke="rgba(255,255,255,0.025)" stroke-width="1"/>
+
+                        <!-- Current Stock Line -->
+                        <line x1="0" y1="110" x2="800" y2="110" stroke="rgba(52,211,153,0.25)" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+                        <!-- Reorder Threshold Warning Line -->
+                        <line x1="0" y1="160" x2="800" y2="160" stroke="rgba(251,146,60,0.3)" stroke-width="1.5" stroke-dasharray="6 4"/>
+
+                        <!-- Historical Demand Area & Curve -->
+                        <path d="M0,220 L0,165 L60,155 L120,160 L180,140 L240,148 L300,130 L360,138 L400,120 L400,220 Z" fill="url(#svgHistGrad)"/>
+                        <polyline points="0,165 60,155 120,160 180,140 240,148 300,130 360,138 400,120"
+                                  fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+
+                        <!-- Prediction Confidence Band Area -->
+                        <path d="M400,135 L460,120 L520,105 L580,95 L640,80 L700,68 L800,50 L800,25 L700,45 L640,55 L580,72 L520,82 L460,100 L400,110 Z"
+                              fill="rgba(45,212,191,0.05)" stroke="none"/>
+
+                        <!-- Predicted Demand Area & Curve -->
+                        <path d="M400,220 L400,120 L460,110 L520,95 L580,85 L640,70 L700,58 L800,40 L800,220 Z" fill="url(#svgPredGrad)"/>
+                        <polyline points="400,120 460,110 520,95 580,85 640,70 700,58 800,40"
+                                  fill="none" stroke="var(--teal)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 4"/>
+
+                        <!-- Today Division Line -->
+                        <line x1="400" y1="15" x2="400" y2="230" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" stroke-dasharray="3 3"/>
+                        <text x="390" y="28" fill="var(--text-tertiary)" font-size="9" font-family="JetBrains Mono" text-anchor="end">TODAY (INFERENCE BOUNDARY)</text>
+
+                        <!-- Reorder Point Tag -->
+                        <circle cx="580" cy="85" r="5" fill="var(--teal)" stroke="#08090c" stroke-width="2"/>
+                        <text x="595" y="80" fill="var(--teal)" font-size="9" font-family="Inter" font-weight="600">Reorder Trigger</text>
+                    </svg>
+                </div>
+
+                <!-- Footer Summary Metrics -->
+                <div class="chart-metrics-footer">
+                    <div class="cm-cell">
+                        <div class="cm-lbl">Historical Consumption Rate</div>
+                        <div class="cm-val" id="cmHistRate" style="color: var(--blue);">-- Units/Day</div>
+                    </div>
+                    <div class="cm-cell">
+                        <div class="cm-lbl">Projected Horizon Run-Rate</div>
+                        <div class="cm-val" id="cmProjRate" style="color: var(--teal);">-- Units/Day</div>
+                    </div>
+                    <div class="cm-cell">
+                        <div class="cm-lbl">Selected Production Model</div>
+                        <div class="cm-val" id="cmModelConf" style="color: #ffffff;">Gradient Boosting</div>
+                    </div>
+                    <div class="cm-cell">
+                        <div class="cm-lbl">Total Inventory Runway</div>
+                        <div class="cm-val" id="cmRunwayBuffer" style="color: var(--orange);">-- Days Coverage</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CRITICAL INVENTORY ALERTS (RIGHT PANEL) -->
+            <div class="alerts-panel">
+                <div class="card-header-flex" style="margin-bottom: 14px;">
+                    <div class="sec-title-h2">
+                        Critical Alerts
+                        <span style="font-size: 0.65rem; background: var(--red-dim); color: var(--red); padding: 2px 7px; border-radius: 100px; font-family: var(--font-mono);">5 Active</span>
+                    </div>
+                </div>
+
+                <!-- Alert Filter Tabs -->
+                <div class="alerts-tab-pills">
+                    <button class="alert-filter-btn active" onclick="filterAlerts('all', this)">All</button>
+                    <button class="alert-filter-btn" onclick="filterAlerts('crit', this)">Critical</button>
+                    <button class="alert-filter-btn" onclick="filterAlerts('warn', this)">Warnings</button>
+                    <button class="alert-filter-btn" onclick="filterAlerts('fefo', this)">FEFO Exp</button>
+                </div>
+
+                <div class="alerts-list-scroll" id="alertsList">
+                    <!-- Alert 1: Stock-out Risk -->
+                    <div class="alert-item-card crit" data-cat="crit">
+                        <div class="alert-dot-beacon" style="background: var(--red);"></div>
+                        <div class="alert-body-content">
+                            <div class="alert-row-top">
+                                <span class="alert-med-name">Amoxicillin + Clavulanic Acid</span>
+                                <span class="alert-timestamp">12m ago</span>
+                            </div>
+                            <div class="alert-desc-text">Stock-out Risk: Consumption velocity surge projects stock depletion in 9 days. Supplier lead time is 14 days.</div>
+                            <span class="alert-tag-pill" style="background: var(--red-dim); color: var(--red);">Stock-out Risk</span>
+                        </div>
+                    </div>
+
+                    <!-- Alert 2: Reorder Required -->
+                    <div class="alert-item-card crit" data-cat="crit">
+                        <div class="alert-dot-beacon" style="background: var(--red);"></div>
+                        <div class="alert-body-content">
+                            <div class="alert-row-top">
+                                <span class="alert-med-name">Insulin Glargine Pen (100 U/mL)</span>
+                                <span class="alert-timestamp">28m ago</span>
+                            </div>
+                            <div class="alert-desc-text">Reorder Required: Cold-chain inventory has reached minimum safety buffer. Automated replenishment order generated.</div>
+                            <span class="alert-tag-pill" style="background: var(--teal-dim); color: var(--teal);">Reorder Required</span>
+                        </div>
+                    </div>
+
+                    <!-- Alert 3: Expiring Soon -->
+                    <div class="alert-item-card warn" data-cat="fefo">
+                        <div class="alert-dot-beacon" style="background: var(--orange);"></div>
+                        <div class="alert-body-content">
+                            <div class="alert-row-top">
+                                <span class="alert-med-name">Azithromycin 500mg USP</span>
+                                <span class="alert-timestamp">1h ago</span>
+                            </div>
+                            <div class="alert-desc-text">Expiring Soon: Batch #AZI-3011 expiry in 18 days. FEFO Priority 1 enforced to exhaust batch before newer inventory.</div>
+                            <span class="alert-tag-pill" style="background: var(--orange-dim); color: var(--orange);">FEFO Expiring Soon</span>
+                        </div>
+                    </div>
+
+                    <!-- Alert 4: Expired Detected -->
+                    <div class="alert-item-card crit" data-cat="fefo">
+                        <div class="alert-dot-beacon" style="background: #991b1b;"></div>
+                        <div class="alert-body-content">
+                            <div class="alert-row-top">
+                                <span class="alert-med-name">Ceftriaxone Sodium Vial 1g</span>
+                                <span class="alert-timestamp">2h ago</span>
+                            </div>
+                            <div class="alert-desc-text">Expired Detected: Batch #CEF-1104 passed regulatory expiry date. Batch locked &amp; quarantined from dispensing.</div>
+                            <span class="alert-tag-pill" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">Expired Quarantined</span>
+                        </div>
+                    </div>
+
+                    <!-- Alert 5: Overstock -->
+                    <div class="alert-item-card info" data-cat="warn">
+                        <div class="alert-dot-beacon" style="background: var(--blue);"></div>
+                        <div class="alert-body-content">
+                            <div class="alert-row-top">
+                                <span class="alert-med-name">Paracetamol 500mg (Oral)</span>
+                                <span class="alert-timestamp">4h ago</span>
+                            </div>
+                            <div class="alert-desc-text">Overstock Detected: Current warehouse holding exceeds 120-day predicted consumption. Further purchase orders halted.</div>
+                            <span class="alert-tag-pill" style="background: var(--blue-dim); color: var(--blue-bright);">Overstock Alert</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 9 & 10 & 13: EXPIRY WATCH + RISK & COVERAGE
+             ═══════════════════════════════════════════════ -->
+        <div class="mid-insights-grid" id="expiry-watch-section">
+
+            <!-- EXPIRY WATCH (FEFO PRIORITY QUEUE) -->
+            <div class="expiry-watch-dash-panel">
+                <div class="card-header-flex">
+                    <div class="sec-title-h2">
+                        Expiry Watch &amp; FEFO Priority
+                    </div>
+                    <span style="font-size: 0.72rem; color: var(--teal); font-family: var(--font-mono);">First Expiry, First Out Protocol</span>
+                </div>
+
+                <div class="fefo-banner-strip">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M7 12h10M10 18h4"/></svg>
+                        <span>FEFO Algorithm: All sales automatically draw from the earliest-expiring batch first.</span>
+                    </div>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table class="expiry-batch-table">
+                        <thead>
+                            <tr>
+                                <th>Medicine</th>
+                                <th>Batch ID</th>
+                                <th>Expiry Date</th>
+                                <th>Days Left</th>
+                                <th>Status</th>
+                                <th>FEFO Rank</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="color: var(--text-primary); font-weight: 600;">Azithromycin 500mg</td>
+                                <td style="font-family: var(--font-mono);">#AZI-3011</td>
+                                <td>Oct 14, 2026</td>
+                                <td style="color: var(--orange); font-weight: 700;">18 Days</td>
+                                <td><span style="color: var(--orange); font-size: 0.68rem; font-weight: 600;">Expiring Soon</span></td>
+                                <td><span class="fefo-p1-tag">Priority 1 · Next Out</span></td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--text-primary); font-weight: 600;">Amoxicillin + Clavulanate</td>
+                                <td style="font-family: var(--font-mono);">#AMX-9482</td>
+                                <td>Nov 08, 2026</td>
+                                <td style="color: var(--teal); font-weight: 700;">43 Days</td>
+                                <td><span style="color: var(--teal); font-size: 0.68rem; font-weight: 600;">Safe</span></td>
+                                <td><span class="fefo-p1-tag">Priority 1 · Next Out</span></td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--text-primary); font-weight: 600;">Amoxicillin + Clavulanate</td>
+                                <td style="font-family: var(--font-mono);">#AMX-9483</td>
+                                <td>Feb 20, 2027</td>
+                                <td>147 Days</td>
+                                <td><span style="color: var(--text-secondary); font-size: 0.68rem;">Safe</span></td>
+                                <td><span class="fefo-queue-tag">Priority 2 · In Queue</span></td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--text-primary); font-weight: 600;">Ceftriaxone Sodium Vial 1g</td>
+                                <td style="font-family: var(--font-mono);">#CEF-1104</td>
+                                <td style="color: var(--red);">Sep 12, 2026</td>
+                                <td style="color: var(--red); font-weight: 700;">Expired (-14d)</td>
+                                <td><span style="color: var(--red); font-size: 0.68rem; font-weight: 600;">Expired</span></td>
+                                <td><span class="fefo-expired-tag">Quarantined · Locked</span></td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--text-primary); font-weight: 600;">Metformin HCL 850mg</td>
+                                <td style="font-family: var(--font-mono);">#MET-5501</td>
+                                <td>Jun 30, 2027</td>
+                                <td>277 Days</td>
+                                <td><span style="color: var(--teal); font-size: 0.68rem; font-weight: 600;">Safe</span></td>
+                                <td><span class="fefo-queue-tag">Priority 3 · Reserve</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- INVENTORY COVERAGE & RISK DISTRIBUTION -->
+            <div class="coverage-risk-panel">
+                <div class="card-header-flex">
+                    <div class="sec-title-h2">
+                        Inventory Coverage &amp; Risk Matrix
+                    </div>
+                    <span style="font-size: 0.72rem; color: var(--text-tertiary); font-family: var(--font-mono);">142 Total SKUs</span>
+                </div>
+
+                <!-- Visual Distribution Bar -->
+                <div class="risk-distribution-bar">
+                    <div class="risk-seg-healthy" title="Healthy (64%)"></div>
+                    <div class="risk-seg-low" title="Low Stock (16%)"></div>
+                    <div class="risk-seg-risk" title="High Stock-out Risk (12%)"></div>
+                    <div class="risk-seg-over" title="Overstock (8%)"></div>
+                </div>
+
+                <div class="risk-legend-grid">
+                    <div class="rl-item">
+                        <div class="rl-head"><span class="c-dot" style="background: var(--teal);"></span> Healthy</div>
+                        <div class="rl-val">91 SKUs</div>
+                    </div>
+                    <div class="rl-item">
+                        <div class="rl-head"><span class="c-dot" style="background: var(--orange);"></span> Low Stock</div>
+                        <div class="rl-val">23 SKUs</div>
+                    </div>
+                    <div class="rl-item">
+                        <div class="rl-head"><span class="c-dot" style="background: var(--red);"></span> High Risk</div>
+                        <div class="rl-val">17 SKUs</div>
+                    </div>
+                    <div class="rl-item">
+                        <div class="rl-head"><span class="c-dot" style="background: var(--blue);"></span> Overstock</div>
+                        <div class="rl-val">11 SKUs</div>
+                    </div>
+                </div>
+
+                <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-primary); text-transform: uppercase; margin-bottom: 12px;">
+                    Imminent Stock-out Runways vs Supplier Lead Time
+                </div>
+
+                <div class="coverage-runway-list">
+                    <!-- Medicine 1 -->
+                    <div class="runway-item">
+                        <span class="runway-med">Amoxicillin 625mg</span>
+                        <div class="runway-track"><div class="runway-fill" style="width: 24%; background: var(--red);"></div></div>
+                        <span class="runway-days" style="color: var(--red);">9 Days Left</span>
+                    </div>
+
+                    <!-- Medicine 2 -->
+                    <div class="runway-item">
+                        <span class="runway-med">Insulin Glargine Pen</span>
+                        <div class="runway-track"><div class="runway-fill" style="width: 32%; background: var(--orange);"></div></div>
+                        <span class="runway-days" style="color: var(--orange);">14 Days Left</span>
+                    </div>
+
+                    <!-- Medicine 3 -->
+                    <div class="runway-item">
+                        <span class="runway-med">Ciprofloxacin 500mg</span>
+                        <div class="runway-track"><div class="runway-fill" style="width: 48%; background: var(--orange);"></div></div>
+                        <span class="runway-days" style="color: var(--orange);">21 Days Left</span>
+                    </div>
+
+                    <!-- Medicine 4 -->
+                    <div class="runway-item">
+                        <span class="runway-med">Metformin HCL 850mg</span>
+                        <div class="runway-track"><div class="runway-fill" style="width: 82%; background: var(--teal);"></div></div>
+                        <span class="runway-days" style="color: var(--teal);">65 Days Left</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 11: FULL INVENTORY TABLE
+             ═══════════════════════════════════════════════ -->
+        <div class="table-section-card">
+            <div class="card-header-flex" style="margin-bottom: 16px;">
+                <div class="sec-title-h2">
+                    Medicine Inventory Intelligence Table
+                </div>
+                <div style="font-size: 0.74rem; color: var(--text-tertiary);">
+                    Click any row to open the full analytical insight panel.
+                </div>
+            </div>
+
+            <!-- Table Filter Ribbon -->
+            <div class="table-filter-bar">
+                <div class="tbl-search-box">
+                    <svg class="tbl-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <input type="text" class="tbl-search-input" id="tblSearch" placeholder="Filter medicines by name, SKU, or batch..." oninput="handleTableSearch(this.value)">
+                </div>
+
+                <div class="tbl-filter-pills">
+                    <button class="tbl-pill-btn active" onclick="filterTableState('all', this)">All (10)</button>
+                    <button class="tbl-pill-btn" onclick="filterTableState('high-risk', this)">High Risk</button>
+                    <button class="tbl-pill-btn" onclick="filterTableState('low', this)">Low Stock</button>
+                    <button class="tbl-pill-btn" onclick="filterTableState('expiring', this)">Expiring Soon</button>
+                    <button class="tbl-pill-btn" onclick="filterTableState('expired', this)">Expired</button>
+                    <button class="tbl-pill-btn" onclick="filterTableState('healthy', this)">Healthy</button>
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="master-inventory-table">
+                    <thead>
+                        <tr>
+                            <th>Medicine</th>
+                            <th>Current Stock</th>
+                            <th>Predicted Demand</th>
+                            <th>Days Until Stock-out</th>
+                            <th>Risk Assessment</th>
+                            <th>Expiry Status</th>
+                            <th>Near-Expiry Qty</th>
+                            <th>Recommended Reorder</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="masterTableBody">
+                        <!-- Populated by JavaScript with rich database data -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 14: MEDICINE INSIGHT PANEL (SLIDE-OUT DRAWER)
+         ═══════════════════════════════════════════════ -->
+    <div class="insight-drawer" id="insightDrawer">
+        <div class="drawer-top-bar">
+            <div>
+                <span style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-tertiary);" id="drawerSku">SKU #AMX-625</span>
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: #ffffff; margin-top: 3px;" id="drawerName">Amoxicillin + Clavulanic Acid</h3>
+                <span style="font-size: 0.72rem; color: var(--teal);" id="drawerCategory">Antibiotics · Oral Solid Dosage</span>
+            </div>
+            <button class="drawer-close-btn" onclick="closeInsightDrawer()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <div class="drawer-body-scroll">
+            <!-- 5 KPIs -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+                <div style="background: var(--bg-glass); border: 1px solid var(--border); padding: 12px; border-radius: 8px;">
+                    <div style="font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase;">Current Stock</div>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: white;" id="dValStock">1,420 Units</div>
+                </div>
+                <div style="background: var(--bg-glass); border: 1px solid var(--border); padding: 12px; border-radius: 8px;">
+                    <div style="font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase;">Predicted Demand</div>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: var(--blue-bright);" id="dValDemand">3,850 Units</div>
+                </div>
+                <div style="background: var(--bg-glass); border: 1px solid var(--border); padding: 12px; border-radius: 8px;">
+                    <div style="font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase;">Days-to-Stockout</div>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: var(--red);" id="dValCoverage">9 Days Left</div>
+                </div>
+                <div style="background: var(--bg-glass); border: 1px solid var(--border); padding: 12px; border-radius: 8px;">
+                    <div style="font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase;">Risk Level</div>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: var(--red);" id="dValRisk">Critical High</div>
+                </div>
+            </div>
+
+            <!-- Reorder Highlight -->
+            <div style="background: var(--blue-dim); border: 1px solid rgba(74,144,245,0.3); border-radius: 8px; padding: 14px; margin-bottom: 20px;">
+                <div style="font-size: 0.62rem; color: var(--blue-bright); text-transform: uppercase; font-weight: 700;">Recommended Reorder</div>
+                <div style="font-size: 1.25rem; font-weight: 800; color: #ffffff;" id="dValReorder">Order 3,500 Units</div>
+                <div style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 3px;">Generated automatically to restore coverage through next distributor delivery window.</div>
+            </div>
+
+            <!-- "Why is this medicine at risk?" -->
+            <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-primary); text-transform: uppercase; margin-bottom: 12px;">
+                Why is this medicine at risk? (Model Signals)
+            </div>
+
+            <div id="drawerRiskFactors" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px;">
+                <!-- Populated dynamically -->
+            </div>
+
+            <!-- Action Button -->
+            <button class="btn-header-sale" style="width: 100%; justify-content: center; padding: 12px;" onclick="triggerSaleFromDrawer()">
+                Record Dispensing Event for this Medicine
+            </button>
+            <a href="medicine-detail.html?id=amx" id="btnDrawerFullProfile" class="btn-header-sale" style="width: 100%; justify-content: center; padding: 10px; margin-top: 8px; background: rgba(45,212,191,0.15); color: var(--teal); border: 1px solid var(--border-teal); text-decoration: none;">
+                Open Complete Intelligence Profile &rarr;
+            </a>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 12: SIMULATED MEDICINE SALE MODAL
+         ═══════════════════════════════════════════════ -->
+    <div class="sale-modal-overlay" id="saleModal">
+        <div class="sale-modal-box">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 14px;">
+                <div>
+                    <h3 style="font-size: 1.15rem; font-weight: 800; color: white;">Record Medicine Sale / Dispense</h3>
+                    <p style="font-size: 0.75rem; color: var(--text-tertiary);">Simulate transactional dispensing with FEFO batch resolution &amp; automated recalculation.</p>
+                </div>
+                <button class="drawer-close-btn" onclick="closeSaleModal()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 0.72rem; color: var(--text-tertiary); text-transform: uppercase; font-weight: 600; margin-bottom: 6px;">Medicine</label>
+                <select class="tbl-search-input" id="saleMedSelect" onchange="handleModalMedChange(this.value)">
+                    <option value="amx">Amoxicillin + Clavulanic Acid 625mg</option>
+                    <option value="azi">Azithromycin 500mg USP</option>
+                    <option value="ins">Insulin Glargine Pen (100 U/mL)</option>
+                    <option value="met">Metformin Hydrochloride 850mg</option>
+                    <option value="ato">Atorvastatin Calcium 20mg</option>
+                </select>
+            </div>
+
+            <!-- FEFO Batch Banner -->
+            <div style="padding: 12px 14px; background: var(--teal-dim); border: 1px solid rgba(45,212,191,0.25); border-radius: 8px; margin-bottom: 16px;">
+                <div style="font-size: 0.74rem; font-weight: 700; color: var(--teal);">FEFO Batch Auto-Resolution Active</div>
+                <div style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 2px;" id="modalFefoNote">Allocating units from Batch #AMX-9482 (Earliest Expiry Priority)</div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 0.72rem; color: var(--text-tertiary); text-transform: uppercase; font-weight: 600; margin-bottom: 6px;">Quantity Sold / Dispensed</label>
+                <input type="number" class="tbl-search-input" id="modalQtyInput" min="1" max="500" value="25">
+            </div>
+
+            <!-- Recalculation Flow Stream -->
+            <div class="modal-telemetry-flow" id="modalTeleFlow">
+                <div style="font-size: 0.7rem; font-weight: 700; color: var(--teal); margin-bottom: 10px; text-transform: uppercase;">
+                    Executing Real-Time Backend Recalculation Pipeline
+                </div>
+                <div class="tele-step-row" id="tStep1"><span class="tele-dot"></span> 1. Deducting quantity from earliest FEFO batch in database...</div>
+                <div class="tele-step-row" id="tStep2"><span class="tele-dot"></span> 2. Logging transaction event into repository...</div>
+                <div class="tele-step-row" id="tStep3"><span class="tele-dot"></span> 3. Recalculating consumption velocity &amp; run-rate...</div>
+                <div class="tele-step-row" id="tStep4"><span class="tele-dot"></span> 4. Refreshing Days-Until-Stockout coverage buffer...</div>
+                <div class="tele-step-row" id="tStep5"><span class="tele-dot"></span> 5. Dynamically updating stock-out risk assessment...</div>
+                <div class="tele-step-row" id="tStep6"><span class="tele-dot"></span> 6. Recalculating smart replenishment recommendation...</div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
+                <button class="tbl-pill-btn" onclick="closeSaleModal()" style="padding: 10px 18px;">Cancel</button>
+                <button class="btn-header-sale" id="btnConfirmSale" onclick="executeSimulatedSale()" style="padding: 10px 22px;">Confirm Sale &amp; Recalculate</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SCRIPTS: DATA REPOSITORY & INTERACTION ENGINE
+         ═══════════════════════════════════════════════ -->
+    <script src="medistock-api.js"></script>
+    <script>
+    (function() {
+        'use strict';
+
+        // ── INVENTORY DATABASE (CENTRALIZED PHARMA DATA MODEL) ──
+        window.inventoryDB = [
+            {
+                id: 'amx',
+                name: 'Amoxicillin + Clavulanate',
+                formula: '625mg Film-Coated Tablet',
+                sku: 'SKU #AMX-625',
+                stock: '1,420 Units',
+                demand: '3,850 Units',
+                daysUntilStockout: 9,
+                risk: 'High Risk',
+                riskClass: 'state-risk',
+                riskColor: 'var(--red)',
+                expiryStatus: 'Safe',
+                expiryColor: 'var(--teal)',
+                nearExpiryQty: '0 Units',
+                reorderRecommended: 'Order 3,500 Units',
+                batches: ['#AMX-9482 (Priority 1)', '#AMX-9483 (Queue)'],
+                factors: [
+                    { title: 'Recent Demand Acceleration', desc: '14-day trailing consumption velocity spiked +38% compared to historical baseline.' },
+                    { title: 'Lead Time Compression', desc: 'Stockout runway (9 days) has fallen below verified supplier lead time (14 days).' },
+                    { title: 'FEFO Shelf Life Depletion', desc: 'Batch #AMX-9482 absorbs immediate demand; next batch scheduled in reserve.' }
+                ]
+            },
+            {
+                id: 'azi',
+                name: 'Azithromycin USP',
+                formula: '500mg Oral Solid Tablet',
+                sku: 'SKU #AZI-500',
+                stock: '2,180 Units',
+                demand: '2,900 Units',
+                daysUntilStockout: 22,
+                risk: 'Expiring Soon',
+                riskClass: 'state-low',
+                riskColor: 'var(--orange)',
+                expiryStatus: 'Expiring Soon',
+                expiryColor: 'var(--orange)',
+                nearExpiryQty: '840 Units',
+                reorderRecommended: 'Accelerate FEFO Draw',
+                batches: ['#AZI-3011 (Exp: 18d · P1)', '#AZI-4100 (Safe)'],
+                factors: [
+                    { title: 'Batch Nearing Expiry Horizon', desc: 'Batch #AZI-3011 (840 units) enters 30-day regulatory warning window.' },
+                    { title: 'FEFO Allocation Directive', desc: 'System automatically routes dispensing to priority batch to prevent obsolescence.' }
+                ]
+            },
+            {
+                id: 'ins',
+                name: 'Insulin Glargine Pen',
+                formula: '100 U/mL 3mL Cartridge',
+                sku: 'SKU #INS-100',
+                stock: '420 Units',
+                demand: '960 Units',
+                daysUntilStockout: 14,
+                risk: 'Low Stock',
+                riskClass: 'state-low',
+                riskColor: 'var(--orange)',
+                expiryStatus: 'Safe',
+                expiryColor: 'var(--teal)',
+                nearExpiryQty: '0 Units',
+                reorderRecommended: 'Order 800 Units',
+                batches: ['#INS-802 (Cold Chain P1)'],
+                factors: [
+                    { title: 'Cold-Chain Minimum Threshold', desc: 'Available on-hand buffer breached safe warehouse cold storage minimum.' }
+                ]
+            },
+            {
+                id: 'cef',
+                name: 'Ceftriaxone Sodium Vial',
+                formula: '1g Powder for Injection',
+                sku: 'SKU #CEF-1000',
+                stock: '0 Units (Locked)',
+                demand: '1,200 Units',
+                daysUntilStockout: 0,
+                risk: 'Expired',
+                riskClass: 'state-risk',
+                riskColor: 'var(--red)',
+                expiryStatus: 'Expired',
+                expiryColor: '#fca5a5',
+                nearExpiryQty: '320 Units (Expired)',
+                reorderRecommended: 'Emergency Restock 1,500 Units',
+                batches: ['#CEF-1104 (Quarantined)'],
+                factors: [
+                    { title: 'Expired Batch Quarantine', desc: 'Batch #CEF-1104 crossed regulatory expiry date; all 320 units locked from dispensing.' },
+                    { title: 'Zero Usable Stock', desc: 'Usable stock is zero; immediate emergency purchase order required.' }
+                ]
+            },
+            {
+                id: 'met',
+                name: 'Metformin Hydrochloride',
+                formula: '850mg Extended Release',
+                sku: 'SKU #MET-850',
+                stock: '9,400 Units',
+                demand: '4,200 Units',
+                daysUntilStockout: 65,
+                risk: 'Healthy',
+                riskClass: '',
+                riskColor: 'var(--teal)',
+                expiryStatus: 'Safe',
+                expiryColor: 'var(--teal)',
+                nearExpiryQty: '0 Units',
+                reorderRecommended: 'Routine Scheduled Order',
+                batches: ['#MET-5501 (P1)', '#MET-5502 (Queue)'],
+                factors: [
+                    { title: 'Predictable Consumption', desc: 'Chronic prescription renewal rate aligns with trailing 90-day baseline model.' }
+                ]
+            },
+            {
+                id: 'ato',
+                name: 'Atorvastatin Calcium',
+                formula: '20mg Film-Coated Tablet',
+                sku: 'SKU #ATO-020',
+                stock: '6,200 Units',
+                demand: '3,100 Units',
+                daysUntilStockout: 58,
+                risk: 'Healthy',
+                riskClass: '',
+                riskColor: 'var(--teal)',
+                expiryStatus: 'Safe',
+                expiryColor: 'var(--teal)',
+                nearExpiryQty: '0 Units',
+                reorderRecommended: 'Standard Cycle',
+                batches: ['#ATO-771 (P1)', '#ATO-772 (Queue)'],
+                factors: [
+                    { title: 'Optimal Runway', desc: 'Sufficient buffer across all warehouse tiers.' }
+                ]
+            },
+            {
+                id: 'cip',
+                name: 'Ciprofloxacin HCl',
+                formula: '500mg Oral Solid',
+                sku: 'SKU #CIP-500',
+                stock: '1,800 Units',
+                demand: '2,600 Units',
+                daysUntilStockout: 21,
+                risk: 'Low Stock',
+                riskClass: 'state-low',
+                riskColor: 'var(--orange)',
+                expiryStatus: 'Safe',
+                expiryColor: 'var(--teal)',
+                nearExpiryQty: '0 Units',
+                reorderRecommended: 'Order 1,400 Units',
+                batches: ['#CIP-109 (P1)'],
+                factors: [
+                    { title: 'Steady Inflow Required', desc: 'Consumption run-rate will deplete buffer in 3 weeks.' }
+                ]
+            },
+            {
+                id: 'pan',
+                name: 'Pantoprazole Sodium',
+                formula: '40mg Gastro-Resistant',
+                sku: 'SKU #PAN-040',
+                stock: '4,500 Units',
+                demand: '2,200 Units',
+                daysUntilStockout: 61,
+                risk: 'Healthy',
+                riskClass: '',
+                riskColor: 'var(--teal)',
+                expiryStatus: 'Safe',
+                expiryColor: 'var(--teal)',
+                nearExpiryQty: '0 Units',
+                reorderRecommended: 'Standard Schedule',
+                batches: ['#PAN-440 (P1)'],
+                factors: [
+                    { title: 'Nominal Variance', desc: 'No risk flags detected.' }
+                ]
+            },
+            {
+                id: 'sal',
+                name: 'Salbutamol Inhaler',
+                formula: '100mcg/dose 200 Actuations',
+                sku: 'SKU #SAL-100',
+                stock: '850 Units',
+                demand: '1,900 Units',
+                daysUntilStockout: 13,
+                risk: 'High Risk',
+                riskClass: 'state-risk',
+                riskColor: 'var(--red)',
+                expiryStatus: 'Safe',
+                expiryColor: 'var(--teal)',
+                nearExpiryQty: '0 Units',
+                reorderRecommended: 'Order 1,500 Units',
+                batches: ['#SAL-042 (P1)'],
+                factors: [
+                    { title: 'Seasonal Respiratory Surge', desc: 'Epidemiological weather trend model projects +45% surge in inhaler demand.' }
+                ]
+            },
+            {
+                id: 'par',
+                name: 'Paracetamol 500mg',
+                formula: '500mg Oral Solid Tablets',
+                sku: 'SKU #PAR-500',
+                stock: '18,500 Units',
+                demand: '4,200 Units',
+                daysUntilStockout: 132,
+                risk: 'Overstock',
+                riskClass: '',
+                riskColor: 'var(--blue)',
+                expiryStatus: 'Safe',
+                expiryColor: 'var(--teal)',
+                nearExpiryQty: '0 Units',
+                reorderRecommended: 'Halt Reorders',
+                batches: ['#PAR-901 (P1)', '#PAR-902 (P2)', '#PAR-903 (P3)'],
+                factors: [
+                    { title: 'Holding Costs Elevated', desc: 'Inventory significantly exceeds 90-day requirement; avoid further procurement.' }
+                ]
+            }
+        ];
+
+        // ── RENDER MASTER INVENTORY TABLE ──
+        window.renderTable = function(filterState, query) {
+            const tbody = document.getElementById('masterTableBody');
+            tbody.innerHTML = '';
+
+            const q = (query || '').toLowerCase().trim();
+
+            let matchCount = 0;
+            window.inventoryDB.forEach(item => {
+                let matchState = true;
+                if (filterState === 'high-risk') matchState = (item.risk === 'High Risk');
+                else if (filterState === 'low') matchState = (item.risk === 'Low Stock');
+                else if (filterState === 'expiring') matchState = (item.expiryStatus === 'Expiring Soon');
+                else if (filterState === 'expired') matchState = (item.expiryStatus === 'Expired');
+                else if (filterState === 'healthy') matchState = (item.risk === 'Healthy');
+
+                const textContent = `${item.name} ${item.sku} ${item.formula}`.toLowerCase();
+                const matchQuery = !q || textContent.includes(q);
+
+                if (matchState && matchQuery) {
+                    matchCount++;
+                    const tr = document.createElement('tr');
+                    tr.onclick = () => openInsightDrawer(item.id);
+                    tr.innerHTML = `
+                        <td>
+                            <div class="tbl-med-col">
+                                <span>${item.name}</span>
+                                <span class="tbl-med-sub">${item.formula} · ${item.sku}</span>
+                            </div>
+                        </td>
+                        <td style="font-weight: 600; color: var(--text-primary); font-family: var(--font-mono);">${item.stock}</td>
+                        <td style="color: var(--teal); font-family: var(--font-mono);">${item.demand}</td>
+                        <td style="font-weight: 700; color: ${item.riskColor}; font-family: var(--font-mono);">${item.daysUntilStockout} Days</td>
+                        <td><span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.72rem; font-weight: 600; color: ${item.riskColor};">● ${item.risk}</span></td>
+                        <td><span style="font-size: 0.72rem; color: ${item.expiryColor}; font-weight: 600;">${item.expiryStatus}</span></td>
+                        <td style="font-family: var(--font-mono); font-size: 0.72rem;">${item.nearExpiryQty}</td>
+                        <td style="color: #ffffff; font-weight: 600; font-size: 0.74rem;">${item.reorderRecommended}</td>
+                        <td>
+                            <button class="btn-table-action" onclick="event.stopPropagation(); openInsightDrawer('${item.id}')">View</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            });
+
+            if (matchCount === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 48px 20px; color: var(--text-tertiary);">
+                            <div style="font-size: 1.2rem; margin-bottom: 6px;">🔍</div>
+                            <div style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">No matching medicines found</div>
+                            <div style="font-size: 0.75rem;">Try adjusting your search query or status filter.</div>
+                        </td>
+                    </tr>
+                `;
+            }
+        };
+
+        let curTableFilter = 'all';
+        let curTableSearch = '';
+
+        window.filterTableState = function(state, btn) {
+            document.querySelectorAll('.tbl-pill-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            curTableFilter = state;
+            window.renderTable(curTableFilter, curTableSearch);
+        };
+
+        window.handleTableSearch = function(val) {
+            curTableSearch = val;
+            window.renderTable(curTableFilter, curTableSearch);
+        };
+
+        // ── MEDICINE INSIGHT DRAWER ──
+        window.openInsightDrawer = function(id) {
+            const item = window.inventoryDB.find(m => m.id === id) || window.inventoryDB[0];
+            document.getElementById('drawerSku').textContent = `${item.sku} · FORMULATION ACTIVE`;
+            document.getElementById('drawerName').textContent = item.name;
+            document.getElementById('drawerCategory').textContent = `${item.formula} · Dynamic Batch Sequencing Active`;
+            const fullProfileBtn = document.getElementById('btnDrawerFullProfile');
+            if (fullProfileBtn) fullProfileBtn.href = 'medicine-detail.html?id=' + item.id;
+
+            document.getElementById('dValStock').textContent = item.stock;
+            document.getElementById('dValDemand').textContent = item.demand;
+            document.getElementById('dValCoverage').textContent = `${item.daysUntilStockout} Days Left`;
+            document.getElementById('dValCoverage').style.color = item.riskColor;
+            document.getElementById('dValRisk').textContent = item.risk;
+            document.getElementById('dValRisk').style.color = item.riskColor;
+            document.getElementById('dValReorder').textContent = item.reorderRecommended;
+
+            const factorsContainer = document.getElementById('drawerRiskFactors');
+            factorsContainer.innerHTML = '';
+            item.factors.forEach(f => {
+                const card = document.createElement('div');
+                card.className = 'drawer-risk-card';
+                card.innerHTML = `
+                    <div style="font-size: 0.76rem; font-weight: 700; color: #ffffff; margin-bottom: 3px;">${f.title}</div>
+                    <div style="font-size: 0.72rem; color: var(--text-secondary); line-height: 1.45;">${f.desc}</div>
+                `;
+                factorsContainer.appendChild(card);
+            });
+
+            document.getElementById('insightDrawer').classList.add('open');
+        };
+
+        window.closeInsightDrawer = function() {
+            document.getElementById('insightDrawer').classList.remove('open');
+        };
+
+        window.triggerSaleFromDrawer = function() {
+            window.closeInsightDrawer();
+            window.openSaleModal();
+        };
+
+        // ── CRITICAL ALERTS FILTERING ──
+        window.filterAlerts = function(cat, btn) {
+            document.querySelectorAll('.alert-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            document.querySelectorAll('.alert-item-card').forEach(card => {
+                if (cat === 'all') card.style.display = 'flex';
+                else if (cat === 'crit') card.style.display = card.classList.contains('crit') ? 'flex' : 'none';
+                else if (cat === 'warn') card.style.display = card.classList.contains('warn') || card.classList.contains('info') ? 'flex' : 'none';
+                else if (cat === 'fefo') card.style.display = card.dataset.cat === 'fefo' ? 'flex' : 'none';
+            });
+        };
+
+        // ── TIME HORIZON SWITCHER ──
+        window.setHorizon = function(days, btn) {
+            document.querySelectorAll('.horizon-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const predKpi = document.getElementById('kpiPredictedDemand');
+            if (days === 7) predKpi.innerHTML = '4.6k <span style="font-size: 0.72rem; color: var(--blue-bright);">Units</span>';
+            else if (days === 14) predKpi.innerHTML = '9.1k <span style="font-size: 0.72rem; color: var(--blue-bright);">Units</span>';
+            else if (days === 30) predKpi.innerHTML = '18.4k <span style="font-size: 0.72rem; color: var(--blue-bright);">Units</span>';
+            else predKpi.innerHTML = '54.2k <span style="font-size: 0.72rem; color: var(--blue-bright);">Units</span>';
+        };
+
+        window.refreshDashboardTelemetry = function() {
+            const btn = document.querySelector('.btn-dash-action');
+            btn.innerHTML = 'Syncing ML Models...';
+            setTimeout(() => {
+                btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg> Refresh Models';
+            }, 700);
+        };
+
+        // ── DEMAND CHART HOVER SCRUBBER ──
+        const chartStage = document.getElementById('demandChartStage');
+        const hairline = document.getElementById('chartHairline');
+        const hud = document.getElementById('chartHud');
+        const hudPhaseLabel = document.getElementById('hudPhaseLabel');
+        const hudDescLabel = document.getElementById('hudDescLabel');
+
+        if (chartStage && hairline && hud) {
+            chartStage.addEventListener('mouseenter', () => {
+                hairline.style.opacity = '1';
+                hud.style.opacity = '1';
+            });
+            chartStage.addEventListener('mouseleave', () => {
+                hairline.style.opacity = '0';
+                hud.style.opacity = '0';
+            });
+            chartStage.addEventListener('mousemove', (e) => {
+                const rect = chartStage.getBoundingClientRect();
+                const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+                const ratio = x / rect.width;
+
+                hairline.style.left = `${x}px`;
+
+                if (ratio < 0.5) {
+                    hudPhaseLabel.textContent = 'Historical Consumption Baseline';
+                    hudPhaseLabel.style.color = 'var(--blue)';
+                    hudDescLabel.textContent = 'Observed Prescriptions: Steady Trajectory';
+                } else if (ratio < 0.73) {
+                    hudPhaseLabel.textContent = 'ML Horizon: Accelerated Demand';
+                    hudPhaseLabel.style.color = 'var(--teal)';
+                    hudDescLabel.textContent = 'Confidence Band: 94.2% · Runway Sufficient';
+                } else {
+                    hudPhaseLabel.textContent = 'Stock-out Boundary Zone';
+                    hudPhaseLabel.style.color = 'var(--red)';
+                    hudDescLabel.textContent = 'Threshold Breached: Replenishment Triggered';
+                }
+
+                let hudX = x + 16;
+                if (hudX + 180 > rect.width) hudX = x - 190;
+                hud.style.left = `${hudX}px`;
+                hud.style.top = `16px`;
+            });
+        }
+
+        // ── SALE MODAL & WORKFLOW ENGINE (TIER 2 REAL FEFO ENGINE) ──
+        window.openSaleModal = async function(preselectedId) {
+            document.getElementById('modalTeleFlow').classList.remove('active');
+            for (let i = 1; i <= 6; i++) {
+                const s = document.getElementById(`tStep${i}`);
+                if (s) s.classList.remove('active', 'done');
+            }
+            const btn = document.getElementById('btnConfirmSale');
+            btn.disabled = false;
+            btn.textContent = 'Confirm Sale & Recalculate';
+            btn.style.background = '';
+            btn.style.color = '';
+
+            // Populate medicines dropdown dynamically from real inventory
+            const selectEl = document.getElementById('saleMedSelect');
+            if (selectEl && window.inventoryDB && window.inventoryDB.length > 0) {
+                const currentVal = preselectedId || selectEl.value;
+                selectEl.innerHTML = window.inventoryDB.map(m => 
+                    `<option value="${m.id}" ${m.id === currentVal ? 'selected' : ''}>${m.name} (${m.id})</option>`
+                ).join('');
+                if (preselectedId) selectEl.value = preselectedId;
+            }
+
+            const activeMedId = selectEl ? selectEl.value : null;
+            if (activeMedId) {
+                window.handleModalMedChange(activeMedId);
+            }
+
+            document.getElementById('saleModal').classList.add('active');
+        };
+
+        window.closeSaleModal = function() {
+            document.getElementById('saleModal').classList.remove('active');
+        };
+
+        window.handleModalMedChange = async function(val) {
+            const fefoNote = document.getElementById('modalFefoNote');
+            if (!fefoNote) return;
+            const med = (window.inventoryDB || []).find(m => m.id === val);
+            if (med && med.batches && med.batches.length > 0) {
+                fefoNote.textContent = `Allocating units from ${med.batches[0]} (Earliest Expiry Priority)`;
+            } else {
+                fefoNote.textContent = `Fetching FEFO priority batch telemetry...`;
+            }
+            try {
+                const queue = await window.MediStockAPI.getFefoQueue(val);
+                if (queue && queue.fefo_priority_batch) {
+                    fefoNote.textContent = `Allocating units from Batch #${queue.fefo_priority_batch} (Earliest Expiry Priority)`;
+                }
+            } catch (e) {
+                // Keep local batch representation
+            }
+        };
+
+        window.executeSimulatedSale = async function() {
+            const btn = document.getElementById('btnConfirmSale');
+            btn.disabled = true;
+            btn.textContent = 'Contacting SQLite & ML Engine...';
+            document.getElementById('modalTeleFlow').classList.add('active');
+
+            const selectedMedId = document.getElementById('saleMedSelect').value;
+            const saleQty = parseInt(document.getElementById('modalQtyInput').value) || 25;
+
+            const steps = [
+                document.getElementById('tStep1'),
+                document.getElementById('tStep2'),
+                document.getElementById('tStep3'),
+                document.getElementById('tStep4'),
+                document.getElementById('tStep5'),
+                document.getElementById('tStep6')
+            ];
+
+            let cur = 0;
+            const stepInterval = setInterval(() => {
+                if (cur > 0 && cur <= steps.length) {
+                    steps[cur - 1].classList.remove('active');
+                    steps[cur - 1].classList.add('done');
+                }
+                if (cur < steps.length) {
+                    steps[cur].classList.add('active');
+                    cur++;
+                }
+            }, 250);
+
+            try {
+                // Execute real FEFO sale in SQLite database
+                const saleResponse = await window.MediStockAPI.dispenseSale(selectedMedId, saleQty);
+
+                clearInterval(stepInterval);
+                steps.forEach(s => { if (s) { s.classList.remove('active'); s.classList.add('done'); } });
+
+                btn.textContent = `Sold ${saleQty} Units ✓ (Stock: ${saleResponse.updated_usable_stock})`;
+                btn.style.background = 'var(--teal)';
+                btn.style.color = '#08090c';
+
+                // Instantly refresh dashboard with real recalculated state from database
+                await loadBackendDashboard();
+
+                setTimeout(() => {
+                    window.closeSaleModal();
+                }, 1100);
+            } catch (err) {
+                clearInterval(stepInterval);
+                btn.disabled = false;
+                btn.textContent = 'Transaction Failed';
+                btn.style.background = 'var(--red)';
+                btn.style.color = '#ffffff';
+                alert(`Sale validation rejected: ${err.message}`);
+            }
+        };
+
+        // ── REAL BACKEND DATA INTEGRATION (TIER 1) ──
+        async function loadBackendDashboard() {
+            try {
+                // 1. Fetch real dashboard KPI summary
+                const summary = await window.MediStockAPI.getDashboardSummary();
+                if (summary) {
+                    const elTotal = document.getElementById('kpiTotalMed');
+                    if (elTotal) elTotal.innerHTML = `${summary.total_medicines} <span style="font-size: 0.72rem; color: var(--text-tertiary);">SKUs</span>`;
+
+                    const elLow = document.getElementById('kpiLowStock');
+                    if (elLow) elLow.innerHTML = `${summary.low_stock_count} <span style="font-size: 0.72rem; color: var(--orange);">Items</span>`;
+
+                    const elRisk = document.getElementById('kpiHighRisk');
+                    if (elRisk) elRisk.innerHTML = `${summary.high_risk_count} <span style="font-size: 0.72rem; color: var(--red);">Critical</span>`;
+
+                    const elPred = document.getElementById('kpiPredictedDemand');
+                    if (elPred) elPred.innerHTML = `${(summary.total_predicted_30d_demand / 1000).toFixed(1)}k <span style="font-size: 0.72rem; color: var(--blue-bright);">Units</span>`;
+
+                    const elReorder = document.getElementById('kpiReorderRequired');
+                    if (elReorder) elReorder.innerHTML = `${summary.reorder_required_count} <span style="font-size: 0.72rem; color: var(--teal);">Orders</span>`;
+
+                    const elNear = document.getElementById('kpiNearExpiry');
+                    if (elNear) elNear.innerHTML = `${summary.near_expiry_count} <span style="font-size: 0.72rem; color: var(--orange);">Batches</span>`;
+
+                    const elExp = document.getElementById('kpiExpired');
+                    if (elExp) elExp.innerHTML = `${summary.expired_meds_count} <span style="font-size: 0.72rem; color: #fca5a5;">Locked</span>`;
+
+                    // Dynamic Inventory Health Score
+                    if (summary.inventory_health_score !== undefined) {
+                        const elHealthScore = document.getElementById('healthScoreVal');
+                        const elHealthRating = document.getElementById('healthRatingVal');
+                        const elHealthBadge = document.getElementById('healthScoreBadge');
+                        if (elHealthScore) {
+                            elHealthScore.textContent = `${summary.inventory_health_score}%`;
+                            elHealthScore.style.color = summary.health_color || 'var(--teal)';
+                        }
+                        if (elHealthRating) elHealthRating.textContent = summary.health_rating || '';
+                        if (elHealthBadge && summary.health_breakdown) {
+                            elHealthBadge.title = `Resilience: ${summary.health_breakdown.stockout_resilience}/25 | Buffer: ${summary.health_breakdown.buffer_fulfillment}/25 | Expiry: ${summary.health_breakdown.expiry_integrity}/25 | Capital: ${summary.health_breakdown.capital_balance}/25`;
+                        }
+                    }
+
+                    // Dynamic Demand Chart Telemetry Footer
+                    const projDaily = Math.round(summary.total_predicted_30d_demand / 30);
+                    const globalRunway = projDaily > 0 ? Math.round(summary.total_usable_stock / projDaily) : 0;
+                    const elCmProj = document.getElementById('cmProjRate');
+                    if (elCmProj) elCmProj.textContent = `${projDaily.toLocaleString()} Units/Day`;
+                    const elCmRunway = document.getElementById('cmRunwayBuffer');
+                    if (elCmRunway) elCmRunway.textContent = `${globalRunway} Days Coverage`;
+                    const elCmHist = document.getElementById('cmHistRate');
+                    if (elCmHist) elCmHist.textContent = `${Math.round(projDaily * 0.94).toLocaleString()} Units/Day`;
+                }
+
+                // 2. Fetch real medicine inventory table
+                const realMeds = await window.MediStockAPI.getDashboardTable('all', '');
+                if (realMeds && realMeds.length > 0) {
+                    window.inventoryDB = realMeds.map(m => ({
+                        id: m.medicine_id,
+                        name: m.medicine_name,
+                        formula: `${m.dosage_form} · ${m.category}`,
+                        sku: `SKU #${m.medicine_id}`,
+                        stock: `${m.usable_stock.toLocaleString()} Units`,
+                        demand: `${m.predicted_30d_demand.toLocaleString()} Units`,
+                        daysUntilStockout: m.days_until_stockout,
+                        risk: m.risk_level,
+                        riskClass: m.risk_class === 'crit' ? 'state-risk' : (m.risk_class === 'warn' ? 'state-low' : ''),
+                        riskColor: m.risk_class === 'crit' ? 'var(--red)' : (m.risk_class === 'warn' ? 'var(--orange)' : 'var(--teal)'),
+                        expiryStatus: m.expired_stock > 0 ? 'Expired' : (m.near_expiry_stock > 0 ? 'Expiring Soon' : 'Safe'),
+                        expiryColor: m.expired_stock > 0 ? 'var(--red)' : (m.near_expiry_stock > 0 ? 'var(--orange)' : 'var(--teal)'),
+                        nearExpiryQty: `${m.near_expiry_stock.toLocaleString()} Units`,
+                        reorderRecommended: m.reorder_required ? `Order ${m.recommended_reorder_qty.toLocaleString()} Units` : 'Optimal Level',
+                        batches: m.fefo_priority_batch ? [`#${m.fefo_priority_batch} (FEFO Priority 1)`] : ['No active batch'],
+                        factors: [
+                            { title: 'Calculated Runway Coverage', desc: `Inventory burn model estimates ${m.days_until_stockout} days runway at ${m.predicted_daily_demand} U/day projected velocity.` },
+                            { title: 'Reorder Buffer Evaluation', desc: m.reorder_reason },
+                            { title: 'Shelf Life & FEFO Status', desc: m.expired_stock > 0 ? `${m.expired_stock.toLocaleString()} units expired.` : (m.near_expiry_stock > 0 ? `${m.near_expiry_stock.toLocaleString()} units near expiry.` : 'Batches within nominal regulatory shelf life.') }
+                        ]
+                    }));
+                    window.renderTable('all', '');
+                }
+
+                // 3. Fetch real dynamic alerts
+                const alerts = await window.MediStockAPI.getAlerts();
+                const alertContainer = document.getElementById('alertsList');
+                if (alerts && alertContainer && alerts.length > 0) {
+                    alertContainer.innerHTML = '';
+                    alerts.slice(0, 8).forEach(a => {
+                        const card = document.createElement('div');
+                        card.className = `alert-item-card ${a.category}`;
+                        card.dataset.cat = a.category;
+                        card.style.cursor = 'pointer';
+                        card.onclick = () => window.openInsightDrawer(a.medicine_id);
+                        
+                        const dotColor = a.type === 'critical' ? 'var(--red)' : (a.category === 'fefo' ? 'var(--orange)' : 'var(--teal)');
+                        const tagBg = a.type === 'critical' ? 'var(--red-dim)' : 'var(--orange-dim)';
+                        const tagColor = a.type === 'critical' ? 'var(--red)' : 'var(--orange)';
+                        
+                        card.innerHTML = `
+                            <div class="alert-dot-beacon" style="background: ${dotColor};"></div>
+                            <div class="alert-body-content">
+                                <div class="alert-row-top">
+                                    <span class="alert-med-name">${a.medicine_name}</span>
+                                    <span class="alert-timestamp">${a.timestamp}</span>
+                                </div>
+                                <div class="alert-desc-text">${a.description}</div>
+                                <span class="alert-tag-pill" style="background: ${tagBg}; color: ${tagColor};">${a.tag}</span>
+                            </div>
+                        `;
+                        alertContainer.appendChild(card);
+                    });
+                }
+            } catch (err) {
+                console.warn('[MediStock Dashboard] API live load notice:', err.message);
+                // Fallback to initial display if backend offline
+                window.renderTable('all', '');
+            }
+        }
+
+        // Initialize dashboard
+        loadBackendDashboard();
+
+    })();
+    </script>
+
+</body>
+</html>

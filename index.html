@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediStock — Predict demand. Prevent stock-outs.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ══════════════════════════════════════════════
+           MEDISTOCK MASTER DESIGN SYSTEM TOKENS
+           ══════════════════════════════════════════════ */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #08090c;
+            --bg-secondary: #0e1015;
+            --bg-tertiary: #151720;
+            --bg-card: rgba(20, 22, 30, 0.65);
+            --bg-glass: rgba(255, 255, 255, 0.025);
+            --bg-glass-hover: rgba(255, 255, 255, 0.055);
+
+            --text-primary: #f0f0f5;
+            --text-secondary: #9a9ab0;
+            --text-tertiary: #6b6b80;
+            --text-muted: #4a4a5a;
+
+            --blue: #4a90f5;
+            --blue-bright: #6ba3ff;
+            --blue-dim: rgba(74, 144, 245, 0.12);
+            --blue-glow: rgba(74, 144, 245, 0.25);
+            --teal: #2dd4bf;
+            --teal-dim: rgba(45, 212, 191, 0.10);
+            --teal-glow: rgba(45, 212, 191, 0.20);
+            --green: #34d399;
+
+            --border: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(255, 255, 255, 0.12);
+            --border-accent: rgba(74, 144, 245, 0.25);
+            --border-teal: rgba(45, 212, 191, 0.3);
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.35);
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.45);
+            --shadow-glow: 0 0 30px rgba(74, 144, 245, 0.15);
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            font-family: var(--font-sans);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ══════════════════════════════════════════════
+           AMBIENT BACKGROUND GLOWS
+           ══════════════════════════════════════════════ */
+        .ambient-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .ambient-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(130px);
+            opacity: 0.14;
+            animation: pulseGlow 14s ease-in-out infinite alternate;
+        }
+
+        .ambient-blob-1 {
+            top: -15%;
+            left: 10%;
+            width: 650px;
+            height: 650px;
+            background: radial-gradient(circle, #4a90f5, transparent 70%);
+        }
+
+        .ambient-blob-2 {
+            top: 35%;
+            right: -8%;
+            width: 550px;
+            height: 550px;
+            background: radial-gradient(circle, #2dd4bf, transparent 70%);
+            animation-delay: -5s;
+        }
+
+        .ambient-blob-3 {
+            bottom: -15%;
+            left: 35%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #6366f1, transparent 70%);
+            animation-delay: -9s;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1) translate(0, 0); opacity: 0.11; }
+            50% { transform: scale(1.12) translate(25px, -15px); opacity: 0.17; }
+            100% { transform: scale(0.96) translate(-20px, 20px); opacity: 0.11; }
+        }
+
+        /* Subtle Background Grid Pattern */
+        .bg-grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* ══════════════════════════════════════════════
+           SINGLE-SCREEN ROOT CONTAINER
+           ══════════════════════════════════════════════ */
+        .landing-viewport {
+            position: relative;
+            z-index: 10;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* ══════════════════════════════════════════════
+           MINIMAL HEADER / NAVBAR
+           ══════════════════════════════════════════════ */
+        .header {
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            flex-shrink: 0;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 1.15rem;
+            letter-spacing: -0.02em;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--blue), var(--teal));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: #ffffff;
+            box-shadow: 0 0 16px var(--blue-glow);
+        }
+
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.72rem;
+            font-family: var(--font-mono);
+            color: var(--teal);
+            background: var(--teal-dim);
+            border: 1px solid var(--border-teal);
+            padding: 5px 11px;
+            border-radius: 100px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--teal);
+            box-shadow: 0 0 8px var(--teal);
+            animation: pulseDot 2s infinite ease-in-out;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        /* ══════════════════════════════════════════════
+           MAIN HERO SECTION (VERTICALLY BALANCED)
+           ══════════════════════════════════════════════ */
+        .hero-main {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1.15fr 0.95fr;
+            align-items: center;
+            gap: 60px;
+            padding: 20px 0;
+            min-height: 0; /* Prevents overflow in flex children */
+        }
+
+        /* Left Hero Content */
+        .hero-left {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            max-width: 640px;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(74, 144, 245, 0.08);
+            border: 1px solid var(--border-accent);
+            border-radius: 100px;
+            font-size: 0.73rem;
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--blue-bright);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            box-shadow: 0 0 20px rgba(74, 144, 245, 0.1);
+        }
+
+        .brand-badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--blue-bright);
+            box-shadow: 0 0 8px var(--blue-bright);
+        }
+
+        .hero-brand-name {
+            font-size: clamp(3.2rem, 5.8vw, 4.8rem);
+            font-weight: 900;
+            line-height: 1.0;
+            letter-spacing: -0.03em;
+            color: #ffffff;
+            margin-bottom: 14px;
+            text-transform: uppercase;
+        }
+
+        .hero-headline {
+            font-size: clamp(1.4rem, 2.3vw, 2.1rem);
+            font-weight: 700;
+            line-height: 1.25;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        .hero-headline .highlight-line {
+            background: linear-gradient(135deg, #6ba3ff 0%, #2dd4bf 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .hero-supporting {
+            font-size: clamp(0.98rem, 1.25vw, 1.12rem);
+            font-weight: 400;
+            line-height: 1.55;
+            color: var(--text-secondary);
+            margin-bottom: 34px;
+            max-width: 520px;
+        }
+
+        .hero-action-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .btn-launch-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 36px;
+            background: linear-gradient(135deg, #4a90f5, #2563eb);
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 700;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            box-shadow: 0 0 35px var(--blue-glow), 0 8px 24px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .btn-launch-primary:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 0 50px rgba(74, 144, 245, 0.5), 0 12px 32px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(135deg, #5b9aff, #3b82f6);
+        }
+
+        .btn-launch-primary svg {
+            transition: transform 0.25s ease;
+        }
+
+        .btn-launch-primary:hover svg {
+            transform: translateX(4px);
+        }
+
+        /* ══════════════════════════════════════════════
+           RIGHT 3D PHARMACEUTICAL PACKAGE HERO VISUAL
+           ══════════════════════════════════════════════ */
+        .hero-right {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            height: 100%;
+            perspective: 1200px;
+        }
+
+        .pkg-stage {
+            position: relative;
+            width: 320px;
+            height: 420px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Backdrop ambient glow behind package */
+        .pkg-ambient-glow {
+            position: absolute;
+            width: 360px;
+            height: 360px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(74, 144, 245, 0.22) 0%, rgba(45, 212, 191, 0.12) 40%, transparent 70%);
+            filter: blur(40px);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* 3D Box Wrapper with smooth tilt */
+        .box-3d {
+            position: relative;
+            width: 250px;
+            height: 350px;
+            transform-style: preserve-3d;
+            transform: rotateY(-18deg) rotateX(10deg);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 2;
+        }
+
+        .box-3d:hover {
+            transform: rotateY(-8deg) rotateX(4deg) scale(1.03);
+        }
+
+        /* Front Face */
+        .box-face-front {
+            position: absolute;
+            width: 250px;
+            height: 350px;
+            background: linear-gradient(145deg, #181d28 0%, #0d1016 100%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 
+                0 24px 60px rgba(0, 0, 0, 0.75),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            backface-visibility: hidden;
+        }
+
+        /* Holographic / Metallic Top Sheen Line */
+        .box-foil-strip {
+            position: absolute;
+            top: 0;
+            left: 20px;
+            right: 20px;
+            height: 5px;
+            background: linear-gradient(90deg, #4a90f5, #2dd4bf);
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 0 12px rgba(45, 212, 191, 0.4);
+        }
+
+        .box-top-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 4px;
+        }
+
+        .box-pharma-tag {
+            font-size: 0.64rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            color: var(--teal);
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+        }
+
+        .box-seal-chip {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.58rem;
+            font-family: var(--font-mono);
+            color: var(--text-tertiary);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+
+        .box-brand-block {
+            margin-top: 10px;
+        }
+
+        .box-brand-name {
+            font-size: 1.45rem;
+            font-weight: 900;
+            letter-spacing: 0.05em;
+            color: #ffffff;
+            line-height: 1.1;
+        }
+
+        .box-brand-sub {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--blue-bright);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-top: 4px;
+            font-family: var(--font-mono);
+        }
+
+        .box-divider-line {
+            height: 1px;
+            background: linear-gradient(90deg, rgba(74, 144, 245, 0.4), rgba(45, 212, 191, 0.3), transparent);
+            margin: 16px 0 12px;
+        }
+
+        .box-specs-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .box-spec-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.68rem;
+            font-family: var(--font-mono);
+        }
+
+        .box-spec-lbl {
+            color: var(--text-tertiary);
+        }
+
+        .box-spec-val {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* Bottom Barcode & Batch */
+        .box-footer-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .box-barcode {
+            display: flex;
+            gap: 2px;
+            align-items: flex-end;
+            height: 24px;
+        }
+
+        .barcode-line {
+            width: 2px;
+            background: var(--text-tertiary);
+            border-radius: 1px;
+        }
+
+        .box-batch-info {
+            text-align: right;
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            color: var(--text-secondary);
+        }
+
+        .box-batch-code {
+            color: var(--teal);
+            font-weight: 700;
+            display: block;
+        }
+
+        /* Right Face (Side Depth) */
+        .box-face-right {
+            position: absolute;
+            width: 50px;
+            height: 350px;
+            background: linear-gradient(180deg, #10131b 0%, #080a0e 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 0 14px 14px 0;
+            right: -50px;
+            top: 0;
+            transform-origin: left;
+            transform: rotateY(90deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .box-side-text {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            font-size: 0.64rem;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        /* Ground Soft Shadow */
+        .box-shadow {
+            position: absolute;
+            bottom: -32px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 230px;
+            height: 32px;
+            background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.65) 0%, transparent 70%);
+            filter: blur(10px);
+            pointer-events: none;
+        }
+
+        /* Floating Capsule Accent */
+        .floating-capsule {
+            position: absolute;
+            top: 24px;
+            right: -24px;
+            width: 18px;
+            height: 44px;
+            border-radius: 9px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5), 0 0 15px rgba(74, 144, 245, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transform: rotate(28deg);
+            animation: floatCapsule 6s ease-in-out infinite alternate;
+        }
+
+        .capsule-half-blue {
+            flex: 1;
+            background: linear-gradient(135deg, var(--blue), #2563eb);
+        }
+
+        .capsule-half-white {
+            flex: 1;
+            background: linear-gradient(135deg, #ffffff, #cbd5e1);
+        }
+
+        @keyframes floatCapsule {
+            0% { transform: rotate(28deg) translateY(0); }
+            100% { transform: rotate(34deg) translateY(-14px); }
+        }
+
+        /* Floating Tablet Accent */
+        .floating-tablet {
+            position: absolute;
+            bottom: 36px;
+            left: -18px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(45, 212, 191, 0.15), rgba(45, 212, 191, 0.05));
+            border: 1px solid var(--border-teal);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), 0 0 15px var(--teal-glow);
+            animation: floatTablet 7s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatTablet {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(12px); }
+        }
+
+        /* ══════════════════════════════════════════════
+           MINIMAL FOOTER STRIP
+           ══════════════════════════════════════════════ */
+        .footer-strip {
+            height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 0.74rem;
+            color: var(--text-tertiary);
+            flex-shrink: 0;
+        }
+
+        .footer-strip a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .footer-strip a:hover {
+            color: var(--blue-bright);
+        }
+
+        /* ══════════════════════════════════════════════
+           RESPONSIVE BREAKPOINTS
+           ══════════════════════════════════════════════ */
+        @media (max-width: 1024px) {
+            .landing-viewport {
+                padding: 0 24px;
+            }
+            .hero-main {
+                grid-template-columns: 1fr;
+                gap: 30px;
+                text-align: center;
+            }
+            .hero-left {
+                align-items: center;
+                max-width: 100%;
+            }
+            .hero-action-row {
+                justify-content: center;
+            }
+            .hero-right {
+                display: none; /* Keep clean on tablet/smaller if needed */
+            }
+        }
+
+        @media (max-height: 720px) {
+            .hero-brand-name {
+                font-size: 2.8rem;
+                margin-bottom: 8px;
+            }
+            .hero-headline {
+                font-size: 1.35rem;
+                margin-bottom: 10px;
+            }
+            .brand-badge {
+                margin-bottom: 12px;
+            }
+            .hero-supporting {
+                margin-bottom: 20px;
+                font-size: 0.90rem;
+            }
+            .btn-launch-primary {
+                padding: 13px 28px;
+                font-size: 0.9rem;
+            }
+            .pkg-stage {
+                transform: scale(0.85);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Glow Backdrop -->
+    <div class="ambient-canvas">
+        <div class="ambient-blob ambient-blob-1"></div>
+        <div class="ambient-blob ambient-blob-2"></div>
+        <div class="ambient-blob ambient-blob-3"></div>
+    </div>
+
+    <!-- Background Subtle Tech Grid -->
+    <div class="bg-grid-overlay"></div>
+
+    <!-- TRUE SINGLE-SCREEN LANDING VIEWPORT -->
+    <div class="landing-viewport">
+
+        <!-- 1. Header / Navbar -->
+        <header class="header">
+            <a href="index.html" class="header-logo">
+                <div class="logo-icon">M</div>
+                <span>MediStock</span>
+            </a>
+
+            <div class="header-right">
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    <span>ML ENGINE ONLINE</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 2. Main Hero Section -->
+        <main class="hero-main">
+            <!-- Left: Brand, Headline, Supporting, Single CTA -->
+            <div class="hero-left">
+                <div class="brand-badge">
+                    <span class="brand-badge-dot"></span>
+                    PHARMACEUTICAL INVENTORY INTELLIGENCE
+                </div>
+
+                <h1 class="hero-brand-name">MEDISTOCK</h1>
+
+                <h2 class="hero-headline">
+                    Predict demand. <span class="highlight-line">Prevent stock-outs.</span>
+                </h2>
+
+                <p class="hero-supporting">
+                    ML-powered inventory intelligence for smarter medicine restocking.
+                </p>
+
+                <div class="hero-action-row">
+                    <a href="dashboard.html" class="btn-launch-primary" id="btnLaunchHero">
+                        Launch Dashboard
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14"></path>
+                            <path d="m12 5 7 7-7 7"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right: 3D Pharmaceutical Medicine Package Hero Visual -->
+            <div class="hero-right" id="heroVisualStage">
+                <div class="pkg-stage">
+                    <div class="pkg-ambient-glow"></div>
+
+                    <!-- 3D Medicine Box -->
+                    <div class="box-3d" id="pharmaBox">
+                        <!-- Front Face -->
+                        <div class="box-face-front">
+                            <div class="box-foil-strip"></div>
+                            
+                            <div class="box-top-meta">
+                                <span class="box-pharma-tag">RX-VERIFIED</span>
+                                <div class="box-seal-chip">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                    SECURITY SEAL
+                                </div>
+                            </div>
+
+                            <div class="box-brand-block">
+                                <div class="box-brand-name">MEDISTOCK</div>
+                                <div class="box-brand-sub">Inventory Intelligence</div>
+                            </div>
+
+                            <div class="box-divider-line"></div>
+
+                            <div class="box-specs-list">
+                                <div class="box-spec-row">
+                                    <span class="box-spec-lbl">MODEL:</span>
+                                    <span class="box-spec-val" style="color: var(--teal);">v2.4-Infer ML</span>
+                                </div>
+                                <div class="box-spec-row">
+                                    <span class="box-spec-lbl">BUFFER:</span>
+                                    <span class="box-spec-val">Dynamic Runway</span>
+                                </div>
+                                <div class="box-spec-row">
+                                    <span class="box-spec-lbl">PROTOCOL:</span>
+                                    <span class="box-spec-val">FEFO Priority</span>
+                                </div>
+                            </div>
+
+                            <div class="box-footer-row">
+                                <div class="box-barcode">
+                                    <div class="barcode-line" style="height: 20px;"></div>
+                                    <div class="barcode-line" style="height: 14px; width: 3px;"></div>
+                                    <div class="barcode-line" style="height: 22px;"></div>
+                                    <div class="barcode-line" style="height: 16px;"></div>
+                                    <div class="barcode-line" style="height: 20px; width: 3px;"></div>
+                                    <div class="barcode-line" style="height: 18px;"></div>
+                                    <div class="barcode-line" style="height: 22px;"></div>
+                                </div>
+                                <div class="box-batch-info">
+                                    <span>FEFO BATCH</span>
+                                    <strong class="box-batch-code">MS-2026-X</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Depth Face -->
+                        <div class="box-face-right">
+                            <span class="box-side-text">MEDISTOCK · SMART INVENTORY INTELLIGENCE</span>
+                        </div>
+
+                        <!-- Ground Shadow -->
+                        <div class="box-shadow"></div>
+                    </div>
+
+                    <!-- Floating Ambient Micro-elements -->
+                    <div class="floating-capsule">
+                        <div class="capsule-half-blue"></div>
+                        <div class="capsule-half-white"></div>
+                    </div>
+                    <div class="floating-tablet"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 3. Minimal Footer Strip -->
+        <footer class="footer-strip">
+            <div>&copy; 2026 MediStock. ML-Powered Pharmaceutical Inventory Intelligence.</div>
+            <div style="font-family: var(--font-mono); font-size: 0.70rem; color: var(--text-muted);">
+                Enterprise Chemist Edition
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Interactive 3D Subtle Cursor Tilt -->
+    <script>
+    (function() {
+        'use strict';
+        const box = document.getElementById('pharmaBox');
+        const stage = document.getElementById('heroVisualStage');
+        
+        if (box && stage) {
+            stage.addEventListener('mousemove', function(e) {
+                const rect = stage.getBoundingClientRect();
+                const x = e.clientX - rect.left - (rect.width / 2);
+                const y = e.clientY - rect.top - (rect.height / 2);
+                
+                const rotY = -18 + (x / rect.width) * 16;
+                const rotX = 10 - (y / rect.height) * 16;
+                
+                box.style.transform = `rotateY(${rotY}deg) rotateX(${rotX}deg)`;
+            });
+            
+            stage.addEventListener('mouseleave', function() {
+                box.style.transform = 'rotateY(-18deg) rotateX(10deg)';
+            });
+        }
+    })();
+    </script>
+</body>
+</html>

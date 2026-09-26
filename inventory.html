@@ -1,0 +1,2253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediStock — Inventory Intelligence &amp; Digital Medicine Shelf</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ══════════════════════════════════════════════
+           MEDISTOCK DESIGN SYSTEM VARIABLES (MATCHING LANDING)
+           ══════════════════════════════════════════════ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #08090c;
+            --bg-secondary: #0e1015;
+            --bg-tertiary: #151720;
+            --bg-card: rgba(20, 22, 30, 0.65);
+            --bg-glass: rgba(255, 255, 255, 0.025);
+            --bg-glass-hover: rgba(255, 255, 255, 0.055);
+            --bg-glass-card: rgba(255, 255, 255, 0.035);
+
+            --text-primary: #f0f0f5;
+            --text-secondary: #9a9ab0;
+            --text-tertiary: #6b6b80;
+            --text-muted: #4a4a5a;
+
+            --blue: #4a90f5;
+            --blue-bright: #6ba3ff;
+            --blue-dim: rgba(74, 144, 245, 0.12);
+            --blue-glow: rgba(74, 144, 245, 0.25);
+            --teal: #2dd4bf;
+            --teal-dim: rgba(45, 212, 191, 0.10);
+            --teal-glow: rgba(45, 212, 191, 0.20);
+            --green: #34d399;
+            --green-dim: rgba(52, 211, 153, 0.10);
+            --orange: #fb923c;
+            --orange-dim: rgba(251, 146, 60, 0.10);
+            --red: #f87171;
+            --red-dim: rgba(248, 113, 113, 0.10);
+
+            --border: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(255, 255, 255, 0.12);
+            --border-accent: rgba(74, 144, 245, 0.25);
+            --border-teal: rgba(45, 212, 191, 0.3);
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.35);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.4);
+            --shadow-xl: 0 20px 80px rgba(0,0,0,0.5);
+
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            --nav-height: 68px;
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.55;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        ::selection { background: var(--blue); color: white; }
+        a { text-decoration: none; color: inherit; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+        /* ══════════════════════════════════════════════
+           NAVIGATION (MATCHING MEDISTOCK MASTER)
+           ══════════════════════════════════════════════ */
+        .nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: var(--nav-height);
+            z-index: 1000;
+            background: rgba(8, 9, 12, 0.88);
+            backdrop-filter: blur(24px) saturate(1.3);
+            -webkit-backdrop-filter: blur(24px) saturate(1.3);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-inner {
+            max-width: 1720px;
+            margin: 0 auto;
+            padding: 0 28px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-left-group {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-logo-icon {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, var(--blue), var(--teal));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.8rem;
+            color: white;
+            box-shadow: 0 0 20px rgba(74, 144, 245, 0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            padding: 7px 16px;
+            font-size: 0.84rem;
+            font-weight: 500;
+            color: var(--text-tertiary);
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+            background: var(--bg-glass);
+        }
+
+        .nav-links a.active {
+            color: var(--blue-bright);
+            background: var(--blue-dim);
+            border: 1px solid rgba(74, 144, 245, 0.2);
+        }
+
+        .nav-right-group {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .fefo-status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: var(--teal-dim);
+            border: 1px solid rgba(45, 212, 191, 0.22);
+            border-radius: 100px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--teal);
+            letter-spacing: 0.02em;
+        }
+
+        .fefo-beacon {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--teal);
+            box-shadow: 0 0 8px var(--teal);
+            animation: pulse-beacon 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-beacon {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .btn-record-sale-header {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 18px;
+            background: linear-gradient(135deg, var(--blue) 0%, #5a7cf5 100%);
+            color: white;
+            font-size: 0.82rem;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(74, 144, 245, 0.25);
+            transition: all 0.25s ease;
+        }
+
+        .btn-record-sale-header:hover {
+            box-shadow: 0 0 28px rgba(74, 144, 245, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* ══════════════════════════════════════════════
+           MAIN WORKSPACE LAYOUT (BLOOMBERG ANALYTICS FOR PHARMA)
+           ══════════════════════════════════════════════ */
+        .workspace {
+            padding-top: calc(var(--nav-height) + 16px);
+            padding-bottom: 40px;
+            max-width: 1720px;
+            margin: 0 auto;
+            padding-left: 28px;
+            padding-right: 28px;
+        }
+
+        /* ── TOP OPERATIONAL HEADER & TICKER ── */
+        .op-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .op-title-area h1 {
+            font-size: 1.55rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .op-title-area h1 span.pill-count {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-family: var(--font-mono);
+        }
+
+        .op-ticker {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .ticker-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.75rem;
+        }
+
+        .ticker-card .t-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .ticker-card .t-label {
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .ticker-card .t-val {
+            font-family: var(--font-mono);
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* ── CATEGORY PILLS BAR ── */
+        .category-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            scrollbar-width: none;
+        }
+        .category-bar::-webkit-scrollbar { display: none; }
+
+        .cat-pill {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            color: var(--text-tertiary);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.74rem;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .cat-pill:hover {
+            color: var(--text-primary);
+            border-color: var(--border-hover);
+        }
+
+        .cat-pill.active {
+            background: var(--blue-dim);
+            border-color: rgba(74, 144, 245, 0.28);
+            color: var(--blue-bright);
+            font-weight: 600;
+        }
+
+        /* ── SEARCH, FILTER & SORT CONTROL RIBBON ── */
+        .filter-ribbon {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .search-box-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 280px;
+            max-width: 480px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 15px; height: 15px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .search-input {
+            width: 100%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 9px 16px 9px 40px;
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--blue-bright);
+            box-shadow: 0 0 16px rgba(74, 144, 245, 0.15);
+        }
+
+        .search-input::placeholder { color: var(--text-muted); }
+
+        .filter-state-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .state-filter-pill {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-tertiary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .state-filter-pill .sf-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+        }
+
+        .state-filter-pill:hover {
+            color: var(--text-primary);
+            border-color: var(--border-hover);
+        }
+
+        .state-filter-pill.active {
+            border-color: rgba(255,255,255,0.22);
+            color: var(--text-primary);
+            background: var(--bg-glass-hover);
+        }
+
+        .sort-select-wrap {
+            position: relative;
+        }
+
+        .sort-select {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 8px 30px 8px 12px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .sort-select:focus { border-color: var(--border-hover); }
+
+        .sort-chevron {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 13px; height: 13px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        /* ══════════════════════════════════════════════
+           DUAL-PANE WORKSPACE: DIGITAL SHELF (LEFT) + ANALYTICS CONSOLE (RIGHT)
+           ══════════════════════════════════════════════ */
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: 1fr 480px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        @media (max-width: 1400px) {
+            .workspace-grid {
+                grid-template-columns: 1fr 420px;
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .workspace-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── SECTION: DIGITAL MEDICINE SHELF ── */
+        .shelf-container {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .shelf-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 24px 24px 28px;
+            position: relative;
+        }
+
+        .shelf-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .shelf-section-title {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .shelf-section-title .section-tag {
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            color: var(--text-tertiary);
+            font-family: var(--font-mono);
+        }
+
+        .shelf-rack-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 18px;
+        }
+
+        /* ── 3D PHARMACEUTICAL MEDICINE PACKAGE CARD ── */
+        .med-package-card {
+            background: linear-gradient(165deg, rgba(20, 28, 44, 0.7) 0%, rgba(12, 17, 28, 0.85) 100%);
+            border: 1px solid rgba(74, 144, 245, 0.14);
+            border-radius: var(--radius-md);
+            padding: 20px 18px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s var(--ease-out-expo);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+        }
+
+        .med-package-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--blue), var(--teal), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .med-package-card:hover {
+            border-color: rgba(74, 144, 245, 0.35);
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 24px rgba(74, 144, 245, 0.1);
+        }
+
+        .med-package-card:hover::before { opacity: 1; }
+
+        .med-package-card.selected {
+            border-color: var(--teal);
+            background: linear-gradient(165deg, rgba(20, 36, 48, 0.85) 0%, rgba(10, 20, 28, 0.95) 100%);
+            box-shadow: 0 0 0 1px var(--teal), 0 16px 48px rgba(0,0,0,0.6), 0 0 30px rgba(45, 212, 191, 0.15);
+        }
+
+        .med-package-card.selected::before {
+            background: var(--teal);
+            opacity: 1;
+        }
+
+        /* Packaging visual states */
+        .med-package-card.state-healthy {
+            border-left: 3px solid var(--teal);
+        }
+
+        .med-package-card.state-low {
+            border-left: 3px solid var(--orange);
+        }
+
+        .med-package-card.state-high-risk {
+            border-left: 3px solid var(--red);
+            background: linear-gradient(165deg, rgba(32, 20, 24, 0.75) 0%, rgba(14, 10, 14, 0.85) 100%);
+        }
+
+        .med-package-card.state-expiring {
+            border-left: 3px solid var(--orange);
+            background: linear-gradient(165deg, rgba(32, 24, 18, 0.75) 0%, rgba(15, 12, 10, 0.85) 100%);
+        }
+
+        .med-package-card.state-expired {
+            border-left: 3px solid #7f1d1d;
+            opacity: 0.7;
+            background: linear-gradient(165deg, rgba(24, 12, 14, 0.8) 0%, rgba(12, 8, 10, 0.9) 100%);
+        }
+
+        /* Package top brand ribbon */
+        .pkg-top-ribbon {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .pkg-brand-pill {
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--blue-bright);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .pkg-brand-pill::before {
+            content: 'Rx';
+            font-family: var(--font-mono);
+            font-size: 0.55rem;
+            color: var(--text-tertiary);
+            padding: 1px 4px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 3px;
+        }
+
+        .pkg-status-badge {
+            font-size: 0.62rem;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: 4px;
+            letter-spacing: 0.04em;
+        }
+
+        .badge-healthy { background: var(--teal-dim); color: var(--teal); border: 1px solid rgba(45, 212, 191, 0.2); }
+        .badge-low { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(251, 146, 60, 0.2); }
+        .badge-risk { background: var(--red-dim); color: var(--red); border: 1px solid rgba(248, 113, 113, 0.25); }
+        .badge-expiring { background: rgba(251, 146, 60, 0.15); color: var(--orange); border: 1px solid rgba(251, 146, 60, 0.3); }
+        .badge-expired { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+        .pkg-medicine-title {
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 3px;
+            line-height: 1.3;
+        }
+
+        .pkg-medicine-sub {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            margin-bottom: 16px;
+            font-family: var(--font-mono);
+        }
+
+        /* Shelf package 3D visual cues */
+        .pkg-accent-strip {
+            width: 100%;
+            height: 3px;
+            border-radius: 2px;
+            background: linear-gradient(90deg, var(--blue), var(--teal));
+            opacity: 0.4;
+            margin-bottom: 14px;
+        }
+
+        .pkg-meta-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 14px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 6px;
+        }
+
+        .pkg-meta-item .p-lbl {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .pkg-meta-item .p-val {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .pkg-stock-bar-wrap {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .pkg-stock-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.6s ease;
+        }
+
+        .pkg-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(255,255,255,0.04);
+            padding-top: 10px;
+        }
+
+        .pkg-fefo-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--teal);
+            font-weight: 600;
+        }
+
+        /* ══════════════════════════════════════════════
+           ANALYTICAL INTELLIGENCE CONSOLE (RIGHT PANE)
+           ══════════════════════════════════════════════ */
+        .analytics-console {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            position: sticky;
+            top: calc(var(--nav-height) + 16px);
+            overflow: hidden;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .console-header {
+            padding: 22px 24px 16px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(8, 9, 12, 0.5);
+        }
+
+        .console-top-strip {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .console-sku-tag {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            color: var(--text-tertiary);
+        }
+
+        .btn-console-record {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: var(--blue-dim);
+            border: 1px solid rgba(74, 144, 245, 0.25);
+            color: var(--blue-bright);
+            font-size: 0.72rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-console-record:hover {
+            background: var(--blue);
+            color: white;
+        }
+
+        .console-med-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 3px;
+        }
+
+        .console-med-category {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        /* Console Navigation Tabs */
+        .console-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-tertiary);
+            padding: 0 16px;
+        }
+
+        .console-tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-tertiary);
+            padding: 12px 14px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.2s ease;
+        }
+
+        .console-tab-btn:hover { color: var(--text-primary); }
+
+        .console-tab-btn.active {
+            color: var(--blue-bright);
+        }
+
+        .console-tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; left: 0; right: 0;
+            height: 2px;
+            background: var(--blue-bright);
+        }
+
+        .console-body {
+            padding: 22px 24px;
+            max-height: calc(100vh - 280px);
+            overflow-y: auto;
+        }
+
+        .console-pane {
+            display: none;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .console-pane.active { display: block; }
+
+        /* ── INTELLIGENCE KPI MATRIX ── */
+        .intel-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .intel-kpi-cell {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 14px;
+        }
+
+        .intel-kpi-cell.full-width {
+            grid-column: span 2;
+        }
+
+        .ik-label {
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .ik-value {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ik-sub {
+            font-size: 0.68rem;
+            color: var(--text-tertiary);
+            margin-top: 3px;
+        }
+
+        /* ── FEFO BATCH STACK ── */
+        .fefo-section-header {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--teal);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fefo-batch-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .fefo-batch-card.is-priority {
+            border-color: rgba(45, 212, 191, 0.35);
+            background: linear-gradient(165deg, rgba(45, 212, 191, 0.05) 0%, transparent 100%);
+        }
+
+        .fefo-batch-card.is-expired {
+            border-color: rgba(248, 113, 113, 0.3);
+            background: linear-gradient(165deg, rgba(248, 113, 113, 0.04) 0%, transparent 100%);
+        }
+
+        .fefo-batch-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .fefo-batch-code {
+            font-family: var(--font-mono);
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .fefo-rank-tag {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .tag-p1 { background: var(--teal); color: #08090c; }
+        .tag-p2 { background: rgba(255,255,255,0.06); color: var(--text-secondary); border: 1px solid var(--border); }
+        .tag-expired { background: var(--red-dim); color: var(--red); border: 1px solid rgba(248, 113, 113, 0.25); }
+
+        .fefo-batch-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            font-size: 0.68rem;
+        }
+
+        .f-col-lbl { color: var(--text-muted); margin-bottom: 2px; font-size: 0.58rem; text-transform: uppercase; }
+        .f-col-val { color: var(--text-secondary); font-weight: 500; }
+
+        /* ── "WHY IS THIS MEDICINE AT RISK?" SECTION ── */
+        .risk-factors-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .factor-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            border-left: 3px solid var(--blue);
+        }
+
+        .factor-card.factor-critical { border-left-color: var(--red); }
+        .factor-card.factor-warning { border-left-color: var(--orange); }
+        .factor-card.factor-info { border-left-color: var(--teal); }
+
+        .factor-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .factor-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .factor-impact {
+            font-size: 0.62rem;
+            font-family: var(--font-mono);
+            color: var(--text-tertiary);
+        }
+
+        .factor-desc {
+            font-size: 0.72rem;
+            color: var(--text-tertiary);
+            line-height: 1.5;
+        }
+
+        /* ── DEMAND ANALYTICS MINI CHART ── */
+        .console-chart-wrap {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .console-chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 0.72rem;
+        }
+
+        .console-chart-title { font-weight: 600; color: var(--text-primary); }
+
+        .console-chart-legend {
+            display: flex;
+            gap: 12px;
+            font-size: 0.65rem;
+            color: var(--text-tertiary);
+        }
+
+        /* ══════════════════════════════════════════════
+           MODAL: SIMULATED MEDICINE SALE / DISPENSING WORKFLOW
+           ══════════════════════════════════════════════ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(4, 5, 8, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-hover);
+            border-radius: var(--radius-xl);
+            width: 100%;
+            max-width: 680px;
+            padding: 32px;
+            box-shadow: var(--shadow-xl), 0 0 80px rgba(74, 144, 245, 0.1);
+            position: relative;
+            transform: scale(0.96) translateY(10px);
+            transition: transform 0.3s var(--ease-out-expo);
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h3 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 6px;
+        }
+
+        .modal-close-btn:hover { color: white; background: var(--bg-glass); }
+
+        .modal-form-group {
+            margin-bottom: 18px;
+        }
+
+        .modal-label {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-tertiary);
+            margin-bottom: 8px;
+        }
+
+        .modal-fefo-banner {
+            padding: 12px 16px;
+            background: var(--teal-dim);
+            border: 1px solid rgba(45, 212, 191, 0.25);
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-fefo-title { font-size: 0.78rem; font-weight: 700; color: var(--teal); }
+        .modal-fefo-desc { font-size: 0.7rem; color: var(--text-secondary); margin-top: 2px; }
+
+        .modal-input {
+            width: 100%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-hover);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .modal-input:focus { border-color: var(--blue-bright); }
+
+        .modal-progression {
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+            display: none;
+        }
+
+        .modal-progression.active { display: block; }
+
+        .prog-steps-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .prog-step-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            transition: color 0.3s ease;
+        }
+
+        .prog-step-item.done { color: var(--teal); font-weight: 600; }
+        .prog-step-item.active { color: var(--blue-bright); font-weight: 600; }
+
+        .prog-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .prog-step-item.done .prog-dot { background: var(--teal); box-shadow: 0 0 8px var(--teal); }
+        .prog-step-item.active .prog-dot { background: var(--blue-bright); box-shadow: 0 0 8px var(--blue-bright); animation: pulse-beacon 1s infinite; }
+
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        /* ══════════════════════════════════════════════
+           RESPONSIVE REFINEMENTS
+           ══════════════════════════════════════════════ */
+        @media (max-width: 768px) {
+            .workspace { padding-left: 16px; padding-right: 16px; }
+            .shelf-rack-grid { grid-template-columns: 1fr; }
+            .filter-ribbon { flex-direction: column; align-items: stretch; }
+            .search-box-wrap { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ═══════════════════════════════════════════════
+         NAVBAR
+         ═══════════════════════════════════════════════ -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <div class="nav-left-group">
+                <a href="index.html" class="nav-logo">
+                    <div class="nav-logo-icon">M</div>
+                    <span>MediStock</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="inventory.html" class="active">Inventory</a></li>
+                    <li><a href="simulator.html">What-If Simulator</a></li>
+                    <li><a href="reorder.html">Reorder History</a></li>
+                    <li><a href="index.html#how-it-works">Settings</a></li>
+                </ul>
+            </div>
+
+            <div class="nav-right-group">
+                <div class="fefo-status-badge">
+                    <span class="fefo-beacon"></span>
+                    FEFO Protocol: Active
+                </div>
+                <button class="btn-record-sale-header" id="btnHeaderRecordSale">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                    Record Medicine Sale
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════════
+         MAIN WORKSPACE
+         ═══════════════════════════════════════════════ -->
+    <div class="workspace">
+
+        <!-- Top Header & Ticker -->
+        <div class="op-header">
+            <div class="op-title-area">
+                <h1>
+                    Digital Medicine Shelf &amp; Inventory
+                    <span class="pill-count" id="skuCountBadge">10 Managed SKUs</span>
+                </h1>
+            </div>
+
+            <div class="op-ticker">
+                <div class="ticker-card">
+                    <span class="t-dot" style="background: var(--teal);"></span>
+                    <span class="t-label">FEFO Priority Batches:</span>
+                    <span class="t-val" id="tickerFefo">Active Queue</span>
+                </div>
+                <div class="ticker-card">
+                    <span class="t-dot" style="background: var(--orange);"></span>
+                    <span class="t-label">Stock-out Risk:</span>
+                    <span class="t-val" id="tickerRisk" style="color: var(--orange);">Elevated</span>
+                </div>
+                <div class="ticker-card">
+                    <span class="t-dot" style="background: var(--red);"></span>
+                    <span class="t-label">Quarantine (Expired):</span>
+                    <span class="t-val" id="tickerExpired" style="color: var(--red);">1 Locked</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Filter Bar -->
+        <div class="category-bar">
+            <button class="cat-pill active" data-cat="all">All Medicine Classes</button>
+            <button class="cat-pill" data-cat="antibiotics">Antibiotics &amp; Antimicrobials</button>
+            <button class="cat-pill" data-cat="cardiovascular">Cardiovascular &amp; Statins</button>
+            <button class="cat-pill" data-cat="analgesics">Analgesics &amp; Anti-Inflammatory</button>
+            <button class="cat-pill" data-cat="endocrine">Endocrine &amp; Diabetic Care</button>
+            <button class="cat-pill" data-cat="respiratory">Respiratory &amp; Pulmonary</button>
+            <button class="cat-pill" data-cat="gastro">Gastrointestinal &amp; Acid Reducers</button>
+        </div>
+
+        <!-- Filter & Search Ribbon -->
+        <div class="filter-ribbon">
+            <div class="search-box-wrap">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input type="text" class="search-input" id="medicineSearchInput" placeholder="Search by Medicine Name, Formula, SKU, or Batch ID...">
+            </div>
+
+            <div class="filter-state-group">
+                <button class="state-filter-pill active" data-state="all">All States</button>
+                <button class="state-filter-pill" data-state="healthy"><span class="sf-dot" style="background: var(--teal);"></span> Healthy</button>
+                <button class="state-filter-pill" data-state="low"><span class="sf-dot" style="background: var(--orange);"></span> Low Stock</button>
+                <button class="state-filter-pill" data-state="high-risk"><span class="sf-dot" style="background: var(--red);"></span> High Risk</button>
+                <button class="state-filter-pill" data-state="expiring"><span class="sf-dot" style="background: var(--orange);"></span> Expiring Soon</button>
+                <button class="state-filter-pill" data-state="expired"><span class="sf-dot" style="background: #991b1b;"></span> Expired</button>
+            </div>
+
+            <div class="sort-select-wrap">
+                <select class="sort-select" id="sortSelect">
+                    <option value="risk-desc">Sort: Risk Status (Urgent First)</option>
+                    <option value="coverage-asc">Sort: Days Until Stock-out</option>
+                    <option value="expiry-asc">Sort: Expiry Date (FEFO First)</option>
+                    <option value="stock-asc">Sort: Current Stock (Low to High)</option>
+                    <option value="name-asc">Sort: Medicine Name (A-Z)</option>
+                </select>
+                <svg class="sort-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             CORE WORKSPACE DUAL-PANE
+             ═══════════════════════════════════════════════ -->
+        <div class="workspace-grid">
+
+            <!-- LEFT: DIGITAL MEDICINE SHELVES -->
+            <div class="shelf-container" id="shelfContainer">
+                <!-- Shelf loading skeleton shown before API data arrives -->
+                <div id="shelfLoadingState" style="padding: 40px 20px; text-align: center; color: var(--text-tertiary);">
+                    <div style="font-size: 0.85rem;">Loading medicines from database...</div>
+                </div>
+
+                <!-- Dynamic shelf sections injected here by loadBackendInventory() -->
+                <!-- Each medicine card gets: data-id, data-state, data-cat, data-name attributes -->
+                <!-- so applyFilters() can search across all 60+ medicines from SQLite -->
+
+                <!-- Empty State for Search/Filter -->
+                <div class="empty-inventory-state" id="inventoryEmptyState" style="display: none; padding: 60px 20px; text-align: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); margin: 20px 0;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(74, 144, 245, 0.1); color: var(--blue-bright); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin: 0 auto 14px;">🔍</div>
+                    <div style="font-size: 1.05rem; font-weight: 700; color: #ffffff; margin-bottom: 6px;">No medicines found</div>
+                    <div style="font-size: 0.78rem; color: var(--text-tertiary); max-width: 400px; margin: 0 auto 16px;">No pharmaceutical inventory matches your active search query or filter criteria.</div>
+                    <button class="cat-pill" onclick="resetInventoryFilters()" style="padding: 8px 18px; cursor: pointer; color: var(--teal); border-color: var(--border-teal);">Reset Search &amp; Filters</button>
+                </div>
+            </div>
+
+
+
+
+            <!-- RIGHT: ANALYTICAL INTELLIGENCE CONSOLE (DEEP-DIVE DRAWER) -->
+            <div class="analytics-console" id="analyticsConsole">
+
+
+
+                <!-- Console Header -->
+                <div class="console-header">
+                    <div class="console-top-strip">
+                        <span class="console-sku-tag" id="drawerSku">SKU #AMX-625 · PHARMA CLASS A</span>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <a href="medicine-detail.html?id=amx" class="btn-console-record" id="btnFullProfile" style="background: rgba(45, 212, 191, 0.15); color: var(--teal); border: 1px solid var(--border-teal); text-decoration: none;">
+                                Deep Intelligence &rarr;
+                            </a>
+                            <button class="btn-console-record" id="btnDrawerRecordSale">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                                Record Sale
+                            </button>
+                        </div>
+                    </div>
+                    <div class="console-med-title" id="drawerTitle">Amoxicillin + Clavulanic Acid</div>
+                    <div class="console-med-category" id="drawerCategory">Antibiotics &amp; Antimicrobials · Oral Solid Dosage</div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <div class="console-tabs">
+                    <button class="console-tab-btn active" data-tab="tab-intel">Inventory Intelligence</button>
+                    <button class="console-tab-btn" data-tab="tab-fefo">FEFO &amp; Batches</button>
+                    <button class="console-tab-btn" data-tab="tab-risk">Risk Factors</button>
+                    <button class="console-tab-btn" data-tab="tab-demand">Demand ML</button>
+                </div>
+
+                <!-- Tab Content Body -->
+                <div class="console-body">
+
+                    <!-- TAB 1: INVENTORY INTELLIGENCE -->
+                    <div class="console-pane active" id="tab-intel">
+                        <div class="intel-kpi-grid">
+                            <div class="intel-kpi-cell">
+                                <div class="ik-label">Current Available Stock</div>
+                                <div class="ik-value" id="valStock">Calculated Units</div>
+                                <div class="ik-sub">Across Unlocked Batches</div>
+                            </div>
+
+                            <div class="intel-kpi-cell">
+                                <div class="ik-label">Days Until Stock-out</div>
+                                <div class="ik-value" id="valCoverage" style="color: var(--red);">Critical Days</div>
+                                <div class="ik-sub">Below Supplier Lead Time</div>
+                            </div>
+
+                            <div class="intel-kpi-cell">
+                                <div class="ik-label">Predicted Demand Velocity</div>
+                                <div class="ik-value" id="valDemand" style="color: var(--teal);">Forecast Horizon</div>
+                                <div class="ik-sub">ML 30-Day Projected Consumption</div>
+                            </div>
+
+                            <div class="intel-kpi-cell">
+                                <div class="ik-label">Stock-out Risk Assessment</div>
+                                <div class="ik-value" id="valRisk" style="color: var(--red);">High Risk</div>
+                                <div class="ik-sub">Model Probability Spike</div>
+                            </div>
+
+                            <div class="intel-kpi-cell full-width" style="border-color: rgba(74, 144, 245, 0.25); background: var(--blue-dim);">
+                                <div class="ik-label" style="color: var(--blue-bright);">ML Recommended Restocking Quantity</div>
+                                <div class="ik-value" id="valReorder" style="color: #ffffff;">Order Recommended</div>
+                                <div class="ik-sub" style="color: var(--text-secondary);">Calculated automatically to restore safety buffer through next delivery cycle</div>
+                            </div>
+                        </div>
+
+                        <!-- Mini Expiry Summary -->
+                        <div style="padding: 14px 16px; background: rgba(0,0,0,0.25); border-radius: var(--radius-md); border: 1px solid var(--border);">
+                            <div style="font-size: 0.68rem; font-weight: 700; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 8px;">Batch Expiry Monitoring</div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.76rem; margin-bottom: 4px;">
+                                <span style="color: var(--text-secondary);">Earliest Active Expiry:</span>
+                                <span style="font-family: var(--font-mono); color: var(--teal);" id="valEarliestExpiry">Priority Batch Imminent</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.76rem;">
+                                <span style="color: var(--text-secondary);">Quarantined Expired Units:</span>
+                                <span style="font-family: var(--font-mono); color: var(--text-muted);" id="valExpiredUnits">0 (All Eligible)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: FEFO BATCH ALLOCATION -->
+                    <div class="console-pane" id="tab-fefo">
+                        <div class="fefo-section-header">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M7 12h10M10 18h4"/></svg>
+                            First Expiry, First Out (FEFO) Protocol
+                        </div>
+                        <p style="font-size: 0.72rem; color: var(--text-tertiary); margin-bottom: 14px;">
+                            MediStock routes all sales and dispensing requests strictly to the earliest-expiring eligible batch to reduce avoidable expiry obsolescence.
+                        </p>
+
+                        <div id="fefoBatchList">
+                            <!-- Batch A: Earliest Expiry (Priority 1) -->
+                            <div class="fefo-batch-card is-priority">
+                                <div class="fefo-batch-top">
+                                    <span class="fefo-batch-code">BATCH #AMX-9482</span>
+                                    <span class="fefo-rank-tag tag-p1">FEFO Priority 1 (Next Out)</span>
+                                </div>
+                                <div class="fefo-batch-details">
+                                    <div>
+                                        <div class="f-col-lbl">Expiry Window</div>
+                                        <div class="f-col-val" style="color: var(--teal);">Earliest in Inventory</div>
+                                    </div>
+                                    <div>
+                                        <div class="f-col-lbl">Allocation Status</div>
+                                        <div class="f-col-val" style="color: var(--teal);">Active for Draw</div>
+                                    </div>
+                                    <div>
+                                        <div class="f-col-lbl">Batch Level</div>
+                                        <div class="f-col-val">Dynamic Capacity</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Batch B: Later Expiry (Queue) -->
+                            <div class="fefo-batch-card">
+                                <div class="fefo-batch-top">
+                                    <span class="fefo-batch-code">BATCH #AMX-9483</span>
+                                    <span class="fefo-rank-tag tag-p2">Priority 2 (In Queue)</span>
+                                </div>
+                                <div class="fefo-batch-details">
+                                    <div>
+                                        <div class="f-col-lbl">Expiry Window</div>
+                                        <div class="f-col-val">Later Window</div>
+                                    </div>
+                                    <div>
+                                        <div class="f-col-lbl">Allocation Status</div>
+                                        <div class="f-col-val">Held in Reserve</div>
+                                    </div>
+                                    <div>
+                                        <div class="f-col-lbl">Batch Level</div>
+                                        <div class="f-col-val">Buffer Stock</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Batch C: Longest Expiry (Reserve) -->
+                            <div class="fefo-batch-card">
+                                <div class="fefo-batch-top">
+                                    <span class="fefo-batch-code">BATCH #AMX-9901</span>
+                                    <span class="fefo-rank-tag tag-p2">Priority 3 (Long-Term Reserve)</span>
+                                </div>
+                                <div class="fefo-batch-details">
+                                    <div>
+                                        <div class="f-col-lbl">Expiry Window</div>
+                                        <div class="f-col-val">Maximum Horizon</div>
+                                    </div>
+                                    <div>
+                                        <div class="f-col-lbl">Allocation Status</div>
+                                        <div class="f-col-val">Preserved</div>
+                                    </div>
+                                    <div>
+                                        <div class="f-col-lbl">Batch Level</div>
+                                        <div class="f-col-val">Warehouse Tier</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: WHY IS THIS MEDICINE AT RISK? -->
+                    <div class="console-pane" id="tab-risk">
+                        <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">
+                            Model-Derived Contributing Risk Factors
+                        </div>
+                        <p style="font-size: 0.72rem; color: var(--text-tertiary); margin-bottom: 16px;">
+                            MediStock's ML inference engine identifies specific data dimensions contributing to inventory risk:
+                        </p>
+
+                        <div class="risk-factors-container" id="riskFactorsList">
+                            <!-- Factor 1 -->
+                            <div class="factor-card factor-critical">
+                                <div class="factor-header">
+                                    <span class="factor-title">Accelerating Consumption Velocity</span>
+                                    <span class="factor-impact" style="color: var(--red);">HIGH IMPACT</span>
+                                </div>
+                                <div class="factor-desc">
+                                    Observed 14-day sales frequency exceeded the trailing 90-day baseline, depleting safety buffer faster than historical mean.
+                                </div>
+                            </div>
+
+                            <!-- Factor 2 -->
+                            <div class="factor-card factor-critical">
+                                <div class="factor-header">
+                                    <span class="factor-title">Inventory Coverage vs Supplier Lead Time</span>
+                                    <span class="factor-impact" style="color: var(--red);">CRITICAL IMPACT</span>
+                                </div>
+                                <div class="factor-desc">
+                                    Calculated days-until-stockout has dropped below the verified replenishment lead time window required by distributor.
+                                </div>
+                            </div>
+
+                            <!-- Factor 3 -->
+                            <div class="factor-card factor-warning">
+                                <div class="factor-header">
+                                    <span class="factor-title">FEFO Expiry Deduction</span>
+                                    <span class="factor-impact" style="color: var(--orange);">MODERATE IMPACT</span>
+                                </div>
+                                <div class="factor-desc">
+                                    Batch #AMX-9482 approaches expiry horizon, limiting the effective usable timeline of current on-hand units.
+                                </div>
+                            </div>
+
+                            <!-- Factor 4 -->
+                            <div class="factor-card factor-info">
+                                <div class="factor-header">
+                                    <span class="factor-title">Predictive Demand Forecast Surge</span>
+                                    <span class="factor-impact" style="color: var(--teal);">MODEL CONFIDENCE: HIGH</span>
+                                </div>
+                                <div class="factor-desc">
+                                    Seasonal epidemiological trend projections indicate continued elevated demand for this antimicrobial class.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 4: DEMAND ANALYTICS -->
+                    <div class="console-pane" id="tab-demand">
+                        <div class="console-chart-wrap">
+                            <div class="console-chart-header">
+                                <span class="console-chart-title">Demand Horizon (Historical → Predicted)</span>
+                                <div class="console-chart-legend">
+                                    <span style="color: var(--blue);">● Historical</span>
+                                    <span style="color: var(--teal);">┄ Predicted</span>
+                                </div>
+                            </div>
+
+                            <svg viewBox="0 0 400 180" preserveAspectRatio="none" style="width: 100%; height: 160px;">
+                                <defs>
+                                    <linearGradient id="chHistGrad" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="rgba(74,144,245,0.2)"/>
+                                        <stop offset="100%" stop-color="rgba(74,144,245,0)"/>
+                                    </linearGradient>
+                                    <linearGradient id="chPredGrad" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="rgba(45,212,191,0.18)"/>
+                                        <stop offset="100%" stop-color="rgba(45,212,191,0)"/>
+                                    </linearGradient>
+                                </defs>
+
+                                <line x1="0" y1="40" x2="400" y2="40" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+                                <line x1="0" y1="90" x2="400" y2="90" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+                                <line x1="0" y1="140" x2="400" y2="140" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+
+                                <!-- Historical Fill & Line -->
+                                <path d="M0,150 L0,120 L40,110 L80,118 L120,95 L160,105 L200,85 L200,150 Z" fill="url(#chHistGrad)"/>
+                                <polyline points="0,120 40,110 80,118 120,95 160,105 200,85" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"/>
+
+                                <!-- Predicted Fill & Line -->
+                                <path d="M200,150 L200,85 L240,75 L280,68 L320,55 L360,45 L400,38 L400,150 Z" fill="url(#chPredGrad)"/>
+                                <polyline points="200,85 240,75 280,68 320,55 360,45 400,38" fill="none" stroke="var(--teal)" stroke-width="2" stroke-dasharray="5 3" stroke-linecap="round"/>
+
+                                <!-- Threshold & Divider -->
+                                <line x1="200" y1="15" x2="200" y2="165" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="3 3"/>
+                                <line x1="0" y1="130" x2="400" y2="130" stroke="rgba(248,113,113,0.25)" stroke-width="1" stroke-dasharray="4 4"/>
+
+                                <text x="100" y="170" fill="rgba(255,255,255,0.2)" font-size="9" font-family="Inter" text-anchor="middle">HISTORICAL (OBSERVED)</text>
+                                <text x="300" y="170" fill="rgba(255,255,255,0.2)" font-size="9" font-family="Inter" text-anchor="middle">ML PREDICTION (HORIZON)</text>
+                            </svg>
+                        </div>
+                        <div style="font-size: 0.7rem; color: var(--text-tertiary); line-height: 1.5;">
+                            ML inference trajectory demonstrates upward consumption velocity. Red dotted boundary highlights the minimum inventory coverage threshold where restocking must be triggered.
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         INTERACTIVE "RECORD SALE" MODAL (FEFO DISPENSING WORKFLOW)
+         ═══════════════════════════════════════════════ -->
+    <div class="modal-overlay" id="saleModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <h3>Record Medicine Sale Event</h3>
+                    <p style="font-size: 0.75rem; color: var(--text-tertiary);">Simulate transactional dispensing with real-time FEFO batch allocation &amp; inventory recalculation.</p>
+                </div>
+                <button class="modal-close-btn" id="btnModalClose">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <div class="modal-form-group">
+                <label class="modal-label">Selected Medicine</label>
+                <input type="text" class="modal-input" id="modalMedName" readonly value="Amoxicillin + Clavulanic Acid 625mg">
+            </div>
+
+            <div class="modal-fefo-banner">
+                <div>
+                    <div class="modal-fefo-title">FEFO Batch Auto-Resolution</div>
+                    <div class="modal-fefo-desc" id="modalFefoBatch">Allocating from Batch #AMX-9482 (Earliest Expiry Priority)</div>
+                </div>
+                <span class="fefo-rank-tag tag-p1">FEFO Target</span>
+            </div>
+
+            <div class="modal-form-group">
+                <label class="modal-label">Dispense Quantity</label>
+                <input type="number" class="modal-input" id="modalSaleQty" min="1" max="100" value="10" placeholder="Enter units to dispense...">
+            </div>
+
+            <!-- Progression Steps (Fires on confirm) -->
+            <div class="modal-progression" id="modalProgression">
+                <div style="font-size: 0.72rem; font-weight: 700; color: var(--teal); margin-bottom: 10px; text-transform: uppercase;">
+                    Executing Backend Recalculation Engine
+                </div>
+                <div class="prog-steps-flow">
+                    <div class="prog-step-item" id="pStep1"><span class="prog-dot"></span> 1. Deducting stock from earliest FEFO batch in database...</div>
+                    <div class="prog-step-item" id="pStep2"><span class="prog-dot"></span> 2. Logging transaction audit event into repository...</div>
+                    <div class="prog-step-item" id="pStep3"><span class="prog-dot"></span> 3. Recalculating consumption velocity &amp; run-rate...</div>
+                    <div class="prog-step-item" id="pStep4"><span class="prog-dot"></span> 4. Refreshing Days-Until-Stockout coverage buffer...</div>
+                    <div class="prog-step-item" id="pStep5"><span class="prog-dot"></span> 5. Dynamically updating stock-out risk assessment...</div>
+                    <div class="prog-step-item" id="pStep6"><span class="prog-dot"></span> 6. Updating smart reorder recommendation quantity...</div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="cat-pill" id="btnModalCancel" style="padding: 10px 20px;">Cancel</button>
+                <button class="btn-record-sale-header" id="btnModalConfirm" style="padding: 10px 24px;">
+                    Confirm Sale &amp; Recalculate
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SCRIPTS: DATABASE MOCK, SELECTION, FILTERING, MODAL
+         ═══════════════════════════════════════════════ -->
+    <script src="medistock-api.js"></script>
+    <script>
+    (function() {
+        'use strict';
+
+        // ── MEDICINE METADATA REPOSITORY (DATA-DRIVEN) ──
+        const medicineData = {
+            'med-amx': {
+                name: 'Amoxicillin + Clavulanic Acid',
+                category: 'Antibiotics & Antimicrobials · Oral Solid Dosage',
+                sku: 'SKU #AMX-625 · PHARMA CLASS A',
+                stockState: 'high-risk',
+                stockVal: 'Critical Buffer',
+                coverageVal: 'Critical Runway',
+                demandVal: 'Surge Projection',
+                riskVal: 'High Stock-out Risk',
+                reorderVal: 'Immediate Reorder Required',
+                earliestExpiry: 'Priority Batch Active',
+                expiredUnits: '0 Units (All Valid)',
+                fefoBatches: [
+                    { code: 'BATCH #AMX-9482', rank: 'p1', rankLabel: 'FEFO Priority 1 (Next Out)', expiry: 'Earliest Active Window', status: 'Immediate Dispense', level: 'Allocated' },
+                    { code: 'BATCH #AMX-9483', rank: 'p2', rankLabel: 'Priority 2 (In Queue)', expiry: 'Later Horizon', status: 'In Queue', level: 'Buffer' },
+                    { code: 'BATCH #AMX-9901', rank: 'p2', rankLabel: 'Priority 3 (Long Reserve)', expiry: 'Longest Shelf Life', status: 'Preserved', level: 'Warehouse Tier' }
+                ],
+                riskFactors: [
+                    { title: 'Accelerating Consumption Velocity', impact: 'HIGH IMPACT', type: 'critical', desc: 'Observed sales frequency exceeded trailing baseline, depleting safety buffer rapidly.' },
+                    { title: 'Inventory Coverage vs Lead Time', impact: 'CRITICAL IMPACT', type: 'critical', desc: 'Calculated days-until-stockout has dropped below verified supplier replenishment lead time.' },
+                    { title: 'FEFO Expiry Deduction', impact: 'MODERATE IMPACT', type: 'warning', desc: 'Earliest batch approaching expiry horizon, reducing effective usable runway.' }
+                ]
+            },
+            'med-azi': {
+                name: 'Azithromycin USP',
+                category: 'Antibiotics & Antimicrobials · Macrolide Class',
+                sku: 'SKU #AZI-500 · PHARMA CLASS A',
+                stockState: 'expiring',
+                stockVal: 'Moderate Runway',
+                coverageVal: 'Covered Window',
+                demandVal: 'Steady Trajectory',
+                riskVal: 'Near-Expiry Attention',
+                reorderVal: 'Monitor Expiry Consumption',
+                earliestExpiry: 'Approaching Expiry Window',
+                expiredUnits: '0 (Eligible for FEFO)',
+                fefoBatches: [
+                    { code: 'BATCH #AZI-3011', rank: 'p1', rankLabel: 'FEFO Priority 1 (Expiring Soon)', expiry: 'Approaching Expiry', status: 'Priority Draw', level: 'Accelerate Dispense' },
+                    { code: 'BATCH #AZI-4100', rank: 'p2', rankLabel: 'Priority 2 (Safe)', expiry: 'Extended Horizon', status: 'Safe Queue', level: 'Primary Reserve' }
+                ],
+                riskFactors: [
+                    { title: 'Approaching Expiry Date (FEFO)', impact: 'HIGH ATTENTION', type: 'warning', desc: 'Batch #AZI-3011 enters warning window; dispensing must be accelerated to prevent waste.' },
+                    { title: 'Consumption Run-Rate vs Shelf Life', impact: 'MODERATE IMPACT', type: 'info', desc: 'Current dispensing velocity projected to clear 85% of batch prior to expiry boundary.' }
+                ]
+            },
+            'med-cef': {
+                name: 'Ceftriaxone Sodium Vial',
+                category: 'Antibiotics & Antimicrobials · Injectable Cephalosporin',
+                sku: 'SKU #CEF-1000 · PHARMA CLASS A',
+                stockState: 'expired',
+                stockVal: '0 Units (Locked)',
+                coverageVal: 'Quarantine Protocol',
+                demandVal: 'Restock Required',
+                riskVal: 'Expired Batch Hazard',
+                reorderVal: 'Replacement Batch Order Required',
+                earliestExpiry: 'Past Expiry Boundary',
+                expiredUnits: 'Entire Batch Quarantined',
+                fefoBatches: [
+                    { code: 'BATCH #CEF-1104', rank: 'expired', rankLabel: 'Quarantine (Expired)', expiry: 'Expired Past Boundary', status: 'Dispensing Locked', level: 'Pending Destruction' }
+                ],
+                riskFactors: [
+                    { title: 'Batch Past Expiry Horizon', impact: 'QUARANTINE ENFORCED', type: 'critical', desc: 'Batch #CEF-1104 crossed regulatory expiry threshold; excluded by FEFO from all dispensing.' },
+                    { title: 'Zero Usable Inventory', impact: 'IMMEDIATE STOCK-OUT', type: 'critical', desc: 'Usable on-hand inventory is zero; emergency replenishment order recommended.' }
+                ]
+            },
+            'med-met': {
+                name: 'Metformin Hydrochloride',
+                category: 'Endocrine, Diabetes & Metabolic Care · Oral Biguanide',
+                sku: 'SKU #MET-850 · PHARMA CLASS B',
+                stockState: 'healthy',
+                stockVal: 'Optimal Buffer',
+                coverageVal: 'Safe Runway',
+                demandVal: 'Predictable Baseline',
+                riskVal: 'Low Risk (Nominal)',
+                reorderVal: 'Standard Periodic Cycle',
+                earliestExpiry: 'Safe Expiry Window',
+                expiredUnits: '0 Units',
+                fefoBatches: [
+                    { code: 'BATCH #MET-5501', rank: 'p1', rankLabel: 'FEFO Priority 1 (Next Out)', expiry: 'Safe Window', status: 'Eligible', level: 'Optimal' },
+                    { code: 'BATCH #MET-5502', rank: 'p2', rankLabel: 'Priority 2 (Queue)', expiry: 'Long Horizon', status: 'Queue', level: 'Reserve' }
+                ],
+                riskFactors: [
+                    { title: 'Predictable Consumption Pattern', impact: 'STABLE BASELINE', type: 'info', desc: 'No abnormal variance detected; current inventory matches forecasted 45-day requirement.' }
+                ]
+            },
+            'med-ins': {
+                name: 'Insulin Glargine Pen',
+                category: 'Endocrine & Diabetes · Cold Chain Biologics',
+                sku: 'SKU #INS-100 · PHARMA CLASS B',
+                stockState: 'low',
+                stockVal: 'Low Buffer',
+                coverageVal: 'Lead Time Alert',
+                demandVal: 'Inelastic Run-rate',
+                riskVal: 'Elevated Stock-out Risk',
+                reorderVal: 'Cold-Chain Restock Recommended',
+                earliestExpiry: 'Safe Active Horizon',
+                expiredUnits: '0 Units',
+                fefoBatches: [
+                    { code: 'BATCH #INS-802', rank: 'p1', rankLabel: 'FEFO Priority 1', expiry: 'Active Cold Chain', status: 'Priority Draw', level: 'Low Volume' }
+                ],
+                riskFactors: [
+                    { title: 'Low Safety Stock Threshold', impact: 'ELEVATED RISK', type: 'warning', desc: 'Cold chain capacity requires immediate PO placement to ensure continuous patient coverage.' }
+                ]
+            },
+            'med-lev': {
+                name: 'Levothyroxine Sodium',
+                category: 'Endocrine & Metabolic Care · Thyroid Hormone',
+                sku: 'SKU #LEV-100 · PHARMA CLASS B',
+                stockState: 'healthy',
+                stockVal: 'Safe Buffer',
+                coverageVal: 'Safe Runway',
+                demandVal: 'Consistent Baseline',
+                riskVal: 'Low Risk',
+                reorderVal: 'Routine Cycle',
+                earliestExpiry: 'Safe Horizon',
+                expiredUnits: '0 Units',
+                fefoBatches: [
+                    { code: 'BATCH #LEV-209', rank: 'p1', rankLabel: 'FEFO Priority 1', expiry: 'Healthy Horizon', status: 'Active', level: 'Sufficient' }
+                ],
+                riskFactors: [
+                    { title: 'Consistent Refill Frequency', impact: 'OPTIMAL RUNWAY', type: 'info', desc: 'Demand predictability is high with negligible stockout probability.' }
+                ]
+            },
+            'med-ato': {
+                name: 'Atorvastatin Calcium',
+                category: 'Cardiovascular & Statins · Lipid Lowering Agent',
+                sku: 'SKU #ATO-020 · PHARMA CLASS C',
+                stockState: 'healthy',
+                stockVal: 'Balanced Buffer',
+                coverageVal: 'Safe Runway',
+                demandVal: 'High Volume Steady',
+                riskVal: 'Low Risk',
+                reorderVal: 'Standard Scheduled Cycle',
+                earliestExpiry: 'Safe Window',
+                expiredUnits: '0 Units',
+                fefoBatches: [
+                    { code: 'BATCH #ATO-771', rank: 'p1', rankLabel: 'FEFO Priority 1', expiry: 'Safe Window', status: 'Active', level: 'Healthy' }
+                ],
+                riskFactors: [
+                    { title: 'High Supplier Reliability', impact: 'LOW RISK', type: 'info', desc: 'Supplier fulfillment metrics indicate fast turnaround, lowering required buffer.' }
+                ]
+            },
+            'med-pan': {
+                name: 'Pantoprazole Sodium',
+                category: 'Gastrointestinal & Acid Reducers · Proton Pump Inhibitor',
+                sku: 'SKU #PAN-040 · PHARMA CLASS D',
+                stockState: 'healthy',
+                stockVal: 'Safe Runway',
+                coverageVal: 'Safe Window',
+                demandVal: 'Steady Trajectory',
+                riskVal: 'Low Risk',
+                reorderVal: 'Routine Schedule',
+                earliestExpiry: 'Safe Horizon',
+                expiredUnits: '0 Units',
+                fefoBatches: [
+                    { code: 'BATCH #PAN-440', rank: 'p1', rankLabel: 'FEFO Priority 1', expiry: 'Safe Active', status: 'Active', level: 'Optimal' }
+                ],
+                riskFactors: [
+                    { title: 'Stock Runway Within Target', impact: 'HEALTHY BUFFER', type: 'info', desc: 'Inventory parameters aligned with seasonal clinical demand.' }
+                ]
+            }
+        };
+
+        let selectedMedId = 'med-amx';
+
+        // ── UPDATE ANALYTICS CONSOLE PANE ──
+        function updateConsole(medId) {
+            const med = medicineData[medId] || medicineData['med-amx'];
+            selectedMedId = medId;
+
+            document.getElementById('drawerSku').textContent = med.sku;
+            document.getElementById('drawerTitle').textContent = med.name;
+            document.getElementById('drawerCategory').textContent = med.category;
+            const fullProfileBtn = document.getElementById('btnFullProfile');
+            if (fullProfileBtn) fullProfileBtn.href = 'medicine-detail.html?id=' + medId.replace('med-', '');
+
+            // KPIs
+            document.getElementById('valStock').textContent = med.stockVal;
+            document.getElementById('valCoverage').textContent = med.coverageVal;
+            document.getElementById('valDemand').textContent = med.demandVal;
+            document.getElementById('valRisk').textContent = med.riskVal;
+            document.getElementById('valReorder').textContent = med.reorderVal;
+            document.getElementById('valEarliestExpiry').textContent = med.earliestExpiry;
+            document.getElementById('valExpiredUnits').textContent = med.expiredUnits;
+
+            // Color adjustments
+            const covEl = document.getElementById('valCoverage');
+            if (med.stockState === 'high-risk') covEl.style.color = 'var(--red)';
+            else if (med.stockState === 'low' || med.stockState === 'expiring') covEl.style.color = 'var(--orange)';
+            else covEl.style.color = 'var(--teal)';
+
+            const riskEl = document.getElementById('valRisk');
+            if (med.stockState === 'high-risk' || med.stockState === 'expired') riskEl.style.color = 'var(--red)';
+            else if (med.stockState === 'low' || med.stockState === 'expiring') riskEl.style.color = 'var(--orange)';
+            else riskEl.style.color = 'var(--teal)';
+
+            // FEFO Batches
+            const batchContainer = document.getElementById('fefoBatchList');
+            batchContainer.innerHTML = '';
+            med.fefoBatches.forEach(b => {
+                const card = document.createElement('div');
+                card.className = `fefo-batch-card ${b.rank === 'p1' ? 'is-priority' : (b.rank === 'expired' ? 'is-expired' : '')}`;
+                const tagClass = b.rank === 'p1' ? 'tag-p1' : (b.rank === 'expired' ? 'tag-expired' : 'tag-p2');
+                card.innerHTML = `
+                    <div class="fefo-batch-top">
+                        <span class="fefo-batch-code">${b.code}</span>
+                        <span class="fefo-rank-tag ${tagClass}">${b.rankLabel}</span>
+                    </div>
+                    <div class="fefo-batch-details">
+                        <div>
+                            <div class="f-col-lbl">Expiry Window</div>
+                            <div class="f-col-val">${b.expiry}</div>
+                        </div>
+                        <div>
+                            <div class="f-col-lbl">Allocation Status</div>
+                            <div class="f-col-val">${b.status}</div>
+                        </div>
+                        <div>
+                            <div class="f-col-lbl">Batch Level</div>
+                            <div class="f-col-val">${b.level}</div>
+                        </div>
+                    </div>
+                `;
+                batchContainer.appendChild(card);
+            });
+
+            // Risk Factors
+            const riskContainer = document.getElementById('riskFactorsList');
+            riskContainer.innerHTML = '';
+            med.riskFactors.forEach(f => {
+                const factorCard = document.createElement('div');
+                factorCard.className = `factor-card factor-${f.type}`;
+                factorCard.innerHTML = `
+                    <div class="factor-header">
+                        <span class="factor-title">${f.title}</span>
+                        <span class="factor-impact">${f.impact}</span>
+                    </div>
+                    <div class="factor-desc">${f.desc}</div>
+                `;
+                riskContainer.appendChild(factorCard);
+            });
+        }
+
+        // ── MEDICINE CARD SELECTION EVENT (delegated — works for dynamic cards) ──
+        document.getElementById('shelfContainer').addEventListener('click', function(e) {
+            const card = e.target.closest('.med-package-card');
+            if (!card) return;
+            document.querySelectorAll('.med-package-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            updateConsole(card.dataset.id);
+        });
+
+        // ── CONSOLE TABS SWITCHER ──
+        const consoleTabBtns = document.querySelectorAll('.console-tab-btn');
+        const consolePanes = document.querySelectorAll('.console-pane');
+
+        consoleTabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                consoleTabBtns.forEach(b => b.classList.remove('active'));
+                consolePanes.forEach(p => p.classList.remove('active'));
+                btn.classList.add('active');
+                const tabId = btn.dataset.tab;
+                const pane = document.getElementById(tabId);
+                if (pane) pane.classList.add('active');
+            });
+        });
+
+        // ── SEARCH AND FILTER LOGIC (operates on live DOM — includes all dynamic cards) ──
+        const searchInput = document.getElementById('medicineSearchInput');
+        const statePills = document.querySelectorAll('.state-filter-pill');
+        const catPills = document.querySelectorAll('.cat-pill');
+        const sortSelect = document.getElementById('sortSelect');
+
+        let activeStateFilter = 'all';
+        let activeCatFilter = 'all';
+
+        function applyFilters() {
+            const query = (searchInput.value || '').toLowerCase().trim();
+            // Always query live DOM so dynamically added cards are included
+            const allCards = document.querySelectorAll('.med-package-card');
+
+            allCards.forEach(card => {
+                const cardState = card.dataset.state || '';
+                const cardCat   = card.dataset.cat   || '';
+                // Use data-name attribute for reliable name search (set by loadBackendInventory)
+                const cardName  = (card.dataset.name || card.innerText || '').toLowerCase();
+
+                const matchState = (activeStateFilter === 'all') || (cardState === activeStateFilter);
+                const matchCat   = (activeCatFilter === 'all')   || (cardCat === activeCatFilter);
+                const matchQuery = !query || cardName.includes(query);
+
+                card.style.display = (matchState && matchCat && matchQuery) ? 'block' : 'none';
+            });
+
+            // Hide empty shelf sections & handle global empty state
+            let totalVisible = 0;
+            document.querySelectorAll('.shelf-section').forEach(sec => {
+                const visibleInSec = sec.querySelectorAll('.med-package-card:not([style*="display: none"])');
+                sec.style.display = visibleInSec.length > 0 ? 'block' : 'none';
+                totalVisible += visibleInSec.length;
+            });
+
+            const emptyEl = document.getElementById('inventoryEmptyState');
+            if (emptyEl) {
+                emptyEl.style.display = totalVisible === 0 ? 'block' : 'none';
+            }
+        }
+
+        window.resetInventoryFilters = function() {
+            if (searchInput) searchInput.value = '';
+            statePills.forEach(p => p.classList.remove('active'));
+            if (statePills[0]) statePills[0].classList.add('active');
+            activeStateFilter = 'all';
+            catPills.forEach(p => p.classList.remove('active'));
+            if (catPills[0]) catPills[0].classList.add('active');
+            activeCatFilter = 'all';
+            applyFilters();
+        };
+
+        if (searchInput) {
+            searchInput.addEventListener('input', applyFilters);
+        }
+
+        statePills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                statePills.forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                activeStateFilter = pill.dataset.state;
+                applyFilters();
+            });
+        });
+
+        catPills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                catPills.forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                activeCatFilter = pill.dataset.cat;
+                applyFilters();
+            });
+        });
+
+        // ── MODAL SALE / DISPENSING WORKFLOW (TIER 2 REAL FEFO ENGINE) ──
+        const modal = document.getElementById('saleModal');
+        const btnHeaderRecordSale = document.getElementById('btnHeaderRecordSale');
+        const btnDrawerRecordSale = document.getElementById('btnDrawerRecordSale');
+        const btnModalClose = document.getElementById('btnModalClose');
+        const btnModalCancel = document.getElementById('btnModalCancel');
+        const btnModalConfirm = document.getElementById('btnModalConfirm');
+        const modalProgression = document.getElementById('modalProgression');
+
+        async function openSaleModal() {
+            const med = medicineData[selectedMedId] || medicineData['med-amx'];
+            document.getElementById('modalMedName').value = med.name;
+            const topBatch = (med.fefoBatches && med.fefoBatches[0]) ? med.fefoBatches[0].code : 'Batch Auto-Allocated';
+            document.getElementById('modalFefoBatch').textContent = `Allocating from ${topBatch} (Earliest Expiry Priority)`;
+
+            const realId = med.sku ? (med.sku.match(/MED\d+/)?.[0] || 'MED001') : 'MED001';
+            try {
+                const queue = await window.MediStockAPI.getFefoQueue(realId);
+                if (queue && queue.fefo_priority_batch) {
+                    document.getElementById('modalFefoBatch').textContent = `Allocating from Batch #${queue.fefo_priority_batch} (Earliest Expiry Priority)`;
+                }
+            } catch (e) {
+                // Fallback to topBatch
+            }
+
+            modalProgression.classList.remove('active');
+            for (let i = 1; i <= 6; i++) {
+                const s = document.getElementById(`pStep${i}`);
+                if (s) { s.classList.remove('active', 'done'); }
+            }
+            btnModalConfirm.disabled = false;
+            btnModalConfirm.textContent = 'Confirm Sale & Recalculate';
+            btnModalConfirm.style.background = '';
+            btnModalConfirm.style.color = '';
+
+            modal.classList.add('active');
+        }
+
+        function closeSaleModal() {
+            modal.classList.remove('active');
+        }
+
+        if (btnHeaderRecordSale) btnHeaderRecordSale.addEventListener('click', openSaleModal);
+        if (btnDrawerRecordSale) btnDrawerRecordSale.addEventListener('click', openSaleModal);
+        if (btnModalClose) btnModalClose.addEventListener('click', closeSaleModal);
+        if (btnModalCancel) btnModalCancel.addEventListener('click', closeSaleModal);
+
+        if (btnModalConfirm) {
+            btnModalConfirm.addEventListener('click', async () => {
+                btnModalConfirm.disabled = true;
+                btnModalConfirm.textContent = 'Contacting SQLite & ML Engine...';
+                modalProgression.classList.add('active');
+
+                const med = medicineData[selectedMedId] || medicineData['med-amx'];
+                const realId = med.sku ? (med.sku.match(/MED\d+/)?.[0] || 'MED001') : 'MED001';
+                const saleQty = parseInt(document.getElementById('modalSaleQty').value) || 10;
+
+                const steps = [
+                    document.getElementById('pStep1'),
+                    document.getElementById('pStep2'),
+                    document.getElementById('pStep3'),
+                    document.getElementById('pStep4'),
+                    document.getElementById('pStep5'),
+                    document.getElementById('pStep6')
+                ];
+
+                let cur = 0;
+                const stepInterval = setInterval(() => {
+                    if (cur > 0 && cur <= steps.length) {
+                        steps[cur - 1].classList.remove('active');
+                        steps[cur - 1].classList.add('done');
+                    }
+                    if (cur < steps.length) {
+                        steps[cur].classList.add('active');
+                        cur++;
+                    }
+                }, 250);
+
+                try {
+                    const saleResponse = await window.MediStockAPI.dispenseSale(realId, saleQty);
+
+                    clearInterval(stepInterval);
+                    steps.forEach(s => { if (s) { s.classList.remove('active'); s.classList.add('done'); } });
+
+                    btnModalConfirm.textContent = `Dispensed ${saleQty} Units ✓ (Stock: ${saleResponse.updated_usable_stock})`;
+                    btnModalConfirm.style.background = 'var(--teal)';
+                    btnModalConfirm.style.color = '#08090c';
+
+                    // Instantly reload all inventory from SQLite database
+                    await loadBackendInventory();
+
+                    setTimeout(closeSaleModal, 1100);
+                } catch (err) {
+                    clearInterval(stepInterval);
+                    btnModalConfirm.disabled = false;
+                    btnModalConfirm.textContent = 'Transaction Failed';
+                    btnModalConfirm.style.background = 'var(--red)';
+                    btnModalConfirm.style.color = '#ffffff';
+                    alert(`Sale validation rejected: ${err.message}`);
+                }
+            });
+        }
+
+        // ── REAL BACKEND DATA INTEGRATION — renders ALL medicines from SQLite ──
+        async function loadBackendInventory() {
+            try {
+                const meds = await window.MediStockAPI.getInventory();
+                if (!meds || meds.length === 0) return;
+
+                const shelfContainer = document.getElementById('shelfContainer');
+                const loadingEl = document.getElementById('shelfLoadingState');
+                const emptyEl = document.getElementById('inventoryEmptyState');
+
+                // Group medicines by category from the actual API data
+                const byCategory = {};
+                meds.forEach(m => {
+                    const cat = (m.category || 'General').toLowerCase().replace(/[^a-z]/g, '-');
+                    if (!byCategory[cat]) byCategory[cat] = { label: m.category, meds: [] };
+                    byCategory[cat].meds.push(m);
+
+                    // Store in medicineData keyed by medicine_id for console pane
+                    medicineData[m.medicine_id] = {
+                        name: m.medicine_name,
+                        category: `${m.category} · ${m.dosage_form}`,
+                        sku: `SKU #${m.medicine_id} · PHARMA ${m.category.toUpperCase()}`,
+                        stockState: m.risk_class === 'crit' ? 'high-risk' : (m.risk_class === 'overstock' ? 'healthy' : (m.near_expiry_stock > 0 ? 'expiring' : (m.risk_class === 'warn' ? 'low' : 'healthy'))),
+                        stockVal: `${m.usable_stock.toLocaleString()} Units`,
+                        coverageVal: `${m.days_until_stockout} Days Runway`,
+                        demandVal: `${m.predicted_daily_demand} U/Day (${m.predicted_30d_demand} 30-Day)`,
+                        riskVal: m.risk_level,
+                        reorderVal: m.reorder_required ? `Reorder ${m.recommended_reorder_qty.toLocaleString()} Units` : 'Optimal Buffer',
+                        earliestExpiry: m.earliest_expiry_date ? `${m.earliest_expiry_date} (${m.earliest_expiry_days}d)` : 'Safe',
+                        expiredUnits: `${m.expired_stock.toLocaleString()} Units`,
+                        fefoBatches: m.fefo_priority_batch ? [
+                            { code: `BATCH #${m.fefo_priority_batch}`, rank: 'p1', rankLabel: 'FEFO Priority 1 (Next Out)', expiry: m.earliest_expiry_date || 'Active', status: 'Priority Draw', level: `${m.fefo_available_units || 0} units` }
+                        ] : [],
+                        riskFactors: [
+                            { title: 'Calculated Runway Coverage', impact: m.days_until_stockout <= m.lead_time_days ? 'CRITICAL IMPACT' : 'NORMAL', type: m.days_until_stockout <= m.lead_time_days ? 'critical' : 'info', desc: `Burn rate is ${m.predicted_daily_demand} units/day. Lead time is ${m.lead_time_days} days.` },
+                            { title: 'Reorder Buffer Position', impact: m.reorder_required ? 'ELEVATED' : 'STABLE', type: m.reorder_required ? 'warning' : 'info', desc: m.reorder_reason },
+                            { title: 'Regulatory Shelf Life', impact: m.expired_stock > 0 ? 'QUARANTINE' : 'NOMINAL', type: m.expired_stock > 0 ? 'critical' : 'info', desc: m.expired_stock > 0 ? `${m.expired_stock} units expired.` : `${m.near_expiry_stock} units near expiry.` }
+                        ]
+                    };
+                });
+
+                // Build shelf HTML — one section per category, all medicines as cards
+                // Cards carry data-name (medicine name, lowercase) for search
+                let shelfHtml = '';
+                let shelfIdx = 0;
+                const shelfLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+                Object.entries(byCategory).forEach(([catKey, catGroup]) => {
+                    const shelfTag = `Shelf ${shelfLetters[shelfIdx]}-${String(shelfIdx + 1).padStart(2, '0')}`;
+                    shelfIdx++;
+
+                    const cardsHtml = catGroup.meds.map((m, i) => {
+                        const state = m.risk_class === 'crit' ? 'high-risk'
+                            : (m.expired_stock > 0 && m.usable_stock === 0 ? 'expired'
+                            : (m.near_expiry_stock > 0 ? 'expiring'
+                            : (m.risk_class === 'warn' ? 'low' : 'healthy')));
+
+                        const badgeClass = state === 'high-risk' ? 'badge-risk'
+                            : (state === 'expired' ? 'badge-expired'
+                            : (state === 'expiring' ? 'badge-expiring'
+                            : (state === 'low' ? 'badge-low' : 'badge-healthy')));
+
+                        const badgeText = state === 'high-risk' ? '● High Stock-out Risk'
+                            : (state === 'expired' ? '✕ Expired (Quarantine)'
+                            : (state === 'expiring' ? '▲ Expiring Soon'
+                            : (state === 'low' ? '▲ Low Inventory' : '● Healthy Inventory')));
+
+                        const stockBarColor = state === 'high-risk' || state === 'expired' ? 'var(--red)'
+                            : (state === 'expiring' || state === 'low' ? 'var(--orange)' : 'var(--teal)');
+
+                        // Stock bar fill: cap at 100%, red if critical
+                        const maxDays = 90;
+                        const fillPct = Math.min(100, Math.max(2, Math.round((m.days_until_stockout / maxDays) * 100)));
+
+                        // data-name contains medicine name + id for search — all lowercase
+                        const searchTarget = `${m.medicine_name} ${m.medicine_id} ${m.category} ${m.dosage_form}`.toLowerCase();
+
+                        const isFirst = i === 0 && shelfIdx === 1;
+                        return `
+                        <div class="med-package-card ${state === 'high-risk' ? 'state-high-risk' : (state === 'expired' ? 'state-expired' : (state === 'expiring' ? 'state-expiring' : (state === 'low' ? 'state-low' : 'state-healthy')))}${isFirst ? ' selected' : ''}"
+                             data-id="${m.medicine_id}"
+                             data-state="${state === 'high-risk' ? 'high-risk' : (state === 'expired' ? 'expired' : (state === 'expiring' ? 'expiring' : (state === 'low' ? 'low' : 'healthy')))}"
+                             data-cat="${catKey}"
+                             data-name="${searchTarget}">
+                            <div class="pkg-top-ribbon">
+                                <span class="pkg-brand-pill">MediStock</span>
+                                <span class="pkg-status-badge ${badgeClass}">${badgeText}</span>
+                            </div>
+                            <div class="pkg-medicine-title">${m.medicine_name}</div>
+                            <div class="pkg-medicine-sub">${m.dosage_form} · SKU #${m.medicine_id}</div>
+                            <div class="pkg-accent-strip" style="background:${stockBarColor};"></div>
+                            <div class="pkg-meta-row">
+                                <div class="pkg-meta-item">
+                                    <div class="p-lbl">Current Stock</div>
+                                    <div class="p-val" style="color:${stockBarColor};">${m.usable_stock.toLocaleString()} Units</div>
+                                </div>
+                                <div class="pkg-meta-item">
+                                    <div class="p-lbl">Days Runway</div>
+                                    <div class="p-val" style="color:${stockBarColor};">${m.days_until_stockout}d</div>
+                                </div>
+                            </div>
+                            <div class="pkg-stock-bar-wrap">
+                                <div class="pkg-stock-bar-fill" style="width:${fillPct}%;background:${stockBarColor};"></div>
+                            </div>
+                            <div class="pkg-footer">
+                                <span class="pkg-fefo-indicator" style="color:${stockBarColor};">
+                                    ${m.active_batches_count > 0 ? '● FEFO Active' : 'No Active Batch'}
+                                </span>
+                                <span style="font-family:var(--font-mono);">${m.active_batches_count} Batch${m.active_batches_count !== 1 ? 'es' : ''}</span>
+                            </div>
+                        </div>`;
+                    }).join('');
+
+                    shelfHtml += `
+                    <div class="shelf-section" data-section-cat="${catKey}">
+                        <div class="shelf-section-header">
+                            <div class="shelf-section-title">
+                                ${catGroup.label}
+                                <span class="section-tag">${shelfTag}</span>
+                            </div>
+                            <span style="font-size:0.72rem;color:var(--text-tertiary);font-family:var(--font-mono);">${catGroup.meds.length} SKU${catGroup.meds.length !== 1 ? 's' : ''} · FEFO Active</span>
+                        </div>
+                        <div class="shelf-rack-grid">${cardsHtml}</div>
+                    </div>`;
+                });
+
+                // Inject all shelf sections before the empty-state div
+                if (loadingEl) loadingEl.style.display = 'none';
+                // Remove previous dynamically generated sections
+                shelfContainer.querySelectorAll('.shelf-section').forEach(el => el.remove());
+                emptyEl.insertAdjacentHTML('beforebegin', shelfHtml);
+
+                // Select first card and load its console
+                const firstCard = shelfContainer.querySelector('.med-package-card.selected');
+                if (firstCard) {
+                    selectedMedId = firstCard.dataset.id;
+                    updateConsole(selectedMedId);
+                }
+
+                // Re-apply any active filters
+                applyFilters();
+
+            } catch (err) {
+                console.warn('[MediStock Inventory] Backend sync notice:', err.message);
+            }
+        }
+
+        // Initialize with all medicines from SQLite database
+        loadBackendInventory();
+
+    })();
+    </script>
+
+</body>
+</html>

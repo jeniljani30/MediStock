@@ -1,0 +1,61 @@
+Medicine_ID,Medicine_Name,Category,Dosage_Form,Manufacturer,Unit_Price_INR,Shelf_Life_Days
+MED001,Paracetamol 500mg,Analgesic,Tablet,Cipla,24.5,1095
+MED002,Paracetamol 650mg,Analgesic,Tablet,Sun Pharma,31.0,1095
+MED003,Ibuprofen 400mg,NSAID,Tablet,Abbott,42.0,1095
+MED004,Diclofenac 50mg,NSAID,Tablet,Novartis,38.0,1095
+MED005,Aspirin 75mg,Antiplatelet,Tablet,USV,18.0,1095
+MED006,Azithromycin 500mg,Antibiotic,Tablet,Cipla,96.0,730
+MED007,Amoxicillin 500mg,Antibiotic,Capsule,Sun Pharma,82.0,730
+MED008,Cefixime 200mg,Antibiotic,Tablet,Lupin,112.0,730
+MED009,Doxycycline 100mg,Antibiotic,Capsule,Mankind Pharma,68.0,730
+MED010,Metronidazole 400mg,Antibiotic,Tablet,Abbott,54.0,730
+MED011,Cetirizine 10mg,Antihistamine,Tablet,Dr. Reddy's,22.0,1095
+MED012,Levocetirizine 5mg,Antihistamine,Tablet,Glenmark,28.0,1095
+MED013,Pantoprazole 40mg,Gastrointestinal,Tablet,Sun Pharma,58.0,1095
+MED014,Omeprazole 20mg,Gastrointestinal,Capsule,Dr. Reddy's,46.0,1095
+MED015,Rabeprazole 20mg,Gastrointestinal,Tablet,Cipla,61.0,1095
+MED016,Domperidone 10mg,Gastrointestinal,Tablet,Torrent Pharma,35.0,1095
+MED017,Ondansetron 4mg,Antiemetic,Tablet,Cipla,45.0,1095
+MED018,ORS Sachet,Electrolyte,Sachet,FDC,24.0,730
+MED019,Loperamide 2mg,Antidiarrheal,Capsule,Janssen,39.0,1095
+MED020,Ranitidine 150mg,Gastrointestinal,Tablet,GSK,30.0,730
+MED021,Metformin 500mg,Antidiabetic,Tablet,USV,32.0,1095
+MED022,Metformin 500mg SR,Antidiabetic,Tablet,Glenmark,44.0,1095
+MED023,Glimepiride 1mg,Antidiabetic,Tablet,Sanofi,52.0,1095
+MED024,Glimepiride 2mg,Antidiabetic,Tablet,Sun Pharma,67.0,1095
+MED025,Amlodipine 5mg,Antihypertensive,Tablet,Cipla,26.0,1095
+MED026,Losartan 50mg,Antihypertensive,Tablet,Torrent Pharma,48.0,1095
+MED027,Telmisartan 40mg,Antihypertensive,Tablet,Glenmark,59.0,1095
+MED028,Atorvastatin 10mg,Statin,Tablet,Cipla,44.0,1095
+MED029,Rosuvastatin 10mg,Statin,Tablet,AstraZeneca,72.0,1095
+MED030,Clopidogrel 75mg,Antiplatelet,Tablet,Sun Pharma,88.0,1095
+MED031,Montelukast 10mg,Respiratory,Tablet,Sun Pharma,76.0,1095
+MED032,Salbutamol 4mg,Respiratory,Tablet,Cipla,33.0,730
+MED033,Budesonide 0.5mg,Respiratory,Respules,Cipla,128.0,730
+MED034,Ambroxol Syrup 100ml,Respiratory,Syrup,Mankind Pharma,74.0,730
+MED035,Dextromethorphan Syrup 100ml,Cough Suppressant,Syrup,Dr. Reddy's,92.0,730
+MED036,Calcium Carbonate 500mg,Supplement,Tablet,Cipla,41.0,1095
+MED037,Vitamin D3 60000 IU,Supplement,Capsule,Abbott,118.0,1095
+MED038,Vitamin B12 1500mcg,Supplement,Tablet,Mankind Pharma,86.0,1095
+MED039,Ferrous Ascorbate,Supplement,Tablet,Emcure,105.0,1095
+MED040,Folic Acid 5mg,Supplement,Tablet,Cipla,21.0,1095
+MED041,Insulin Glargine 100IU/ml,Antidiabetic,Injection,Sanofi,725.0,365
+MED042,Human Insulin 40IU/ml,Antidiabetic,Injection,Biocon,415.0,365
+MED043,Amoxicillin-Clavulanate 625mg,Antibiotic,Tablet,Abbott,142.0,730
+MED044,Cefuroxime 500mg,Antibiotic,Tablet,GSK,164.0,730
+MED045,Levofloxacin 500mg,Antibiotic,Tablet,Cipla,92.0,730
+MED046,Fluconazole 150mg,Antifungal,Capsule,Cipla,58.0,1095
+MED047,Clotrimazole 1% Cream,Antifungal,Cream,GSK,72.0,730
+MED048,Hydrocortisone 1% Cream,Dermatological,Cream,Abbott,64.0,730
+MED049,Mupirocin 2% Ointment,Dermatological,Ointment,Glenmark,128.0,730
+MED050,Calamine Lotion 100ml,Dermatological,Lotion,Ipca,76.0,730
+MED051,ORS Orange 21g,Electrolyte,Sachet,FDC,26.0,730
+MED052,Methylprednisolone 4mg,Corticosteroid,Tablet,Pfizer,96.0,1095
+MED053,Prednisolone 10mg,Corticosteroid,Tablet,Cipla,48.0,1095
+MED054,B-Complex Forte,Supplement,Capsule,Abbott,94.0,1095
+MED055,Probiotic Capsule,Probiotic,Capsule,Dr. Reddy's,132.0,730
+MED056,Enoxaparin 40mg,Anticoagulant,Injection,Sanofi,485.0,365
+MED057,Heparin 5000IU,Anticoagulant,Injection,Gland Pharma,365.0,365
+MED058,Artificial Tears 10ml,Ophthalmic,Drops,Cipla,92.0,730
+MED059,Timolol 0.5% Eye Drops,Ophthalmic,Drops,Sun Pharma,86.0,730
+MED060,Omeprazole + Domperidone,Gastrointestinal,Capsule,Cipla,88.0,1095

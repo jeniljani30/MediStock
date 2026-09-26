@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediStock — What-If Simulator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ══════════════════════════════════════════════
+           MEDISTOCK DESIGN SYSTEM VARIABLES (UNIFIED MASTER)
+           ══════════════════════════════════════════════ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #08090c;
+            --bg-secondary: #0e1015;
+            --bg-tertiary: #151720;
+            --bg-card: rgba(20, 22, 30, 0.65);
+            --bg-glass: rgba(255, 255, 255, 0.025);
+            --bg-glass-hover: rgba(255, 255, 255, 0.055);
+            --bg-glass-card: rgba(255, 255, 255, 0.035);
+
+            --text-primary: #f0f0f5;
+            --text-secondary: #9a9ab0;
+            --text-tertiary: #6b6b80;
+            --text-muted: #4a4a5a;
+
+            --blue: #4a90f5;
+            --blue-bright: #6ba3ff;
+            --blue-dim: rgba(74, 144, 245, 0.12);
+            --blue-glow: rgba(74, 144, 245, 0.25);
+            --teal: #2dd4bf;
+            --teal-dim: rgba(45, 212, 191, 0.10);
+            --teal-glow: rgba(45, 212, 191, 0.20);
+            --green: #34d399;
+            --green-dim: rgba(52, 211, 153, 0.10);
+            --orange: #fb923c;
+            --orange-dim: rgba(251, 146, 60, 0.10);
+            --red: #f87171;
+            --red-dim: rgba(248, 113, 113, 0.10);
+
+            --border: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(255, 255, 255, 0.12);
+            --border-accent: rgba(74, 144, 245, 0.25);
+            --border-teal: rgba(45, 212, 191, 0.3);
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.35);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.4);
+            --shadow-xl: 0 20px 80px rgba(0,0,0,0.5);
+
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            --nav-height: 68px;
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.55;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        ::selection { background: var(--blue); color: white; }
+        a { text-decoration: none; color: inherit; }
+
+        /* Scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+
+        /* ══════════════════════════════════════════════
+           APPLICATION NAVIGATION BAR
+           ══════════════════════════════════════════════ */
+        .nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: var(--nav-height);
+            z-index: 1000;
+            background: rgba(8, 9, 12, 0.88);
+            backdrop-filter: blur(24px) saturate(1.3);
+            -webkit-backdrop-filter: blur(24px) saturate(1.3);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-inner {
+            max-width: 1720px;
+            margin: 0 auto;
+            padding: 0 28px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-left-group {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-logo-icon {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, var(--blue), var(--teal));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.8rem;
+            color: white;
+            box-shadow: 0 0 20px rgba(74, 144, 245, 0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            padding: 7px 15px;
+            font-size: 0.83rem;
+            font-weight: 500;
+            color: var(--text-tertiary);
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+            background: var(--bg-glass);
+        }
+
+        .nav-links a.active {
+            color: var(--blue-bright);
+            background: var(--blue-dim);
+            border: 1px solid rgba(74, 144, 245, 0.2);
+            font-weight: 600;
+        }
+
+        .nav-right-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .sim-mode-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 12px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .sim-beacon {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--teal);
+            box-shadow: 0 0 8px var(--teal);
+            animation: pulse-beacon 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-beacon {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .btn-reset-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-reset-nav:hover {
+            color: var(--text-primary);
+            border-color: var(--border-hover);
+            background: var(--bg-glass-hover);
+        }
+
+        /* ══════════════════════════════════════════════
+           WORKSPACE LAYOUT
+           ══════════════════════════════════════════════ */
+        .workspace-container {
+            padding-top: calc(var(--nav-height) + 20px);
+            padding-bottom: 60px;
+            max-width: 1720px;
+            margin: 0 auto;
+            padding-left: 28px;
+            padding-right: 28px;
+        }
+
+        /* ── HEADER TITLE & BREADCRUMB ── */
+        .sim-header-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .sim-title-group h1 {
+            font-size: 1.65rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .sim-title-group p {
+            font-size: 0.84rem;
+            color: var(--text-tertiary);
+        }
+
+        /* ── SECTION 8: VISUAL SCENARIO WORKFLOW RIBBON ── */
+        .scenario-workflow-strip {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 14px 28px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .workflow-step-node {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        .wf-node-icon {
+            width: 24px; height: 24px;
+            border-radius: 6px;
+            background: var(--blue-dim);
+            color: var(--blue-bright);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+        }
+
+        .workflow-arrow-sep {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            opacity: 0.5;
+        }
+
+        /* ══════════════════════════════════════════════
+           SECTION 1: MEDICINE SELECTION PANEL
+           ══════════════════════════════════════════════ */
+        .selection-panel-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 22px 26px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .selector-label-group {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sel-tag {
+            font-size: 0.62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--blue-bright);
+        }
+
+        .sel-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .selector-controls-wrap {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 1;
+            max-width: 680px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .med-select-dropdown {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-hover);
+            color: var(--text-primary);
+            padding: 10px 36px 10px 14px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-sans);
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            min-width: 320px;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b6b80' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+        .med-select-dropdown:focus { border-color: var(--blue-bright); }
+
+        .selected-med-status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 0.74rem;
+            color: var(--text-secondary);
+        }
+
+        /* ══════════════════════════════════════════════
+           SECTION 3: DEMAND SCENARIO CONTROL
+           ══════════════════════════════════════════════ */
+        .scenario-control-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 26px 30px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .scenario-control-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--blue), var(--teal), transparent);
+        }
+
+        .sc-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .sc-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sc-percentage-display {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 20px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-hover);
+            border-radius: var(--radius-md);
+        }
+
+        .sc-pct-val {
+            font-size: 1.6rem;
+            font-weight: 800;
+            font-family: var(--font-mono);
+            letter-spacing: -0.02em;
+            color: var(--teal);
+        }
+
+        .sc-pct-label {
+            font-size: 0.72rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* Interactive Slider */
+        .slider-wrap {
+            position: relative;
+            padding: 10px 0 24px;
+        }
+
+        .demand-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(to right, #34d399 0%, #2dd4bf 30%, #4a90f5 50%, #fb923c 75%, #f87171 100%);
+            outline: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .demand-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 3px solid var(--blue);
+            cursor: pointer;
+            box-shadow: 0 0 16px rgba(74, 144, 245, 0.6);
+            transition: transform 0.15s ease;
+        }
+
+        .demand-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        .slider-scale-ticks {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.68rem;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        /* Preset buttons strip */
+        .preset-buttons-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .preset-btn {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .preset-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--border-hover);
+            background: var(--bg-glass-hover);
+        }
+
+        .preset-btn.active {
+            background: var(--blue-dim);
+            border-color: rgba(74, 144, 245, 0.35);
+            color: var(--blue-bright);
+        }
+
+        /* ══════════════════════════════════════════════
+           SECTION 4: COMPARISON SECTION (SIDE-BY-SIDE)
+           ══════════════════════════════════════════════ */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .comparison-grid { grid-template-columns: 1fr; }
+        }
+
+        .comp-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+
+        .comp-card.simulated {
+            border-color: rgba(74, 144, 245, 0.25);
+            background: linear-gradient(165deg, rgba(20, 26, 40, 0.7) 0%, rgba(12, 16, 26, 0.85) 100%);
+        }
+
+        .comp-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comp-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .comp-badge {
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .comp-metrics-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .c-metric-item {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 14px;
+        }
+
+        .c-m-lbl {
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .c-m-val {
+            font-size: 1.25rem;
+            font-weight: 800;
+            font-family: var(--font-mono);
+            color: #ffffff;
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .c-m-delta {
+            font-size: 0.72rem;
+            font-family: var(--font-mono);
+            font-weight: 700;
+        }
+
+        .c-m-sub {
+            font-size: 0.68rem;
+            color: var(--text-tertiary);
+            margin-top: 3px;
+        }
+
+        /* ══════════════════════════════════════════════
+           SECTION 5: DEMAND COMPARISON CHART
+           ══════════════════════════════════════════════ */
+        .chart-section-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 26px 30px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .chart-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .chart-legend-flex {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 0.72rem;
+            color: var(--text-tertiary);
+        }
+
+        .cl-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+        .sim-chart-stage {
+            position: relative;
+            height: 300px;
+            border-bottom: 1px solid var(--border);
+            border-left: 1px solid var(--border);
+            padding: 10px 10px 0;
+            margin-bottom: 16px;
+        }
+
+        .sim-chart-stage svg { width: 100%; height: 100%; }
+
+        /* ══════════════════════════════════════════════
+           SECTION 6 & 7: INVENTORY IMPACT & INTELLIGENCE EXPLANATION
+           ══════════════════════════════════════════════ */
+        .impact-insights-grid {
+            display: grid;
+            grid-template-columns: 1fr 480px;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1200px) {
+            .impact-insights-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── INVENTORY IMPACT CARD ── */
+        .impact-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 26px 28px;
+        }
+
+        .impact-tiles-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+
+        .impact-tile {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            border-left: 3px solid var(--teal);
+        }
+
+        .impact-tile.warn { border-left-color: var(--orange); }
+        .impact-tile.crit { border-left-color: var(--red); }
+        .impact-tile.pos { border-left-color: var(--green); }
+
+        .it-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .it-desc {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* ── INTELLIGENCE EXPLANATION CARD ── */
+        .insight-card {
+            background: linear-gradient(165deg, rgba(20, 28, 44, 0.7) 0%, rgba(12, 18, 30, 0.85) 100%);
+            border: 1px solid rgba(74, 144, 245, 0.25);
+            border-radius: var(--radius-xl);
+            padding: 26px 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .insight-badge {
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--blue-bright);
+            margin-bottom: 8px;
+        }
+
+        .insight-text-quote {
+            font-size: 0.88rem;
+            color: #ffffff;
+            line-height: 1.6;
+            margin-bottom: 18px;
+            font-weight: 500;
+        }
+
+        .insight-factors-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            font-family: var(--font-mono);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ═══════════════════════════════════════════════
+         APPLICATION NAVIGATION
+         ═══════════════════════════════════════════════ -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <div class="nav-left-group">
+                <a href="index.html" class="nav-logo">
+                    <div class="nav-logo-icon">M</div>
+                    <span>MediStock</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="inventory.html">Inventory</a></li>
+                    <li><a href="simulator.html" class="active">What-If Simulator</a></li>
+                    <li><a href="reorder.html">Reorder History</a></li>
+                    <li><a href="index.html#how-it-works">Settings</a></li>
+                </ul>
+            </div>
+
+            <div class="nav-right-group">
+                <div class="sim-mode-badge">
+                    <span class="sim-beacon"></span>
+                    Simulation Engine: Active (Monte Carlo &amp; Poisson)
+                </div>
+                <button class="btn-reset-nav" onclick="resetScenario()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                    Reset Scenario
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════════
+         SIMULATOR WORKSPACE CONTAINER
+         ═══════════════════════════════════════════════ -->
+    <div class="workspace-container">
+
+        <!-- HEADER & BREADCRUMB -->
+        <div class="sim-header-row">
+            <div class="sim-title-group">
+                <div style="font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue-bright); margin-bottom: 4px;">
+                    Decision-Support Workspace
+                </div>
+                <h1>What-If Simulator</h1>
+                <p>Model demand changes before they impact your inventory.</p>
+            </div>
+        </div>
+
+        <!-- SECTION 8: VISUAL SCENARIO WORKFLOW RIBBON -->
+        <div class="scenario-workflow-strip">
+            <div class="workflow-step-node">
+                <div class="wf-node-icon">01</div>
+                <span>Current Inventory Baseline</span>
+            </div>
+            <span class="workflow-arrow-sep">→</span>
+            <div class="workflow-step-node">
+                <div class="wf-node-icon" style="background: var(--teal-dim); color: var(--teal);">02</div>
+                <span>Simulate Demand Scenario</span>
+            </div>
+            <span class="workflow-arrow-sep">→</span>
+            <div class="workflow-step-node">
+                <div class="wf-node-icon" style="background: var(--orange-dim); color: var(--orange);">03</div>
+                <span>Evaluate Stock-out Impact</span>
+            </div>
+            <span class="workflow-arrow-sep">→</span>
+            <div class="workflow-step-node">
+                <div class="wf-node-icon" style="background: rgba(52, 211, 153, 0.15); color: var(--green);">04</div>
+                <span>Automated Reorder Decision</span>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 1: MEDICINE SELECTION PANEL
+             ═══════════════════════════════════════════════ -->
+        <div class="selection-panel-card">
+            <div class="selector-label-group">
+                <span class="sel-tag">Target SKU Configuration</span>
+                <div class="sel-title">Select Medicine for Simulation</div>
+            </div>
+
+            <div class="selector-controls-wrap">
+                <select class="med-select-dropdown" id="simMedSelect" onchange="handleMedicineChange(this.value)">
+                    <option value="amx">Amoxicillin + Clavulanic Acid 625mg (Oral Solid Dosage)</option>
+                    <option value="azi">Azithromycin 500mg USP (Macrolide Formulation)</option>
+                    <option value="ins">Insulin Glargine Pen 100 U/mL (Cold Chain Biologic)</option>
+                    <option value="met">Metformin Hydrochloride 850mg (Biguanide Chronic Care)</option>
+                    <option value="ato">Atorvastatin Calcium 20mg (Cardiovascular Statin)</option>
+                    <option value="sal">Salbutamol Inhaler 100mcg (Respiratory Care)</option>
+                </select>
+
+                <div class="selected-med-status-pill">
+                    <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-tertiary);" id="selMedSku">SKU #AMX-625</span>
+                    <span style="color: var(--border);">|</span>
+                    <span id="selMedStock">1,420 Units on Hand</span>
+                    <span style="color: var(--border);">|</span>
+                    <span id="selMedStatus" style="color: var(--red); font-weight: 600;">High Risk</span>
+                </div>
+                <a href="medicine-detail.html?id=amx" id="btnSimMedDetail" class="btn-primary" style="padding: 7px 14px; font-size: 0.75rem; text-decoration: none; background: rgba(45, 212, 191, 0.12); color: var(--teal); border: 1px solid var(--border-teal); white-space: nowrap;">
+                    Intelligence Profile &rarr;
+                </a>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 3: DEMAND SCENARIO CONTROL
+             ═══════════════════════════════════════════════ -->
+        <div class="scenario-control-card">
+            <div class="sc-header-row">
+                <div class="sc-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+                    Simulate Demand Change
+                </div>
+
+                <div class="sc-percentage-display">
+                    <span class="sc-pct-label">Demand Variance:</span>
+                    <span class="sc-pct-val" id="dispPct">+0%</span>
+                </div>
+            </div>
+
+            <!-- Slider Element -->
+            <div class="slider-wrap">
+                <input type="range" class="demand-slider" id="demandSlider" min="-50" max="100" value="0" step="5" oninput="handleSliderChange(this.value)">
+                <div class="slider-scale-ticks">
+                    <span>-50% (Slump)</span>
+                    <span>-30%</span>
+                    <span>-15%</span>
+                    <span style="color: var(--teal); font-weight: 700;">0% (Baseline)</span>
+                    <span>+20%</span>
+                    <span>+50%</span>
+                    <span>+75%</span>
+                    <span>+100% (Surge)</span>
+                </div>
+            </div>
+
+            <!-- Preset Buttons -->
+            <div class="preset-buttons-row">
+                <span style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Scenario Presets:</span>
+                <button class="preset-btn" onclick="applyPreset(-30)">-30% Demand Drop</button>
+                <button class="preset-btn" onclick="applyPreset(-15)">-15% Softening</button>
+                <button class="preset-btn active" id="btnPresetZero" onclick="applyPreset(0)">0% ML Baseline</button>
+                <button class="preset-btn" onclick="applyPreset(20)">+20% Moderate Surge</button>
+                <button class="preset-btn" onclick="applyPreset(50)">+50% Outbreak Surge</button>
+                <button class="preset-btn" onclick="applyPreset(80)">+80% Epidemic Spike</button>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 4: COMPARISON SECTION (SIDE-BY-SIDE)
+             ═══════════════════════════════════════════════ -->
+        <div class="comparison-grid">
+
+            <!-- CARD 1: CURRENT SITUATION -->
+            <div class="comp-card">
+                <div class="comp-card-header">
+                    <div class="comp-title">
+                        <span>Current Situation</span>
+                        <span style="font-size: 0.72rem; color: var(--text-tertiary); font-weight: 400;">(ML Baseline)</span>
+                    </div>
+                    <span class="comp-badge" style="background: var(--blue-dim); color: var(--blue-bright);">Baseline</span>
+                </div>
+
+                <div class="comp-metrics-list">
+                    <div class="c-metric-item">
+                        <div class="c-m-lbl">Predicted Demand</div>
+                        <div class="c-m-val" id="baseDemandVal">3,850 <span style="font-size: 0.7rem; color: var(--text-tertiary);">Units</span></div>
+                        <div class="c-m-sub">30-Day ML Baseline Horizon</div>
+                    </div>
+
+                    <div class="c-metric-item">
+                        <div class="c-m-lbl">Days Until Stock-out</div>
+                        <div class="c-m-val" id="baseCoverageVal" style="color: var(--red);">9 <span style="font-size: 0.7rem; color: var(--red);">Days</span></div>
+                        <div class="c-m-sub">Operational Runway</div>
+                    </div>
+
+                    <div class="c-metric-item">
+                        <div class="c-m-lbl">Stock-out Risk</div>
+                        <div class="c-m-val" id="baseRiskVal" style="color: var(--red); font-size: 1.05rem;">High Risk</div>
+                        <div class="c-m-sub">Lead time is 14 days</div>
+                    </div>
+
+                    <div class="c-metric-item">
+                        <div class="c-m-lbl">Recommended Reorder</div>
+                        <div class="c-m-val" id="baseReorderVal" style="color: var(--teal); font-size: 1.05rem;">3,500 <span style="font-size: 0.7rem; color: var(--teal);">Units</span></div>
+                        <div class="c-m-sub">Standard Replenishment Buffer</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARD 2: SIMULATED SITUATION -->
+            <div class="comp-card simulated">
+                <div class="comp-card-header">
+                    <div class="comp-title">
+                        <span>Simulated Situation</span>
+                        <span style="font-size: 0.72rem; color: var(--teal); font-weight: 600;" id="compScenarioTag">(+0% Scenario)</span>
+                    </div>
+                    <span class="comp-badge" style="background: var(--teal); color: #08090c;">Calculated Model</span>
+                </div>
+
+                <div class="comp-metrics-list">
+                    <div class="c-metric-item">
+                        <div class="c-m-lbl">Simulated Demand</div>
+                        <div class="c-m-val">
+                            <span id="simDemandVal">3,850</span>
+                            <span class="c-m-delta" id="simDemandDelta" style="color: var(--text-tertiary);">+0%</span>
+                        </div>
+                        <div class="c-m-sub">Scenario Projected Velocity</div>
+                    </div>
+
+                    <div class="c-metric-item">
+                        <div class="c-m-lbl">Simulated Days-to-Stockout</div>
+                        <div class="c-m-val">
+                            <span id="simCoverageVal" style="color: var(--red);">9 Days</span>
+                            <span class="c-m-delta" id="simCoverageDelta" style="color: var(--text-tertiary);">0d</span>
+                        </div>
+                        <div class="c-m-sub">Adjusted Depletion Timeline</div>
+                    </div>
+
+                    <div class="c-metric-item">
+                        <div class="c-m-lbl">Simulated Stock-out Risk</div>
+                        <div class="c-m-val" id="simRiskVal" style="color: var(--red); font-size: 1.05rem;">High Risk</div>
+                        <div class="c-m-sub" id="simRiskSub">Immediate order placement required</div>
+                    </div>
+
+                    <div class="c-metric-item">
+                        <div class="c-m-lbl">Simulated Reorder Quantity</div>
+                        <div class="c-m-val">
+                            <span id="simReorderVal" style="color: var(--teal); font-size: 1.05rem;">3,500 Units</span>
+                        </div>
+                        <div class="c-m-sub" id="simReorderSub">Adjusted for scenario demand</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 5: DEMAND COMPARISON CHART
+             ═══════════════════════════════════════════════ -->
+        <div class="chart-section-card">
+            <div class="chart-header-row">
+                <div>
+                    <h3 style="font-size: 1.05rem; font-weight: 700; color: #ffffff;">Demand Scenario Trajectory</h3>
+                    <p style="font-size: 0.74rem; color: var(--text-tertiary); margin-top: 3px;">
+                        Interactive visualization comparing Historical Baseline vs ML Predicted Demand vs Simulated Scenario Curve.
+                    </p>
+                </div>
+
+                <div class="chart-legend-flex">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span class="cl-dot" style="background: var(--blue);"></span>
+                        <span>Historical Observed</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span class="cl-dot" style="background: var(--teal);"></span>
+                        <span>ML Baseline Forecast</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span class="cl-dot" style="background: var(--orange);" id="legendSimDot"></span>
+                        <span id="legendSimLabel" style="font-weight: 700; color: var(--text-primary);">Simulated Trajectory</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span class="cl-dot" style="background: var(--red);"></span>
+                        <span>Stock-out Threshold</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SVG Comparison Stage -->
+            <div class="sim-chart-stage" id="chartStage">
+                <svg viewBox="0 0 800 240" preserveAspectRatio="none" id="simChartSvg">
+                    <defs>
+                        <linearGradient id="scHistGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="rgba(74, 144, 245, 0.25)"/>
+                            <stop offset="100%" stop-color="rgba(74, 144, 245, 0)"/>
+                        </linearGradient>
+                        <linearGradient id="scSimGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="rgba(251, 146, 60, 0.22)"/>
+                            <stop offset="100%" stop-color="rgba(251, 146, 60, 0)"/>
+                        </linearGradient>
+                    </defs>
+
+                    <!-- Horizontal Grid -->
+                    <line x1="0" y1="50" x2="800" y2="50" stroke="rgba(255,255,255,0.025)" stroke-width="1"/>
+                    <line x1="0" y1="100" x2="800" y2="100" stroke="rgba(255,255,255,0.025)" stroke-width="1"/>
+                    <line x1="0" y1="150" x2="800" y2="150" stroke="rgba(255,255,255,0.025)" stroke-width="1"/>
+                    <line x1="0" y1="200" x2="800" y2="200" stroke="rgba(255,255,255,0.025)" stroke-width="1"/>
+
+                    <!-- Stock-out Boundary -->
+                    <line x1="0" y1="180" x2="800" y2="180" stroke="rgba(248, 113, 113, 0.25)" stroke-width="1.5" stroke-dasharray="4 4"/>
+                    <text x="790" y="174" fill="rgba(248, 113, 113, 0.6)" font-size="9" font-family="JetBrains Mono" text-anchor="end">STOCK-OUT THRESHOLD</text>
+
+                    <!-- Historical Demand Area & Curve -->
+                    <path d="M0,220 L0,160 L60,150 L120,155 L180,135 L240,145 L300,125 L360,135 L400,115 L400,220 Z" fill="url(#scHistGrad)"/>
+                    <polyline points="0,160 60,150 120,155 180,135 240,145 300,125 360,135 400,115"
+                              fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+
+                    <!-- Baseline Forecast Line (Teal dashed) -->
+                    <polyline points="400,115 460,105 520,92 580,82 640,68 700,55 800,40"
+                              fill="none" stroke="var(--teal)" stroke-width="2" stroke-linejoin="round" stroke-dasharray="5 4" opacity="0.6"/>
+
+                    <!-- Simulated Dynamic Curve (Updates on slider) -->
+                    <polyline id="polySimulated" points="400,115 460,105 520,92 580,82 640,68 700,55 800,40"
+                              fill="none" stroke="var(--teal)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+
+                    <!-- Divider -->
+                    <line x1="400" y1="15" x2="400" y2="230" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" stroke-dasharray="3 3"/>
+                    <text x="390" y="28" fill="var(--text-tertiary)" font-size="9" font-family="JetBrains Mono" text-anchor="end">SIMULATION HORIZON</text>
+                </svg>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 6 & 7: INVENTORY IMPACT & SIMULATION INSIGHT
+             ═══════════════════════════════════════════════ -->
+        <div class="impact-insights-grid">
+
+            <!-- INVENTORY IMPACT -->
+            <div class="impact-card">
+                <h3 style="font-size: 1.05rem; font-weight: 700; color: #ffffff; margin-bottom: 6px;">Inventory Impact Analysis</h3>
+                <p style="font-size: 0.74rem; color: var(--text-tertiary); margin-bottom: 18px;">Automated evaluation of simulated parameters on hospital operational continuity.</p>
+
+                <div class="impact-tiles-grid">
+                    <div class="impact-tile" id="tileCoverage">
+                        <div class="it-title">Stock Coverage Runway</div>
+                        <div class="it-desc" id="descCoverage">Current inventory will last 9 days under this scenario, which is 5 days short of supplier lead time.</div>
+                    </div>
+
+                    <div class="impact-tile" id="tileRisk">
+                        <div class="it-title">Stock-out Risk Transition</div>
+                        <div class="it-desc" id="descRisk">Risk probability elevated to High Risk. Stock-out probability exceeds 88% without restocking.</div>
+                    </div>
+
+                    <div class="impact-tile" id="tileReorder">
+                        <div class="it-title">Reorder Requirement</div>
+                        <div class="it-desc" id="descReorder">Additional emergency purchase order of 3,500 units recommended immediately.</div>
+                    </div>
+
+                    <div class="impact-tile" id="tileStatus">
+                        <div class="it-title">Inventory Health Classification</div>
+                        <div class="it-desc" id="descStatus">Classified as CRITICAL COVERAGE. Automated procurement alert dispatched to procurement manager.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SIMULATION INSIGHT (MODEL GENERATED TEXT) -->
+            <div class="insight-card">
+                <div>
+                    <div class="insight-badge">Simulation Analytical Insight</div>
+                    <div class="insight-text-quote" id="insightText">
+                        "At baseline demand, Amoxicillin 625mg maintains 9 days of coverage. Moving demand higher accelerates stock depletion ahead of the 14-day distributor replenishment window."
+                    </div>
+                </div>
+
+                <div class="insight-factors-list">
+                    <div>● Current Active Stock: <span id="fStock">1,420 Units</span></div>
+                    <div>● Baseline Velocity: <span id="fBaseVel">128 Units/Day</span></div>
+                    <div>● Simulated Velocity: <span id="fSimVel">128 Units/Day</span></div>
+                    <div>● Supplier Lead Time Buffer: <span id="fLead">14 Days Required</span></div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SCRIPTS: MATHEMATICAL SIMULATION ENGINE
+         ═══════════════════════════════════════════════ -->
+    <script src="medistock-api.js"></script>
+    <script>
+    (function() {
+        'use strict';
+
+        // ── MEDICINE BASELINE REPOSITORY ──
+        const medSimData = {
+            'amx': {
+                name: 'Amoxicillin + Clavulanic Acid 625mg',
+                sku: 'SKU #AMX-625',
+                stock: 1420,
+                baseDemand: 3850,
+                leadTime: 14,
+                baseCoverageDays: 9,
+                baseRisk: 'High Risk',
+                baseRiskClass: 'crit',
+                baseReorder: 3500,
+                histPoints: [160, 150, 155, 135, 145, 125, 135, 115]
+            },
+            'azi': {
+                name: 'Azithromycin 500mg USP',
+                sku: 'SKU #AZI-500',
+                stock: 2180,
+                baseDemand: 2900,
+                leadTime: 10,
+                baseCoverageDays: 22,
+                baseRisk: 'Expiring Soon',
+                baseRiskClass: 'warn',
+                baseReorder: 1200,
+                histPoints: [150, 140, 145, 130, 135, 120, 125, 110]
+            },
+            'ins': {
+                name: 'Insulin Glargine Pen (100 U/mL)',
+                sku: 'SKU #INS-100',
+                stock: 420,
+                baseDemand: 960,
+                leadTime: 12,
+                baseCoverageDays: 14,
+                baseRisk: 'Low Stock',
+                baseRiskClass: 'warn',
+                baseReorder: 800,
+                histPoints: [170, 160, 165, 150, 155, 145, 140, 130]
+            },
+            'met': {
+                name: 'Metformin Hydrochloride 850mg',
+                sku: 'SKU #MET-850',
+                stock: 9400,
+                baseDemand: 4200,
+                leadTime: 14,
+                baseCoverageDays: 65,
+                baseRisk: 'Healthy',
+                baseRiskClass: 'pos',
+                baseReorder: 2500,
+                histPoints: [130, 125, 130, 120, 125, 115, 120, 110]
+            },
+            'ato': {
+                name: 'Atorvastatin Calcium 20mg',
+                sku: 'SKU #ATO-020',
+                stock: 6200,
+                baseDemand: 3100,
+                leadTime: 10,
+                baseCoverageDays: 58,
+                baseRisk: 'Healthy',
+                baseRiskClass: 'pos',
+                baseReorder: 1800,
+                histPoints: [140, 135, 138, 125, 130, 120, 122, 112]
+            },
+            'sal': {
+                name: 'Salbutamol Inhaler 100mcg',
+                sku: 'SKU #SAL-100',
+                stock: 850,
+                baseDemand: 1900,
+                leadTime: 14,
+                baseCoverageDays: 13,
+                baseRisk: 'High Risk',
+                baseRiskClass: 'crit',
+                baseReorder: 1500,
+                histPoints: [155, 148, 150, 138, 142, 128, 130, 118]
+            }
+        };
+
+        let currentMedKey = 'amx';
+        let currentPct = 0;
+
+        // ── MEDICINE CHANGE HANDLER ──
+        window.handleMedicineChange = function(key) {
+            currentMedKey = key;
+            const med = medSimData[key];
+            if (!med) return;
+
+            document.getElementById('selMedSku').textContent = med.sku;
+            document.getElementById('selMedStock').textContent = `${med.stock.toLocaleString()} Units on Hand`;
+            document.getElementById('selMedStatus').textContent = med.baseRisk;
+            const detailBtn = document.getElementById('btnSimMedDetail');
+            if (detailBtn) detailBtn.href = 'medicine-detail.html?id=' + key;
+
+            // Update Baseline Card
+            document.getElementById('baseDemandVal').innerHTML = `${med.baseDemand.toLocaleString()} <span style="font-size: 0.7rem; color: var(--text-tertiary);">Units</span>`;
+            document.getElementById('baseCoverageVal').innerHTML = `${med.baseCoverageDays} <span style="font-size: 0.7rem;">Days</span>`;
+            document.getElementById('baseCoverageVal').style.color = med.baseCoverageDays < med.leadTime ? 'var(--red)' : (med.baseCoverageDays < med.leadTime * 1.5 ? 'var(--orange)' : 'var(--teal)');
+            document.getElementById('baseRiskVal').textContent = med.baseRisk;
+            document.getElementById('baseRiskVal').style.color = med.baseCoverageDays < med.leadTime ? 'var(--red)' : (med.baseCoverageDays < med.leadTime * 1.5 ? 'var(--orange)' : 'var(--teal)');
+            document.getElementById('baseReorderVal').innerHTML = `${med.baseReorder.toLocaleString()} <span style="font-size: 0.7rem;">Units</span>`;
+
+            // Reset Slider to 0
+            window.applyPreset(0);
+        };
+
+        // ── SLIDER & PRESET ENGINE ──
+        window.handleSliderChange = function(val) {
+            currentPct = parseInt(val, 10);
+            updateSimulation();
+        };
+
+        window.applyPreset = function(pct) {
+            currentPct = pct;
+            document.getElementById('demandSlider').value = pct;
+
+            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+            if (pct === 0) document.getElementById('btnPresetZero').classList.add('active');
+
+            updateSimulation();
+        };
+
+        window.resetScenario = function() {
+            window.applyPreset(0);
+        };
+
+        // ── MATHEMATICAL SIMULATION CALCULATION (CONNECTED TO TIER 2 ENGINE) ──
+        async function updateSimulation() {
+            const med = medSimData[currentMedKey];
+            if (!med) return;
+
+            const dispPctEl = document.getElementById('dispPct');
+            const sign = currentPct > 0 ? '+' : '';
+            dispPctEl.textContent = `${sign}${currentPct}%`;
+
+            if (currentPct > 30) dispPctEl.style.color = 'var(--red)';
+            else if (currentPct > 0) dispPctEl.style.color = 'var(--orange)';
+            else if (currentPct === 0) dispPctEl.style.color = 'var(--teal)';
+            else dispPctEl.style.color = 'var(--green)';
+
+            document.getElementById('compScenarioTag').textContent = `(${sign}${currentPct}% Scenario)`;
+
+            const medId = med.id || (med.sku ? (med.sku.match(/MED\d+/)?.[0] || 'MED001') : 'MED001');
+
+            try {
+                // Call real backend What-If simulation engine (Pure calculation, no DB modification)
+                const simRes = await window.MediStockAPI.runWhatIf(medId, currentPct);
+                if (simRes && simRes.simulation) {
+                    const sim = simRes.simulation;
+                    const diff = simRes.difference;
+                    const base = simRes.baseline;
+
+                    // 1. Demand
+                    document.getElementById('simDemandVal').textContent = sim.simulated_30d_demand.toLocaleString();
+                    const deltaEl = document.getElementById('simDemandDelta');
+                    deltaEl.textContent = `${sign}${currentPct}%`;
+                    deltaEl.style.color = currentPct > 0 ? 'var(--red)' : (currentPct < 0 ? 'var(--green)' : 'var(--text-tertiary)');
+
+                    // 2. Coverage
+                    const simCovEl = document.getElementById('simCoverageVal');
+                    simCovEl.textContent = `${sim.simulated_days_until_stockout} Days`;
+                    const simCovDeltaEl = document.getElementById('simCoverageDelta');
+                    const covDeltaSign = diff.delta_days_until_stockout > 0 ? '+' : '';
+                    simCovDeltaEl.textContent = `${covDeltaSign}${diff.delta_days_until_stockout}d`;
+
+                    if (sim.simulated_days_until_stockout < med.leadTime) {
+                        simCovEl.style.color = 'var(--red)';
+                        simCovDeltaEl.style.color = 'var(--red)';
+                    } else if (sim.simulated_days_until_stockout < med.leadTime * 1.5) {
+                        simCovEl.style.color = 'var(--orange)';
+                        simCovDeltaEl.style.color = 'var(--orange)';
+                    } else {
+                        simCovEl.style.color = 'var(--teal)';
+                        simCovDeltaEl.style.color = 'var(--green)';
+                    }
+
+                    // 3. Risk
+                    const riskValEl = document.getElementById('simRiskVal');
+                    riskValEl.textContent = sim.simulated_risk_level;
+                    riskValEl.style.color = sim.simulated_risk_class === 'crit' ? 'var(--red)' : (sim.simulated_risk_class === 'warn' ? 'var(--orange)' : 'var(--teal)');
+                    document.getElementById('simRiskSub').textContent = sim.simulated_days_until_stockout <= med.leadTime ? `Stockout in ${sim.simulated_days_until_stockout}d (Lead time: ${med.leadTime}d)` : `Simulated inventory coverage: ${sim.simulated_days_until_stockout} days`;
+
+                    // 4. Reorder
+                    const reorderValEl = document.getElementById('simReorderVal');
+                    if (sim.simulated_recommended_reorder_qty > 0) {
+                        reorderValEl.textContent = `${sim.simulated_recommended_reorder_qty.toLocaleString()} Units`;
+                        document.getElementById('simReorderSub').textContent = sim.simulated_reorder_reason || `Adjusted for ${sign}${currentPct}% consumption`;
+                    } else {
+                        reorderValEl.textContent = 'No Reorder Needed';
+                        document.getElementById('simReorderSub').textContent = sim.simulated_reorder_reason || 'Current on-hand inventory is sufficient';
+                    }
+
+                    updateChartPath(currentPct);
+                    updateImpactTiles(med, sim.simulated_days_until_stockout, sim.simulated_30d_demand, sim.simulated_recommended_reorder_qty, sim.simulated_risk_level);
+                    updateInsightText(med, currentPct, sim.simulated_days_until_stockout, sim.simulated_30d_demand, sim.simulated_recommended_reorder_qty, sim.simulated_risk_level);
+                    return;
+                }
+            } catch (err) {
+                // Fall back to client calculation if API is offline
+            }
+
+            // 1. Calculate Simulated Demand
+            const simDemand = Math.round(med.baseDemand * (1 + currentPct / 100));
+            document.getElementById('simDemandVal').textContent = simDemand.toLocaleString();
+            const deltaEl = document.getElementById('simDemandDelta');
+            deltaEl.textContent = `${sign}${currentPct}%`;
+            deltaEl.style.color = currentPct > 0 ? 'var(--red)' : (currentPct < 0 ? 'var(--green)' : 'var(--text-tertiary)');
+
+            // 2. Calculate Daily Consumption Velocity (Units per day)
+            const dailyVel = simDemand / 30;
+
+            // 3. Calculate Days Until Stock-out (Runway)
+            const simCoverageDays = Math.max(1, Math.round(med.stock / dailyVel));
+            const covDelta = simCoverageDays - med.baseCoverageDays;
+            const covDeltaSign = covDelta > 0 ? '+' : '';
+
+            const simCovEl = document.getElementById('simCoverageVal');
+            simCovEl.textContent = `${simCoverageDays} Days`;
+            const simCovDeltaEl = document.getElementById('simCoverageDelta');
+            simCovDeltaEl.textContent = `${covDeltaSign}${covDelta}d`;
+
+            // Color code coverage
+            if (simCoverageDays < med.leadTime) {
+                simCovEl.style.color = 'var(--red)';
+                simCovDeltaEl.style.color = 'var(--red)';
+            } else if (simCoverageDays < med.leadTime * 1.5) {
+                simCovEl.style.color = 'var(--orange)';
+                simCovDeltaEl.style.color = 'var(--orange)';
+            } else {
+                simCovEl.style.color = 'var(--teal)';
+                simCovDeltaEl.style.color = 'var(--green)';
+            }
+
+            // 4. Calculate Simulated Stock-out Risk Level
+            let simRisk = 'Healthy';
+            let simRiskColor = 'var(--teal)';
+            let simRiskSub = 'Runway covers lead time comfortably';
+
+            if (simCoverageDays < med.leadTime) {
+                simRisk = 'Critical Stock-out Imminent';
+                simRiskColor = 'var(--red)';
+                simRiskSub = `Stockout in ${simCoverageDays}d (Lead time is ${med.leadTime}d)`;
+            } else if (simCoverageDays < med.leadTime * 1.5) {
+                simRisk = 'Elevated Risk';
+                simRiskColor = 'var(--orange)';
+                simRiskSub = `Depletion approaches lead-time threshold`;
+            } else if (currentPct <= -30) {
+                simRisk = 'Low Risk (Extended Buffer)';
+                simRiskColor = 'var(--green)';
+                simRiskSub = `Inventory runway extended to ${simCoverageDays} days`;
+            }
+
+            const riskValEl = document.getElementById('simRiskVal');
+            riskValEl.textContent = simRisk;
+            riskValEl.style.color = simRiskColor;
+            document.getElementById('simRiskSub').textContent = simRiskSub;
+
+            // 5. Calculate Simulated Reorder Requirement
+            let simReorder = 0;
+            if (simCoverageDays < med.leadTime * 2) {
+                simReorder = Math.round(simDemand * 0.85);
+            }
+            const reorderValEl = document.getElementById('simReorderVal');
+            if (simReorder > 0) {
+                reorderValEl.textContent = `${simReorder.toLocaleString()} Units`;
+                document.getElementById('simReorderSub').textContent = `Adjusted for ${sign}${currentPct}% projected consumption`;
+            } else {
+                reorderValEl.textContent = 'No Reorder Needed';
+                document.getElementById('simReorderSub').textContent = 'Current on-hand inventory is sufficient';
+            }
+
+            // 6. Update Dynamic Chart Line
+            updateChartPath(currentPct);
+
+            // 7. Update Impact Tiles
+            updateImpactTiles(med, simCoverageDays, simDemand, simReorder, simRisk);
+
+            // 8. Update Intelligence Insight Text
+            updateInsightText(med, currentPct, simCoverageDays, simDemand, simReorder, simRisk);
+        }
+
+        // ── UPDATE DYNAMIC SVG CHART ──
+        function updateChartPath(pct) {
+            const poly = document.getElementById('polySimulated');
+            const legendDot = document.getElementById('legendSimDot');
+
+            // Baseline Y coordinates for prediction: 400,115 460,105 520,92 580,82 640,68 700,55 800,40
+            // Higher demand = steeper curve (lower Y values in SVG coordinate space)
+            const factor = pct / 100;
+            const y1 = 115;
+            const y2 = Math.max(20, Math.round(105 - factor * 25));
+            const y3 = Math.max(18, Math.round(92 - factor * 35));
+            const y4 = Math.max(16, Math.round(82 - factor * 45));
+            const y5 = Math.max(14, Math.round(68 - factor * 50));
+            const y6 = Math.max(12, Math.round(55 - factor * 55));
+            const y7 = Math.max(10, Math.round(40 - factor * 60));
+
+            poly.setAttribute('points', `400,${y1} 460,${y2} 520,${y3} 580,${y4} 640,${y5} 700,${y6} 800,${y7}`);
+
+            if (pct > 20) {
+                poly.setAttribute('stroke', 'var(--red)');
+                legendDot.style.background = 'var(--red)';
+            } else if (pct > 0) {
+                poly.setAttribute('stroke', 'var(--orange)');
+                legendDot.style.background = 'var(--orange)';
+            } else if (pct === 0) {
+                poly.setAttribute('stroke', 'var(--teal)');
+                legendDot.style.background = 'var(--teal)';
+            } else {
+                poly.setAttribute('stroke', 'var(--green)');
+                legendDot.style.background = 'var(--green)';
+            }
+        }
+
+        // ── UPDATE IMPACT TILES ──
+        function updateImpactTiles(med, simCoverage, simDemand, simReorder, simRisk) {
+            const descCov = document.getElementById('descCoverage');
+            const descRisk = document.getElementById('descRisk');
+            const descReorder = document.getElementById('descReorder');
+            const descStatus = document.getElementById('descStatus');
+
+            if (simCoverage < med.leadTime) {
+                descCov.textContent = `Current inventory will last ${simCoverage} days under this scenario, which is ${med.leadTime - simCoverage} days short of supplier lead time (${med.leadTime}d).`;
+                descRisk.textContent = `Stock-out probability elevated to Critical. Depletion expected prior to standard replenishment window.`;
+                descReorder.textContent = `Emergency expedited reorder of ${simReorder.toLocaleString()} units required to avoid stock depletion.`;
+                descStatus.textContent = `Status: CRITICAL STOCK-OUT IMMINENT. Automated priority alert active.`;
+            } else if (simCoverage < med.leadTime * 1.5) {
+                descCov.textContent = `Coverage compressed to ${simCoverage} days. Buffer is tightening near supplier lead time (${med.leadTime}d).`;
+                descRisk.textContent = `Risk elevated to Moderate Warning. Lead time buffer is reduced.`;
+                descReorder.textContent = `Purchase order of ${simReorder.toLocaleString()} units recommended to maintain safety stock.`;
+                descStatus.textContent = `Status: REORDER TRIGGER THRESHOLD MET.`;
+            } else {
+                descCov.textContent = `Inventory coverage extended to ${simCoverage} days. Buffer safely exceeds supplier lead time (${med.leadTime}d).`;
+                descRisk.textContent = `Risk nominal. Adequate buffer across warehouse tiers.`;
+                descReorder.textContent = simReorder > 0 ? `Routine scheduled reorder of ${simReorder.toLocaleString()} units adequate.` : `No replenishment required for this horizon.`;
+                descStatus.textContent = `Status: OPTIMAL COVERAGE RUNWAY.`;
+            }
+        }
+
+        // ── UPDATE INTELLIGENCE INSIGHT ──
+        function updateInsightText(med, pct, simCoverage, simDemand, simReorder, simRisk) {
+            const insightEl = document.getElementById('insightText');
+            const sign = pct > 0 ? '+' : '';
+
+            if (pct > 30) {
+                insightEl.textContent = `"A ${sign}${pct}% surge in projected consumption severely accelerates inventory burn, reducing coverage from ${med.baseCoverageDays} to ${simCoverage} days. Because this crosses below the ${med.leadTime}-day distributor lead time, an immediate expedited reorder of ${simReorder.toLocaleString()} units is required to prevent a complete stock-out."`;
+            } else if (pct > 0) {
+                insightEl.textContent = `"A moderate ${sign}${pct}% increase in demand compresses coverage to ${simCoverage} days. Inventory remains viable in the immediate term, but early replenishment order placement is recommended to protect the safety stock buffer."`;
+            } else if (pct === 0) {
+                insightEl.textContent = `"At baseline ML forecast (${med.baseDemand.toLocaleString()} units), ${med.name} maintains ${med.baseCoverageDays} days of inventory. Adjust the slider above to model demand spikes or slumps."`;
+            } else {
+                insightEl.textContent = `"A ${pct}% drop in expected demand extends the inventory runway to ${simCoverage} days (+${simCoverage - med.baseCoverageDays} days over baseline). Reorder requirements can be safely deferred without compromising patient availability."`;
+            }
+
+            // Supporting factors
+            document.getElementById('fStock').textContent = `${med.stock.toLocaleString()} Units`;
+            document.getElementById('fBaseVel').textContent = `${Math.round(med.baseDemand / 30)} Units/Day`;
+            document.getElementById('fSimVel').textContent = `${Math.round(simDemand / 30)} Units/Day`;
+            document.getElementById('fLead').textContent = `${med.leadTime} Days Required`;
+        }
+
+        // Dynamic Real Medicine Loading for Simulator
+        async function loadBackendSimulator() {
+            try {
+                const meds = await window.MediStockAPI.getInventory();
+                const sel = document.getElementById('simMedSelect');
+                if (meds && meds.length > 0 && sel) {
+                    sel.innerHTML = meds.map(m => 
+                        `<option value="${m.medicine_id}">${m.medicine_name} (${m.medicine_id}) · ${m.dosage_form}</option>`
+                    ).join('');
+
+                    meds.forEach(m => {
+                        medSimData[m.medicine_id] = {
+                            id: m.medicine_id,
+                            name: m.medicine_name,
+                            sku: `SKU #${m.medicine_id}`,
+                            stock: m.usable_stock,
+                            baseDemand: m.predicted_30d_demand,
+                            leadTime: m.lead_time_days || 14,
+                            baseCoverageDays: m.days_until_stockout,
+                            baseRisk: m.risk_level,
+                            baseRiskClass: m.risk_class,
+                            baseReorder: m.recommended_reorder_qty,
+                            histPoints: [120, 115, 130, 125, 140, 135, 150, 145]
+                        };
+                    });
+
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const qMed = urlParams.get('med') || urlParams.get('id');
+                    let targetKey = meds[0].medicine_id;
+                    if (qMed) {
+                        const match = meds.find(m => m.medicine_id.toLowerCase() === qMed.toLowerCase() || m.medicine_name.toLowerCase().includes(qMed.toLowerCase()));
+                        if (match) targetKey = match.medicine_id;
+                    }
+                    sel.value = targetKey;
+                    window.handleMedicineChange(targetKey);
+                } else {
+                    window.handleMedicineChange('amx');
+                }
+            } catch (e) {
+                console.warn('[What-If Simulator] Backend load notice:', e.message);
+                window.handleMedicineChange('amx');
+            }
+        }
+
+        // Initialize view with live data
+        loadBackendSimulator();
+
+    })();
+    </script>
+
+</body>
+</html>

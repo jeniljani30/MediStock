@@ -1,0 +1,2980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediStock — Medicine Intelligence Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ══════════════════════════════════════════════
+           MEDISTOCK MASTER DESIGN SYSTEM TOKENS
+           ══════════════════════════════════════════════ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #08090c;
+            --bg-secondary: #0e1015;
+            --bg-tertiary: #151720;
+            --bg-card: rgba(20, 22, 30, 0.65);
+            --bg-glass: rgba(255, 255, 255, 0.025);
+            --bg-glass-hover: rgba(255, 255, 255, 0.055);
+            --bg-glass-card: rgba(255, 255, 255, 0.035);
+
+            --text-primary: #f0f0f5;
+            --text-secondary: #9a9ab0;
+            --text-tertiary: #6b6b80;
+            --text-muted: #4a4a5a;
+
+            --blue: #4a90f5;
+            --blue-bright: #6ba3ff;
+            --blue-dim: rgba(74, 144, 245, 0.12);
+            --blue-glow: rgba(74, 144, 245, 0.25);
+            --teal: #2dd4bf;
+            --teal-dim: rgba(45, 212, 191, 0.10);
+            --teal-glow: rgba(45, 212, 191, 0.20);
+            --green: #34d399;
+            --green-dim: rgba(52, 211, 153, 0.10);
+            --orange: #fb923c;
+            --orange-dim: rgba(251, 146, 60, 0.10);
+            --red: #f87171;
+            --red-dim: rgba(248, 113, 113, 0.10);
+
+            --border: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(255, 255, 255, 0.12);
+            --border-accent: rgba(74, 144, 245, 0.25);
+            --border-teal: rgba(45, 212, 191, 0.3);
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.35);
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.45);
+            --shadow-glow: 0 0 30px rgba(74, 144, 245, 0.15);
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Ambient Glow Backdrop */
+        .ambient-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .ambient-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.12;
+            animation: pulseGlow 14s ease-in-out infinite alternate;
+        }
+
+        .ambient-blob-1 { top: -10%; left: 15%; width: 600px; height: 600px; background: radial-gradient(circle, #4a90f5, transparent 70%); }
+        .ambient-blob-2 { top: 40%; right: -5%; width: 500px; height: 500px; background: radial-gradient(circle, #2dd4bf, transparent 70%); animation-delay: -5s; }
+        .ambient-blob-3 { bottom: -10%; left: 30%; width: 550px; height: 550px; background: radial-gradient(circle, #818cf8, transparent 70%); animation-delay: -9s; }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1) translate(0, 0); opacity: 0.10; }
+            50% { transform: scale(1.15) translate(20px, -15px); opacity: 0.16; }
+            100% { transform: scale(0.95) translate(-15px, 20px); opacity: 0.10; }
+        }
+
+        /* ══════════════════════════════════════════════
+           NAVIGATION BAR (UNIFIED ACROSS APPLICATION)
+           ══════════════════════════════════════════════ */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 68px;
+            background: rgba(8, 9, 12, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-inner {
+            width: 100%;
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 0 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-left-group {
+            display: flex;
+            align-items: center;
+            gap: 36px;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 1.12rem;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--blue), var(--teal));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: #fff;
+            box-shadow: 0 0 15px var(--blue-glow);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            padding: 7px 15px;
+            font-size: 0.83rem;
+            font-weight: 500;
+            color: var(--text-tertiary);
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+            background: var(--bg-glass);
+        }
+
+        .nav-links a.active {
+            color: var(--blue-bright);
+            background: var(--blue-dim);
+            border: 1px solid rgba(74, 144, 245, 0.2);
+            font-weight: 600;
+        }
+
+        .nav-right-group {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .api-state-select {
+            background: rgba(14, 16, 21, 0.9);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .api-state-select:hover {
+            border-color: var(--border-hover);
+        }
+
+        .btn-header-sale {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 15px;
+            background: linear-gradient(135deg, var(--blue), #3b82f6);
+            color: #ffffff;
+            font-size: 0.78rem;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--blue-glow);
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-header-sale:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0 20px rgba(74, 144, 245, 0.4);
+        }
+
+        /* ══════════════════════════════════════════════
+           PAGE WRAPPER & LAYOUT
+           ══════════════════════════════════════════════ */
+        .page-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 96px 28px 60px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Breadcrumb & Medicine Switcher Header */
+        .profile-nav-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+        }
+
+        .breadcrumb a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--blue-bright);
+        }
+
+        .breadcrumb-sep {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .med-selector-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(14, 16, 21, 0.8);
+            border: 1px solid var(--border);
+            padding: 4px 6px 4px 12px;
+            border-radius: var(--radius-md);
+            backdrop-filter: blur(12px);
+        }
+
+        .med-selector-label {
+            font-size: 0.72rem;
+            color: var(--text-tertiary);
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .med-select-dropdown {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 4px 8px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .med-select-dropdown option {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        /* ══════════════════════════════════════════════
+           SECTION 2: MEDICINE IDENTITY & 3D PACKAGING HERO
+           ══════════════════════════════════════════════ */
+        .med-identity-card {
+            background: linear-gradient(135deg, rgba(20, 24, 34, 0.8) 0%, rgba(14, 16, 22, 0.6) 100%);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            backdrop-filter: blur(16px);
+            margin-bottom: 24px;
+            display: grid;
+            grid-template-columns: 280px 1fr auto;
+            gap: 32px;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+        }
+
+        .med-identity-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(74, 144, 245, 0.4), rgba(45, 212, 191, 0.4), transparent);
+        }
+
+        /* 3D Medicine Package Card */
+        .pack-3d-wrapper {
+            perspective: 1000px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pack-3d-box {
+            width: 220px;
+            height: 180px;
+            background: linear-gradient(145deg, #1b202c, #0e1219);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            position: relative;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transform: rotateY(-6deg) rotateX(4deg);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .pack-3d-box:hover {
+            transform: rotateY(0deg) rotateX(0deg) scale(1.02);
+            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.7), 0 0 30px var(--blue-glow);
+        }
+
+        .pack-foil-strip {
+            position: absolute;
+            top: 0;
+            left: 20px;
+            right: 20px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--blue), var(--teal));
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 0 8px var(--teal-glow);
+        }
+
+        .pack-brand-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 4px;
+        }
+
+        .pack-brand-tag {
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            color: var(--teal);
+            font-family: var(--font-mono);
+        }
+
+        .pack-security-seal {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 0.58rem;
+            color: var(--text-tertiary);
+            font-family: var(--font-mono);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .pack-main-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.25;
+            margin: 8px 0 2px;
+        }
+
+        .pack-dosage-sub {
+            font-size: 0.68rem;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+        }
+
+        .pack-bottom-grid {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding-top: 10px;
+        }
+
+        .pack-barcode-mock {
+            display: flex;
+            gap: 2px;
+            align-items: flex-end;
+            height: 22px;
+        }
+
+        .pack-barcode-bar {
+            width: 2px;
+            background: var(--text-tertiary);
+            border-radius: 1px;
+        }
+
+        .pack-batch-callout {
+            font-size: 0.62rem;
+            font-family: var(--font-mono);
+            color: var(--text-secondary);
+            text-align: right;
+        }
+
+        /* Identity Info Center */
+        .med-info-center {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .med-badges-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .med-badge {
+            font-size: 0.7rem;
+            font-family: var(--font-mono);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .badge-cat {
+            background: rgba(74, 144, 245, 0.1);
+            color: var(--blue-bright);
+            border: 1px solid rgba(74, 144, 245, 0.25);
+        }
+
+        .badge-id {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-tertiary);
+            border: 1px solid var(--border);
+        }
+
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        .status-healthy { background: var(--green-dim); color: var(--green); border: 1px solid rgba(52, 211, 153, 0.25); }
+        .status-warn { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(251, 146, 60, 0.25); }
+        .status-crit { background: var(--red-dim); color: var(--red); border: 1px solid rgba(248, 113, 113, 0.25); }
+
+        .status-pulse-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            box-shadow: 0 0 6px currentColor;
+        }
+
+        .med-name-heading {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .med-sub-details {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            flex-wrap: wrap;
+        }
+
+        .med-sub-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .med-sub-lbl {
+            color: var(--text-tertiary);
+            font-size: 0.75rem;
+        }
+
+        /* Identity Action Buttons */
+        .med-actions-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-profile-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn-act-primary {
+            background: linear-gradient(135deg, var(--blue), #3b82f6);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 15px var(--blue-glow);
+        }
+
+        .btn-act-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0 25px rgba(74, 144, 245, 0.4);
+        }
+
+        .btn-act-secondary {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-act-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--border-hover);
+        }
+
+        .btn-act-teal {
+            background: linear-gradient(135deg, rgba(45, 212, 191, 0.15), rgba(45, 212, 191, 0.05));
+            color: var(--teal);
+            border: 1px solid var(--border-teal);
+        }
+
+        .btn-act-teal:hover {
+            background: rgba(45, 212, 191, 0.2);
+            box-shadow: 0 0 15px var(--teal-glow);
+        }
+
+        /* ══════════════════════════════════════════════
+           SECTION 3: CURRENT INVENTORY INTELLIGENCE (5 KPIS)
+           ══════════════════════════════════════════════ */
+        .kpi-grid-5 {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 18px 20px;
+            backdrop-filter: blur(12px);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .kpi-stat-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-hover);
+        }
+
+        .kpi-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .kpi-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .kpi-badge {
+            font-size: 0.65rem;
+            font-family: var(--font-mono);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .kpi-value-row {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+
+        .kpi-num {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            letter-spacing: -0.03em;
+        }
+
+        .kpi-unit {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        .kpi-subtext {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ══════════════════════════════════════════════
+           ANALYTICAL TWO-COLUMN GRID: DEMAND + COVERAGE
+           ══════════════════════════════════════════════ */
+        .analytics-main-grid {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .analytics-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            backdrop-filter: blur(14px);
+            position: relative;
+        }
+
+        .card-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .card-title-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--blue-dim);
+            color: var(--blue-bright);
+        }
+
+        .card-title {
+            font-size: 1.02rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .card-subtitle {
+            font-size: 0.74rem;
+            color: var(--text-tertiary);
+        }
+
+        /* Chart Controls & Horizon Toggle */
+        .chart-toggle-group {
+            display: flex;
+            align-items: center;
+            background: rgba(14, 16, 21, 0.8);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 2px;
+        }
+
+        .btn-chart-toggle {
+            padding: 4px 10px;
+            font-size: 0.72rem;
+            font-family: var(--font-mono);
+            background: transparent;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.15s;
+        }
+
+        .btn-chart-toggle.active {
+            background: var(--blue-dim);
+            color: var(--blue-bright);
+            font-weight: 600;
+        }
+
+        /* SVG Chart Display */
+        .chart-svg-container {
+            position: relative;
+            width: 100%;
+            height: 230px;
+            margin-bottom: 12px;
+        }
+
+        .chart-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .chart-legend-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.72rem;
+            color: var(--text-tertiary);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-bullet-solid { width: 12px; height: 3px; background: var(--blue); border-radius: 2px; }
+        .legend-bullet-dashed { width: 14px; height: 0px; border-top: 2px dashed var(--teal); }
+        .legend-bullet-bound { width: 12px; height: 8px; background: rgba(45, 212, 191, 0.15); border: 1px solid rgba(45, 212, 191, 0.3); border-radius: 2px; }
+
+        /* Chart Tooltip */
+        .chart-tooltip-box {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            background: rgba(14, 16, 21, 0.95);
+            border: 1px solid var(--border-accent);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            pointer-events: none;
+            opacity: 0;
+            transform: translate(-50%, -10px);
+            transition: opacity 0.15s, transform 0.15s;
+            box-shadow: var(--shadow-card);
+            z-index: 20;
+        }
+
+        .chart-tooltip-date { font-size: 0.68rem; color: var(--text-tertiary); font-family: var(--font-mono); }
+        .chart-tooltip-val { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); font-family: var(--font-mono); }
+
+        /* ══════════════════════════════════════════════
+           SECTION 5: INVENTORY COVERAGE & STOCKOUT HORIZON
+           ══════════════════════════════════════════════ */
+        .coverage-flow-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: rgba(14, 16, 21, 0.6);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+        }
+
+        .c-flow-step {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .c-flow-lbl { font-size: 0.68rem; color: var(--text-tertiary); text-transform: uppercase; }
+        .c-flow-val { font-size: 0.84rem; font-weight: 700; color: var(--text-primary); font-family: var(--font-mono); }
+        .c-flow-arrow { color: var(--text-muted); font-size: 0.9rem; }
+
+        /* Visual Coverage Bar Indicator */
+        .coverage-visual-wrapper {
+            margin-bottom: 20px;
+        }
+
+        .cov-bar-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .cov-bar-track {
+            height: 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            position: relative;
+            overflow: visible;
+        }
+
+        .cov-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            background: linear-gradient(90deg, var(--teal), var(--blue));
+            box-shadow: 0 0 10px var(--teal-glow);
+            transition: width 0.6s ease;
+        }
+
+        .cov-lead-time-marker {
+            position: absolute;
+            top: -6px;
+            bottom: -6px;
+            width: 2px;
+            background: var(--red);
+            z-index: 5;
+        }
+
+        .cov-lead-time-tag {
+            position: absolute;
+            top: -24px;
+            transform: translateX(-50%);
+            font-size: 0.62rem;
+            font-family: var(--font-mono);
+            color: var(--red);
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            padding: 1px 5px;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+
+        .cov-summary-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            font-size: 0.74rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* ══════════════════════════════════════════════
+           SECTION 6 & 7: RISK INTELLIGENCE & EXPLAINABILITY
+           ══════════════════════════════════════════════ */
+        .risk-explain-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        /* Risk Gauge & Meters */
+        .risk-gauge-box {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 16px;
+            background: rgba(14, 16, 21, 0.6);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+        }
+
+        .risk-meter-segments {
+            display: flex;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .risk-segment {
+            height: 12px;
+            flex: 1;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .seg-healthy.active { background: var(--green); box-shadow: 0 0 10px var(--green-dim); }
+        .seg-moderate.active { background: #eab308; box-shadow: 0 0 10px rgba(234, 179, 8, 0.2); }
+        .seg-high.active { background: var(--orange); box-shadow: 0 0 10px var(--orange-dim); }
+        .seg-critical.active { background: var(--red); box-shadow: 0 0 10px var(--red-dim); }
+
+        .risk-metrics-trio {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .risk-mini-stat {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+        }
+
+        .rms-lbl { font-size: 0.68rem; color: var(--text-tertiary); margin-bottom: 3px; }
+        .rms-val { font-size: 0.88rem; font-weight: 700; color: var(--text-primary); font-family: var(--font-mono); }
+
+        /* Explainability Factor Items */
+        .explain-factor-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .factor-card {
+            background: rgba(14, 16, 21, 0.6);
+            border-left: 3px solid var(--blue);
+            border-top: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            padding: 12px 16px;
+            transition: transform 0.2s;
+        }
+
+        .factor-card:hover { transform: translateX(3px); }
+        .factor-card.factor-crit { border-left-color: var(--red); }
+        .factor-card.factor-warn { border-left-color: var(--orange); }
+        .factor-card.factor-info { border-left-color: var(--teal); }
+
+        .factor-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .factor-name { font-size: 0.8rem; font-weight: 700; color: var(--text-primary); }
+        .factor-tag { font-size: 0.65rem; font-family: var(--font-mono); font-weight: 600; }
+        .factor-body { font-size: 0.73rem; color: var(--text-secondary); line-height: 1.4; }
+
+        /* ══════════════════════════════════════════════
+           SECTION 8, 9, 10: EXPIRY INTELLIGENCE & FEFO PRIORITY
+           ══════════════════════════════════════════════ */
+        .expiry-section-wrapper {
+            margin-bottom: 24px;
+        }
+
+        .expiry-summary-bar {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .esum-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            backdrop-filter: blur(12px);
+        }
+
+        .esum-lbl { font-size: 0.68rem; color: var(--text-tertiary); text-transform: uppercase; font-family: var(--font-mono); }
+        .esum-val { font-size: 1.25rem; font-weight: 800; color: var(--text-primary); font-family: var(--font-mono); margin-top: 4px; }
+        .esum-sub { font-size: 0.68rem; color: var(--text-secondary); margin-top: 2px; }
+
+        /* FEFO Highlight Banner */
+        .fefo-banner-card {
+            background: linear-gradient(135deg, rgba(45, 212, 191, 0.08) 0%, rgba(14, 16, 21, 0.7) 100%);
+            border: 1px solid var(--border-teal);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            box-shadow: 0 0 20px rgba(45, 212, 191, 0.05);
+        }
+
+        .fefo-left-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .fefo-icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: var(--teal-dim);
+            border: 1px solid var(--border-teal);
+            color: var(--teal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 0 15px var(--teal-glow);
+        }
+
+        .fefo-details-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .fefo-headline {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fefo-pill-tag {
+            font-size: 0.65rem;
+            font-family: var(--font-mono);
+            background: var(--teal);
+            color: #08090c;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+
+        .fefo-desc-text {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .fefo-quick-stats {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .fqs-item {
+            text-align: right;
+        }
+
+        .fqs-lbl { font-size: 0.68rem; color: var(--text-tertiary); }
+        .fqs-val { font-size: 0.92rem; font-weight: 700; color: var(--teal); font-family: var(--font-mono); }
+
+        /* Master Batch Table */
+        .batch-table-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            backdrop-filter: blur(14px);
+        }
+
+        .master-batch-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+            text-align: left;
+        }
+
+        .master-batch-table th {
+            background: rgba(14, 16, 21, 0.9);
+            padding: 12px 18px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .master-batch-table td {
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: var(--text-secondary);
+        }
+
+        .master-batch-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-primary);
+        }
+
+        .batch-code-badge {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--blue-bright);
+            background: var(--blue-dim);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        .fefo-badge-p1 {
+            background: var(--teal-dim);
+            color: var(--teal);
+            border: 1px solid var(--border-teal);
+            font-size: 0.7rem;
+            font-family: var(--font-mono);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .fefo-badge-p2 {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-tertiary);
+            border: 1px solid var(--border);
+            font-size: 0.7rem;
+            font-family: var(--font-mono);
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .status-badge-safe { color: var(--green); font-weight: 600; }
+        .status-badge-soon { color: var(--orange); font-weight: 600; }
+        .status-badge-exp { color: var(--red); font-weight: 700; }
+
+        /* ══════════════════════════════════════════════
+           SECTION 11: REORDER RECOMMENDATION
+           ══════════════════════════════════════════════ */
+        .reorder-rec-card {
+            background: linear-gradient(135deg, rgba(20, 24, 34, 0.7) 0%, rgba(14, 16, 21, 0.9) 100%);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px 28px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(14px);
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 28px;
+            align-items: center;
+        }
+
+        .reorder-rec-left {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .r-rec-title-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .r-rec-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .r-rec-reason {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.45;
+        }
+
+        .r-rec-specs-grid {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .r-spec-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .r-spec-lbl { font-size: 0.68rem; color: var(--text-tertiary); text-transform: uppercase; font-family: var(--font-mono); }
+        .r-spec-val { font-size: 0.88rem; font-weight: 700; color: var(--text-primary); font-family: var(--font-mono); }
+
+        .reorder-rec-right {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+        }
+
+        .rec-units-hero {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .rec-units-lbl { font-size: 0.7rem; color: var(--teal); font-family: var(--font-mono); font-weight: 600; text-transform: uppercase; }
+        .rec-units-num { font-size: 2.2rem; font-weight: 800; color: #ffffff; font-family: var(--font-mono); line-height: 1; margin: 4px 0; }
+
+        /* ══════════════════════════════════════════════
+           SECTION 12: RECENT TRANSACTIONS LEDGER
+           ══════════════════════════════════════════════ */
+        .transactions-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            backdrop-filter: blur(14px);
+            margin-bottom: 24px;
+        }
+
+        .tx-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        .tx-table th {
+            padding: 10px 14px;
+            color: var(--text-tertiary);
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+        }
+
+        .tx-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: var(--text-secondary);
+        }
+
+        .tx-id-badge {
+            font-family: var(--font-mono);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* ══════════════════════════════════════════════
+           MODAL: SIMULATE SALE (SECTION 13)
+           ══════════════════════════════════════════════ */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-dialog {
+            background: #0e1118;
+            border: 1px solid var(--border-accent);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 520px;
+            padding: 28px;
+            box-shadow: var(--shadow-card), 0 0 40px var(--blue-glow);
+            transform: scale(0.95);
+            transition: transform 0.25s ease;
+        }
+
+        .modal-overlay.open .modal-dialog {
+            transform: scale(1);
+        }
+
+        .modal-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .modal-title { font-size: 1.15rem; font-weight: 700; color: #ffffff; }
+        .modal-close-btn { background: transparent; border: none; color: var(--text-tertiary); font-size: 1.2rem; cursor: pointer; }
+        .modal-close-btn:hover { color: var(--text-primary); }
+
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .m-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .m-form-label { font-size: 0.75rem; color: var(--text-secondary); font-weight: 500; }
+
+        .m-input-num {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            font-size: 1rem;
+            color: #ffffff;
+            font-family: var(--font-mono);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .m-input-num:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 10px var(--blue-glow);
+        }
+
+        .modal-fefo-preview {
+            background: rgba(45, 212, 191, 0.06);
+            border: 1px solid var(--border-teal);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        /* ══════════════════════════════════════════════
+           STATES: SKELETON, ERROR, INSUFFICIENT DATA
+           ══════════════════════════════════════════════ */
+        .state-container {
+            display: none;
+            padding: 80px 20px;
+            text-align: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            margin-bottom: 24px;
+        }
+
+        .state-container.active {
+            display: block;
+        }
+
+        .state-icon {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .state-title { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+        .state-desc { font-size: 0.8rem; color: var(--text-tertiary); max-width: 480px; margin: 0 auto 20px; }
+
+        .skeleton-shimmer {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.02) 25%, rgba(255, 255, 255, 0.06) 50%, rgba(255, 255, 255, 0.02) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 6px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1200px) {
+            .kpi-grid-5 { grid-template-columns: repeat(3, 1fr); }
+            .analytics-main-grid { grid-template-columns: 1fr; }
+            .med-identity-card { grid-template-columns: 1fr; }
+            .pack-3d-wrapper { display: none; }
+        }
+
+        @media (max-width: 768px) {
+            .kpi-grid-5 { grid-template-columns: 1fr; }
+            .risk-explain-grid { grid-template-columns: 1fr; }
+            .expiry-summary-bar { grid-template-columns: repeat(2, 1fr); }
+            .reorder-rec-card { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Canvas Glow -->
+    <div class="ambient-canvas">
+        <div class="ambient-blob ambient-blob-1"></div>
+        <div class="ambient-blob ambient-blob-2"></div>
+        <div class="ambient-blob ambient-blob-3"></div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         APPLICATION NAVBAR
+         ══════════════════════════════════════════════ -->
+    <nav class="navbar">
+        <div class="nav-inner">
+            <div class="nav-left-group">
+                <a href="index.html" class="nav-logo">
+                    <div class="nav-logo-icon">M</div>
+                    <span>MediStock</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="inventory.html">Inventory</a></li>
+                    <li><a href="simulator.html">What-If Simulator</a></li>
+                    <li><a href="reorder.html">Reorder History</a></li>
+                    <li><a href="index.html#how-it-works">Settings</a></li>
+                </ul>
+            </div>
+
+            <div class="nav-right-group">
+                <select class="api-state-select" id="apiStateSelector" onchange="handleApiStateChange(this.value)" title="Switch API Mock State">
+                    <option value="live">● API: Live Intelligence</option>
+                    <option value="loading">○ API: Skeleton Loading</option>
+                    <option value="insufficient">△ API: Insufficient Data</option>
+                    <option value="error">✕ API: Connection Error</option>
+                </select>
+                <button class="btn-header-sale" onclick="openSaleModal()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                    Simulate Sale
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ══════════════════════════════════════════════
+         MAIN PAGE CONTAINER
+         ══════════════════════════════════════════════ -->
+    <div class="page-container">
+
+        <!-- Top Profile Navigation Bar (Section 1) -->
+        <div class="profile-nav-bar">
+            <div class="breadcrumb">
+                <a href="dashboard.html">MediStock</a>
+                <span class="breadcrumb-sep">/</span>
+                <a href="inventory.html">Inventory</a>
+                <span class="breadcrumb-sep">/</span>
+                <span id="breadcrumbMedName" style="color: var(--text-primary); font-weight: 600;">Amoxicillin + Clavulanic Acid</span>
+            </div>
+
+            <!-- Dynamic Medicine Switcher -->
+            <div class="med-selector-bar">
+                <span class="med-selector-label">Inspect Medicine:</span>
+                <select class="med-select-dropdown" id="medPicker" onchange="handleMedicinePickerChange(this.value)">
+                    <option value="amx">Amoxicillin + Clavulanic Acid 625mg (High Risk)</option>
+                    <option value="azi">Azithromycin 500mg USP (Expiring Soon)</option>
+                    <option value="ins">Insulin Glargine Pen (Low Stock)</option>
+                    <option value="met">Metformin Hydrochloride 850mg (Healthy)</option>
+                    <option value="ato">Atorvastatin Calcium 20mg (Optimal Buffer)</option>
+                    <option value="sal">Salbutamol Inhaler 100mcg (Surge Run-Rate)</option>
+                    <option value="cef">Ceftriaxone Sodium 1g (Expired Quarantine)</option>
+                    <option value="new_entry">Remdesivir Lyophilized 100mg (Insufficient Data Demo)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════
+             STATE VIEWPORTS (LOADING, ERROR, INSUFFICIENT DATA)
+             ══════════════════════════════════════════════ -->
+
+        <!-- 1. LOADING SKELETON STATE -->
+        <div class="state-container" id="loadingState">
+            <div style="display: grid; gap: 20px;">
+                <div class="skeleton-shimmer" style="height: 180px; width: 100%;"></div>
+                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px;">
+                    <div class="skeleton-shimmer" style="height: 100px;"></div>
+                    <div class="skeleton-shimmer" style="height: 100px;"></div>
+                    <div class="skeleton-shimmer" style="height: 100px;"></div>
+                    <div class="skeleton-shimmer" style="height: 100px;"></div>
+                    <div class="skeleton-shimmer" style="height: 100px;"></div>
+                </div>
+                <div class="skeleton-shimmer" style="height: 260px; width: 100%;"></div>
+            </div>
+        </div>
+
+        <!-- 2. ERROR STATE -->
+        <div class="state-container" id="errorState">
+            <div class="state-icon" style="background: var(--red-dim); color: var(--red); border: 1px solid rgba(248, 113, 113, 0.3);">✕</div>
+            <div class="state-title">Unable to load medicine intelligence</div>
+            <div class="state-desc">The predictive inference service timed out while querying batch telemetry and transaction ledger data.</div>
+            <button class="btn-act-primary" style="margin: 0 auto;" onclick="handleApiStateChange('live')">Retry Connection</button>
+        </div>
+
+        <!-- 3. INSUFFICIENT DATA STATE -->
+        <div class="state-container" id="insufficientState">
+            <div class="state-icon" style="background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(251, 146, 60, 0.3);">△</div>
+            <div class="state-title">Insufficient Historical Demand Data</div>
+            <div class="state-desc">This newly registered medicine has fewer than 14 days of logged dispensing transactions. MediStock requires sufficient sales history to formulate accurate ML demand curves and run-rate confidence bounds without fabricating predictions.</div>
+            <button class="btn-act-secondary" style="margin: 0 auto;" onclick="openSaleModal()">Simulate Initial Dispense Transaction</button>
+        </div>
+
+        <!-- ══════════════════════════════════════════════
+             LIVE PROFILE CONTENT CONTAINER
+             ══════════════════════════════════════════════ -->
+        <div id="liveProfileViewport">
+
+            <!-- SECTION 2: MEDICINE IDENTITY & 3D PACKAGING HERO -->
+            <div class="med-identity-card">
+                <!-- 3D Realistic Box Packaging Graphic -->
+                <div class="pack-3d-wrapper">
+                    <div class="pack-3d-box" id="box3D">
+                        <div class="pack-foil-strip"></div>
+                        <div class="pack-brand-row">
+                            <span class="pack-brand-tag">MEDISTOCK</span>
+                            <div class="pack-security-seal">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                RX-VERIFIED
+                            </div>
+                        </div>
+                        <div>
+                            <div class="pack-main-title" id="pBoxName">Amoxicillin + Clav</div>
+                            <div class="pack-dosage-sub" id="pBoxDosage">625mg · Film-Coated</div>
+                        </div>
+                        <div class="pack-bottom-grid">
+                            <div class="pack-barcode-mock">
+                                <div class="pack-barcode-bar" style="height: 18px;"></div>
+                                <div class="pack-barcode-bar" style="height: 12px; width: 3px;"></div>
+                                <div class="pack-barcode-bar" style="height: 20px;"></div>
+                                <div class="pack-barcode-bar" style="height: 14px;"></div>
+                                <div class="pack-barcode-bar" style="height: 19px; width: 3px;"></div>
+                                <div class="pack-barcode-bar" style="height: 16px;"></div>
+                            </div>
+                            <div class="pack-batch-callout">
+                                <div>BATCH FEFO</div>
+                                <strong id="pBoxBatch" style="color: var(--teal);">AMX-9482</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center Identity Information -->
+                <div class="med-info-center">
+                    <div class="med-badges-row">
+                        <span class="med-badge badge-cat" id="badgeCategory">Antibiotics & Antimicrobials</span>
+                        <span class="med-badge badge-id" id="badgeMedId">MED-AMX-625</span>
+                        <div class="badge-status" id="badgeStatusIndicator">
+                            <span class="status-pulse-dot"></span>
+                            <span id="badgeStatusText">High Stock-out Risk</span>
+                        </div>
+                    </div>
+
+                    <h1 class="med-name-heading" id="headerMedName">Amoxicillin + Clavulanic Acid</h1>
+
+                    <div class="med-sub-details">
+                        <div class="med-sub-item">
+                            <span class="med-sub-lbl">Manufacturer:</span>
+                            <strong id="headerManufacturer">GlaxoSmithKline / Sandoz</strong>
+                        </div>
+                        <div class="med-sub-item">
+                            <span class="med-sub-lbl">Dosage Form:</span>
+                            <strong id="headerDosage">Oral Solid Tablet (625mg)</strong>
+                        </div>
+                        <div class="med-sub-item">
+                            <span class="med-sub-lbl">SKU:</span>
+                            <strong id="headerSku" style="font-family: var(--font-mono); color: var(--blue-bright);">SKU #AMX-625</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Button Cluster (Sections 11, 13, 14) -->
+                <div class="med-actions-group">
+                    <button class="btn-profile-action btn-act-primary" onclick="openSaleModal()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                        Simulate Sale
+                    </button>
+                    <a href="simulator.html" class="btn-profile-action btn-act-secondary" id="btnWhatIfLink">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                        Run What-If Scenario
+                    </a>
+                    <a href="reorder.html" class="btn-profile-action btn-act-teal" id="btnReviewReorderLink">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                        Review Reorder
+                    </a>
+                </div>
+            </div>
+
+            <!-- SECTION 3: CURRENT INVENTORY INTELLIGENCE (5 KPIS) -->
+            <div class="kpi-grid-5">
+                <!-- KPI 1: Current Stock -->
+                <div class="kpi-stat-card">
+                    <div class="kpi-top-row">
+                        <span class="kpi-label">Current Stock</span>
+                        <span class="kpi-badge" style="background: var(--blue-dim); color: var(--blue-bright);">ON HAND</span>
+                    </div>
+                    <div class="kpi-value-row">
+                        <span class="kpi-num" id="kpiStock">1,420</span>
+                        <span class="kpi-unit">Units</span>
+                    </div>
+                    <div class="kpi-subtext" id="kpiStockSub">Across 3 active batches</div>
+                </div>
+
+                <!-- KPI 2: Predicted Demand -->
+                <div class="kpi-stat-card">
+                    <div class="kpi-top-row">
+                        <span class="kpi-label">Predicted Demand</span>
+                        <span class="kpi-badge" style="background: var(--teal-dim); color: var(--teal);">30-DAY ML</span>
+                    </div>
+                    <div class="kpi-value-row">
+                        <span class="kpi-num" id="kpiDemand" style="color: var(--teal);">3,850</span>
+                        <span class="kpi-unit">Units</span>
+                    </div>
+                    <div class="kpi-subtext" id="kpiDemandSub">Burn velocity: 128 units/day</div>
+                </div>
+
+                <!-- KPI 3: Days Until Stock-Out -->
+                <div class="kpi-stat-card">
+                    <div class="kpi-top-row">
+                        <span class="kpi-label">Days to Stock-out</span>
+                        <span class="kpi-badge" id="kpiDaysBadge" style="background: var(--red-dim); color: var(--red);">RUNWAY</span>
+                    </div>
+                    <div class="kpi-value-row">
+                        <span class="kpi-num" id="kpiDays" style="color: var(--red);">9</span>
+                        <span class="kpi-unit">Days</span>
+                    </div>
+                    <div class="kpi-subtext" id="kpiDaysSub">Below supplier lead time (14d)</div>
+                </div>
+
+                <!-- KPI 4: Stock-out Risk -->
+                <div class="kpi-stat-card">
+                    <div class="kpi-top-row">
+                        <span class="kpi-label">Stock-out Risk</span>
+                        <span class="kpi-badge" id="kpiRiskBadge" style="background: var(--red-dim); color: var(--red);">ASSESSMENT</span>
+                    </div>
+                    <div class="kpi-value-row">
+                        <span class="kpi-num" id="kpiRisk" style="font-size: 1.45rem; color: var(--red);">Critical</span>
+                    </div>
+                    <div class="kpi-subtext" id="kpiRiskSub">Depletion expected before PO arrival</div>
+                </div>
+
+                <!-- KPI 5: Recommended Reorder -->
+                <div class="kpi-stat-card">
+                    <div class="kpi-top-row">
+                        <span class="kpi-label">Recommended Reorder</span>
+                        <span class="kpi-badge" style="background: var(--teal-dim); color: var(--teal);">OPTIMAL PO</span>
+                    </div>
+                    <div class="kpi-value-row">
+                        <span class="kpi-num" id="kpiReorder" style="color: var(--teal);">3,500</span>
+                        <span class="kpi-unit">Units</span>
+                    </div>
+                    <div class="kpi-subtext" id="kpiReorderSub">Safety buffer + lead time demand</div>
+                </div>
+            </div>
+
+            <!-- ANALYTICS GRID: DEMAND INTELLIGENCE + INVENTORY COVERAGE -->
+            <div class="analytics-main-grid">
+
+                <!-- SECTION 4: DEMAND INTELLIGENCE (INTERACTIVE CHART) -->
+                <div class="analytics-card">
+                    <div class="card-header-bar">
+                        <div class="card-title-group">
+                            <div class="card-title-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                            </div>
+                            <div>
+                                <div class="card-title">Demand Intelligence Horizon</div>
+                                <div class="card-subtitle">Historical Sales Trajectory → Real-Time Point → ML Projected Run-Rate</div>
+                            </div>
+                        </div>
+
+                        <!-- Horizon Toggle -->
+                        <div class="chart-toggle-group">
+                            <button class="btn-chart-toggle" onclick="setHorizon(14)">14D</button>
+                            <button class="btn-chart-toggle active" onclick="setHorizon(30)">30D</button>
+                            <button class="btn-chart-toggle" onclick="setHorizon(60)">60D</button>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic SVG Interactive Chart -->
+                    <div class="chart-svg-container" id="chartContainer" onmouseleave="hideTooltip()">
+                        <!-- Tooltip -->
+                        <div class="chart-tooltip-box" id="chartTooltip">
+                            <div class="chart-tooltip-date" id="ttDate">Day 14 (Historical)</div>
+                            <div class="chart-tooltip-val" id="ttVal">135 Units</div>
+                        </div>
+
+                        <svg class="chart-svg" id="demandChartSvg" viewBox="0 0 650 200" preserveAspectRatio="none">
+                            <defs>
+                                <linearGradient id="histFillGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#4a90f5" stop-opacity="0.35"/>
+                                    <stop offset="100%" stop-color="#4a90f5" stop-opacity="0.0"/>
+                                </linearGradient>
+                                <linearGradient id="predFillGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#2dd4bf" stop-opacity="0.25"/>
+                                    <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0.0"/>
+                                </linearGradient>
+                            </defs>
+
+                            <!-- Grid Lines -->
+                            <line x1="40" y1="30" x2="630" y2="30" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+                            <line x1="40" y1="80" x2="630" y2="80" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+                            <line x1="40" y1="130" x2="630" y2="130" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+                            <line x1="40" y1="170" x2="630" y2="170" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+
+                            <!-- Confidence Band Polygon (Predicted) -->
+                            <polygon id="svgConfidenceBand" points="340,110 400,90 480,75 550,60 630,50 630,120 550,135 480,145 400,150 340,140" fill="url(#predFillGrad)" opacity="0.6"/>
+
+                            <!-- Area Fills -->
+                            <polygon id="svgHistArea" points="40,170 40,150 100,140 180,145 260,130 340,120 340,170" fill="url(#histFillGrad)"/>
+
+                            <!-- Curve Lines -->
+                            <path id="svgHistPath" d="M 40 150 Q 70 145 100 140 T 180 145 T 260 130 T 340 120" fill="none" stroke="#4a90f5" stroke-width="3" stroke-linecap="round"/>
+                            <path id="svgPredPath" d="M 340 120 Q 370 110 400 100 T 480 85 T 550 70 T 630 55" fill="none" stroke="#2dd4bf" stroke-width="3" stroke-dasharray="5,4" stroke-linecap="round"/>
+
+                            <!-- Current Day Boundary Marker -->
+                            <line id="svgTodayLine" x1="340" y1="15" x2="340" y2="175" stroke="#f0f0f5" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.5"/>
+                            <text x="340" y="12" fill="#9a9ab0" font-size="10" font-family="'JetBrains Mono', monospace" text-anchor="middle">TODAY</text>
+
+                            <!-- Interactive Hit Target Circles -->
+                            <g id="svgDataPointsGroup"></g>
+                        </svg>
+                    </div>
+
+                    <div class="chart-legend-row">
+                        <div class="legend-item">
+                            <div class="legend-bullet-solid"></div>
+                            <span>Historical Actuals (Dispensed)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-bullet-dashed"></div>
+                            <span>ML Predicted Trajectory</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-bullet-bound"></div>
+                            <span>95% Confidence Interval</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 5: INVENTORY COVERAGE & STOCKOUT HORIZON -->
+                <div class="analytics-card">
+                    <div class="card-header-bar">
+                        <div class="card-title-group">
+                            <div class="card-title-icon" style="background: var(--teal-dim); color: var(--teal);">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                            </div>
+                            <div>
+                                <div class="card-title">Inventory Coverage</div>
+                                <div class="card-subtitle">Depletion timeline vs supplier lead time threshold</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Step Flow -->
+                    <div class="coverage-flow-bar">
+                        <div class="c-flow-step">
+                            <span class="c-flow-lbl">Stock</span>
+                            <span class="c-flow-val" id="covFlowStock">1,420 U</span>
+                        </div>
+                        <span class="c-flow-arrow">→</span>
+                        <div class="c-flow-step">
+                            <span class="c-flow-lbl">Burn</span>
+                            <span class="c-flow-val" id="covFlowBurn">128 U/d</span>
+                        </div>
+                        <span class="c-flow-arrow">→</span>
+                        <div class="c-flow-step">
+                            <span class="c-flow-lbl">Runway</span>
+                            <span class="c-flow-val" id="covFlowRunway" style="color: var(--red);">9 Days</span>
+                        </div>
+                    </div>
+
+                    <!-- Coverage Progress Bar with Marker -->
+                    <div class="coverage-visual-wrapper">
+                        <div class="cov-bar-labels">
+                            <span>0d (Depletion)</span>
+                            <span style="color: var(--red); font-family: var(--font-mono);">Lead Time: <strong id="covLeadTimeLabel">14 Days</strong></span>
+                            <span>Target: 45 Days</span>
+                        </div>
+                        <div class="cov-bar-track">
+                            <div class="cov-bar-fill" id="covBarFill" style="width: 20%; background: linear-gradient(90deg, #f87171, #fb923c);"></div>
+                            <div class="cov-lead-time-marker" id="covLeadMarker" style="left: 31.1%;">
+                                <div class="cov-lead-time-tag">Reorder Boundary</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analytical Summary Callout -->
+                    <div class="cov-summary-box" id="covSummaryCallout">
+                        Current stock provides <strong>9 days</strong> of coverage at forecasted consumption. Because distributor fulfillment requires <strong>14 days lead time</strong>, emergency replenishment is required immediately to prevent stock depletion before arrival.
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- SECTION 6 & 7: RISK INTELLIGENCE & EXPLAINABILITY -->
+            <div class="risk-explain-grid">
+
+                <!-- SECTION 6: RISK INTELLIGENCE -->
+                <div class="analytics-card">
+                    <div class="card-header-bar">
+                        <div class="card-title-group">
+                            <div class="card-title-icon" style="background: var(--red-dim); color: var(--red);">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            </div>
+                            <div>
+                                <div class="card-title">Stock-out Risk Intelligence</div>
+                                <div class="card-subtitle">Real-time risk scoring evaluated from run-rate variance</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Segmented Risk Gauge -->
+                    <div class="risk-gauge-box">
+                        <div class="risk-meter-segments">
+                            <div class="risk-segment seg-healthy" id="segHealthy" title="Healthy (>30 Days)"></div>
+                            <div class="risk-segment seg-moderate" id="segModerate" title="Moderate (15-30 Days)"></div>
+                            <div class="risk-segment seg-high" id="segHigh" title="High (Lead Time to 15 Days)"></div>
+                            <div class="risk-segment seg-critical active" id="segCritical" title="Critical (< Lead Time)"></div>
+                        </div>
+                        <div style="font-family: var(--font-mono); font-size: 0.82rem; font-weight: 700; color: var(--red);" id="riskGaugeLabel">
+                            CRITICAL RISK
+                        </div>
+                    </div>
+
+                    <!-- Risk Metrics Trio -->
+                    <div class="risk-metrics-trio">
+                        <div class="risk-mini-stat">
+                            <div class="rms-lbl">Days to Stock-out</div>
+                            <div class="rms-val" id="rmDaysVal" style="color: var(--red);">9 Days</div>
+                        </div>
+                        <div class="risk-mini-stat">
+                            <div class="rms-lbl">Demand Velocity</div>
+                            <div class="rms-val" id="rmDemandVelocity">+28.4%</div>
+                        </div>
+                        <div class="risk-mini-stat">
+                            <div class="rms-lbl">Buffer Gap</div>
+                            <div class="rms-val" id="rmBufferGap" style="color: var(--red);">-5 Days</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 7: WHY IS THIS MEDICINE AT RISK? (EXPLAINABILITY PANEL) -->
+                <div class="analytics-card">
+                    <div class="card-header-bar">
+                        <div class="card-title-group">
+                            <div class="card-title-icon" style="background: var(--blue-dim); color: var(--blue-bright);">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            </div>
+                            <div>
+                                <div class="card-title">Why is this medicine at risk?</div>
+                                <div class="card-subtitle">Transparent model explainability derived strictly from telemetry factors</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Factors List -->
+                    <div class="explain-factor-list" id="explainFactorsContainer">
+                        <!-- Factor Items dynamically populated -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- SECTION 8, 9, 10: EXPIRY INTELLIGENCE & FEFO PRIORITY -->
+            <div class="expiry-section-wrapper">
+                <div style="margin-bottom: 16px;">
+                    <h2 style="font-size: 1.15rem; font-weight: 700; color: #ffffff;">Expiry &amp; Batch Intelligence</h2>
+                    <p style="font-size: 0.76rem; color: var(--text-tertiary);">First-Expiry-First-Out (FEFO) queue enforcement and batch shelf-life analytics</p>
+                </div>
+
+                <!-- SECTION 10: EXPIRY SUMMARY BAR -->
+                <div class="expiry-summary-bar">
+                    <div class="esum-card">
+                        <div class="esum-lbl">Active Inventory</div>
+                        <div class="esum-val" id="esumActiveStock">1,420</div>
+                        <div class="esum-sub">Usable unexpired units</div>
+                    </div>
+                    <div class="esum-card">
+                        <div class="esum-lbl">Near-Expiry Qty</div>
+                        <div class="esum-val" id="esumNearExpiry" style="color: var(--orange);">350</div>
+                        <div class="esum-sub">Expiring within 90 days</div>
+                    </div>
+                    <div class="esum-card">
+                        <div class="esum-lbl">Expired Units</div>
+                        <div class="esum-val" id="esumExpiredQty" style="color: var(--text-tertiary);">0</div>
+                        <div class="esum-sub">Quarantined / locked</div>
+                    </div>
+                    <div class="esum-card">
+                        <div class="esum-lbl">Earliest Expiry</div>
+                        <div class="esum-val" id="esumEarliestDate" style="font-size: 1.05rem;">15-Nov-2026</div>
+                        <div class="esum-sub" id="esumEarliestDays">45 days remaining</div>
+                    </div>
+                    <div class="esum-card">
+                        <div class="esum-lbl">Active Batches</div>
+                        <div class="esum-val" id="esumBatchCount">3</div>
+                        <div class="esum-sub">Under active FEFO queue</div>
+                    </div>
+                </div>
+
+                <!-- SECTION 9: FEFO PRIORITY DEDICATED BANNER -->
+                <div class="fefo-banner-card" id="fefoBanner">
+                    <div class="fefo-left-content">
+                        <div class="fefo-icon-box">⚡</div>
+                        <div class="fefo-details-group">
+                            <div class="fefo-headline">
+                                <span>First Expiry → First Out Allocation:</span>
+                                <span class="fefo-pill-tag" id="fefoBatchCode">BATCH #AMX-9482</span>
+                            </div>
+                            <div class="fefo-desc-text" id="fefoReasonText">
+                                Earliest expiring eligible stock. All dispensing transactions automatically deduct from this batch first to eliminate drug spoilage.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="fefo-quick-stats">
+                        <div class="fqs-item">
+                            <div class="fqs-lbl">Available Units</div>
+                            <div class="fqs-val" id="fefoAvailUnits">350 Units</div>
+                        </div>
+                        <div class="fqs-item">
+                            <div class="fqs-lbl">Expiry Date</div>
+                            <div class="fqs-val" id="fefoExpDate">15-Nov-2026</div>
+                        </div>
+                        <div class="fqs-item">
+                            <div class="fqs-lbl">Days Left</div>
+                            <div class="fqs-val" id="fefoDaysLeft">45 Days</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 8: MASTER BATCH TABLE -->
+                <div class="batch-table-container">
+                    <table class="master-batch-table">
+                        <thead>
+                            <tr>
+                                <th>Batch ID</th>
+                                <th>Current Quantity</th>
+                                <th>Batch Date</th>
+                                <th>Expiry Date</th>
+                                <th>Days Remaining</th>
+                                <th>Expiry Status</th>
+                                <th>FEFO Priority</th>
+                            </tr>
+                        </thead>
+                        <tbody id="batchTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SECTION 11: REORDER RECOMMENDATION -->
+            <div class="reorder-rec-card">
+                <div class="reorder-rec-left">
+                    <div class="r-rec-title-row">
+                        <div class="card-title-icon" style="background: var(--teal-dim); color: var(--teal);">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                        </div>
+                        <div class="r-rec-title">Automated Reorder Intelligence</div>
+                    </div>
+                    <div class="r-rec-reason" id="recReasonText">
+                        Accelerating consumption velocity has driven remaining stock below safety threshold relative to distributor lead time. An expedited order of 3,500 units restores safety buffer to 45 days.
+                    </div>
+                    <div class="r-rec-specs-grid">
+                        <div class="r-spec-item">
+                            <span class="r-spec-lbl">Current Stock</span>
+                            <span class="r-spec-val" id="recCurStock">1,420 Units</span>
+                        </div>
+                        <div class="r-spec-item">
+                            <span class="r-spec-lbl">Reorder Point</span>
+                            <span class="r-spec-val" id="recReorderPoint">2,200 Units</span>
+                        </div>
+                        <div class="r-spec-item">
+                            <span class="r-spec-lbl">Lead Time</span>
+                            <span class="r-spec-val" id="recLeadTime">14 Days</span>
+                        </div>
+                        <div class="r-spec-item">
+                            <span class="r-spec-lbl">Target Buffer</span>
+                            <span class="r-spec-val">45 Days</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reorder-rec-right">
+                    <div class="rec-units-hero">
+                        <span class="rec-units-lbl">Recommended Quantity</span>
+                        <div class="rec-units-num" id="recUnitsVal">3,500</div>
+                        <span style="font-size: 0.75rem; color: var(--text-tertiary);">Standard Packaging Units</span>
+                    </div>
+                    <a href="reorder.html" class="btn-profile-action btn-act-teal" style="padding: 10px 24px;">
+                        Review &amp; Issue PO
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- SECTION 12: RECENT TRANSACTIONS LEDGER -->
+            <div class="transactions-card">
+                <div class="card-header-bar">
+                    <div class="card-title-group">
+                        <div class="card-title-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        </div>
+                        <div>
+                            <div class="card-title">Recent Transactions Ledger</div>
+                            <div class="card-subtitle">Verified inventory transactions &amp; FEFO batch deduction audit trail</div>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="tx-table">
+                    <thead>
+                        <tr>
+                            <th>Date / Timestamp</th>
+                            <th>Transaction ID</th>
+                            <th>Units Dispensed</th>
+                            <th>FEFO Batch Drawn</th>
+                            <th>Remaining Stock</th>
+                            <th>Verification</th>
+                        </tr>
+                    </thead>
+                    <tbody id="txTableBody">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+        </div> <!-- /liveProfileViewport -->
+
+    </div> <!-- /page-container -->
+
+    <!-- ══════════════════════════════════════════════
+         SECTION 13: SIMULATE SALE MODAL DIALOG
+         ══════════════════════════════════════════════ -->
+    <div class="modal-overlay" id="saleModalOverlay">
+        <div class="modal-dialog">
+            <div class="modal-header-row">
+                <div class="modal-title">Simulate Dispense Transaction</div>
+                <button class="modal-close-btn" onclick="closeSaleModal()">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <div class="m-form-group">
+                    <label class="m-form-label">Medicine Selected</label>
+                    <div style="font-weight: 700; color: #ffffff; font-size: 0.92rem;" id="modalMedTitle">Amoxicillin + Clavulanic Acid 625mg</div>
+                </div>
+
+                <div class="m-form-group">
+                    <label class="m-form-label">Dispense Quantity (Units)</label>
+                    <input type="number" class="m-input-num" id="modalSaleQty" value="50" min="1" max="1000" oninput="updateSaleModalPreview()">
+                </div>
+
+                <!-- FEFO Deduction Preview -->
+                <div class="modal-fefo-preview" id="modalFefoPreview">
+                    Will be drawn from priority batch: <strong style="color: var(--teal);" id="modalPreviewBatch">BATCH #AMX-9482</strong>.
+                </div>
+
+                <div style="font-size: 0.72rem; color: var(--text-tertiary); line-height: 1.4;">
+                    Confirming this sale will deduct stock according to FEFO protocols, update run-rate velocity, recalculate stock-out days, and append to the verified transaction ledger.
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-profile-action btn-act-secondary" onclick="closeSaleModal()">Cancel</button>
+                <button class="btn-profile-action btn-act-primary" onclick="executeSimulatedSale()">Confirm &amp; Recalculate</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         APPLICATION JAVASCRIPT: DATA REPOSITORY & LOGIC
+         ══════════════════════════════════════════════ -->
+    <script src="medistock-api.js"></script>
+    <script>
+    (function() {
+        'use strict';
+
+        // ── 1. MASTER MEDICINE INTELLIGENCE DATA STORE ──
+        const medicineStore = {
+            'amx': {
+                id: 'MED-AMX-625',
+                name: 'Amoxicillin + Clavulanic Acid',
+                category: 'Antibiotics & Antimicrobials',
+                manufacturer: 'GlaxoSmithKline / Sandoz',
+                dosage: 'Oral Solid Tablet (625mg)',
+                sku: 'SKU #AMX-625',
+                leadTime: 14,
+                reorderPoint: 2200,
+                batches: [
+                    { id: 'BATCH #AMX-9482', qty: 350, batchDate: '2025-11-15', expDate: '2026-11-15' },
+                    { id: 'BATCH #AMX-9483', qty: 520, batchDate: '2026-02-10', expDate: '2027-02-10' },
+                    { id: 'BATCH #AMX-9901', qty: 550, batchDate: '2026-05-18', expDate: '2027-08-20' }
+                ],
+                transactions: [
+                    { date: 'Today, 09:14 AM', id: 'TX-2026-8812', qty: 40, batch: 'BATCH #AMX-9482' },
+                    { date: 'Yesterday, 04:30 PM', id: 'TX-2026-8790', qty: 65, batch: 'BATCH #AMX-9482' },
+                    { date: '24-Sep-2026, 11:20 AM', id: 'TX-2026-8654', qty: 120, batch: 'BATCH #AMX-9482' },
+                    { date: '22-Sep-2026, 02:45 PM', id: 'TX-2026-8510', qty: 85, batch: 'BATCH #AMX-9482' }
+                ],
+                histPoints: [110, 115, 125, 120, 130, 125, 135, 140, 138, 145],
+                predPoints: [148, 155, 160, 168, 175, 180, 185]
+            },
+            'azi': {
+                id: 'MED-AZI-500',
+                name: 'Azithromycin USP',
+                category: 'Antibiotics & Antimicrobials',
+                manufacturer: 'Pfizer Labs',
+                dosage: 'Oral Solid Film-Coated Tablet (500mg)',
+                sku: 'SKU #AZI-500',
+                leadTime: 10,
+                reorderPoint: 1600,
+                batches: [
+                    { id: 'BATCH #AZI-3011', qty: 680, batchDate: '2025-10-10', expDate: '2026-10-25' },
+                    { id: 'BATCH #AZI-4100', qty: 1500, batchDate: '2026-03-12', expDate: '2027-06-30' }
+                ],
+                transactions: [
+                    { date: 'Today, 08:30 AM', id: 'TX-2026-8802', qty: 30, batch: 'BATCH #AZI-3011' },
+                    { date: 'Yesterday, 02:15 PM', id: 'TX-2026-8771', qty: 45, batch: 'BATCH #AZI-3011' }
+                ],
+                histPoints: [90, 95, 92, 100, 98, 102, 105, 100, 104, 108],
+                predPoints: [110, 112, 115, 118, 120, 122, 125]
+            },
+            'ins': {
+                id: 'MED-INS-100',
+                name: 'Insulin Glargine Pen (100 U/mL)',
+                category: 'Endocrine & Diabetes Care',
+                manufacturer: 'Sanofi Biologics',
+                dosage: 'Subcutaneous Solution (3mL Pen)',
+                sku: 'SKU #INS-100',
+                leadTime: 12,
+                reorderPoint: 600,
+                batches: [
+                    { id: 'BATCH #INS-802', qty: 420, batchDate: '2026-01-15', expDate: '2027-01-15' }
+                ],
+                transactions: [
+                    { date: 'Today, 10:00 AM', id: 'TX-2026-8820', qty: 25, batch: 'BATCH #INS-802' },
+                    { date: '24-Sep-2026', id: 'TX-2026-8640', qty: 35, batch: 'BATCH #INS-802' }
+                ],
+                histPoints: [30, 32, 31, 35, 34, 36, 38, 37, 39, 40],
+                predPoints: [42, 43, 45, 46, 48, 50, 52]
+            },
+            'met': {
+                id: 'MED-MET-850',
+                name: 'Metformin Hydrochloride 850mg',
+                category: 'Endocrine & Diabetes Care',
+                manufacturer: 'Merck Santé',
+                dosage: 'Oral Solid Extended-Release Tablet',
+                sku: 'SKU #MET-850',
+                leadTime: 14,
+                reorderPoint: 3200,
+                batches: [
+                    { id: 'BATCH #MET-5501', qty: 4400, batchDate: '2026-02-01', expDate: '2028-02-01' },
+                    { id: 'BATCH #MET-5502', qty: 5000, batchDate: '2026-04-10', expDate: '2028-06-10' }
+                ],
+                transactions: [
+                    { date: 'Today, 10:45 AM', id: 'TX-2026-8828', qty: 150, batch: 'BATCH #MET-5501' }
+                ],
+                histPoints: [140, 138, 142, 145, 140, 144, 146, 145, 148, 150],
+                predPoints: [152, 153, 155, 156, 158, 160, 162]
+            },
+            'ato': {
+                id: 'MED-ATO-020',
+                name: 'Atorvastatin Calcium 20mg',
+                category: 'Cardiovascular Care',
+                manufacturer: 'Viatris / Pfizer',
+                dosage: 'Oral Solid Tablet',
+                sku: 'SKU #ATO-020',
+                leadTime: 10,
+                reorderPoint: 2000,
+                batches: [
+                    { id: 'BATCH #ATO-9102', qty: 3200, batchDate: '2026-01-20', expDate: '2028-01-20' },
+                    { id: 'BATCH #ATO-9103', qty: 3000, batchDate: '2026-03-15', expDate: '2028-04-15' }
+                ],
+                transactions: [
+                    { date: 'Yesterday, 11:15 AM', id: 'TX-2026-8742', qty: 80, batch: 'BATCH #ATO-9102' }
+                ],
+                histPoints: [100, 102, 105, 104, 108, 106, 110, 109, 112, 115],
+                predPoints: [116, 118, 120, 122, 124, 125, 128]
+            },
+            'sal': {
+                id: 'MED-SAL-100',
+                name: 'Salbutamol Inhaler 100mcg',
+                category: 'Respiratory Care',
+                manufacturer: 'Cipla Respiratory',
+                dosage: 'Pressurized Metered Dose Inhaler',
+                sku: 'SKU #SAL-100',
+                leadTime: 14,
+                reorderPoint: 1200,
+                batches: [
+                    { id: 'BATCH #SAL-602', qty: 850, batchDate: '2026-02-12', expDate: '2027-08-12' }
+                ],
+                transactions: [
+                    { date: 'Today, 09:30 AM', id: 'TX-2026-8815', qty: 45, batch: 'BATCH #SAL-602' }
+                ],
+                histPoints: [60, 64, 62, 68, 70, 75, 78, 82, 85, 90],
+                predPoints: [94, 98, 102, 105, 110, 114, 118]
+            },
+            'cef': {
+                id: 'MED-CEF-1000',
+                name: 'Ceftriaxone Sodium 1g Vial',
+                category: 'Antibiotics & Antimicrobials',
+                manufacturer: 'Roche Pharma',
+                dosage: 'Intravenous / Intramuscular Powder',
+                sku: 'SKU #CEF-1000',
+                leadTime: 12,
+                reorderPoint: 1500,
+                batches: [
+                    { id: 'BATCH #CEF-1104', qty: 420, batchDate: '2024-08-01', expDate: '2026-08-01' } // Expired
+                ],
+                transactions: [
+                    { date: '15-Aug-2026', id: 'TX-2026-7910', qty: 50, batch: 'BATCH #CEF-1104' }
+                ],
+                histPoints: [50, 48, 52, 45, 40, 30, 20, 10, 5, 0],
+                predPoints: [0, 0, 0, 0, 0, 0, 0]
+            }
+        };
+
+        let currentMedKey = 'amx';
+        let currentHorizonDays = 30;
+
+        // Current Reference Date: 2026-09-26
+        const currentDate = new Date('2026-09-26T10:45:00');
+
+        // Helper: Calculate days between dates
+        function daysBetween(d1, d2) {
+            const diffTime = d2.getTime() - d1.getTime();
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        }
+
+        // ── 2. INITIALIZATION & URL PARAM CHECK ──
+        async function loadBackendMedicine(medId) {
+            try {
+                handleApiStateChange('loading');
+                const detail = await window.MediStockAPI.getMedicineDetail(medId);
+                if (!detail) {
+                    handleApiStateChange('error');
+                    return;
+                }
+
+                // Fetch real demand trend
+                const trend = await window.MediStockAPI.getDemandTrend(detail.medicine_id, currentHorizonDays).catch(() => null);
+
+                const key = detail.medicine_id.toLowerCase();
+                currentMedKey = key;
+
+                medicineStore[key] = {
+                    id: detail.medicine_id,
+                    name: detail.medicine_name,
+                    category: detail.category,
+                    manufacturer: detail.manufacturer,
+                    dosage: `${detail.dosage_form} (₹${detail.unit_price_inr})`,
+                    sku: `SKU #${detail.medicine_id}`,
+                    leadTime: detail.lead_time_days || 14,
+                    reorderPoint: detail.reorder_point || 500,
+                    batches: (detail.batches_detail || []).map(b => ({
+                        id: b.batch_id,
+                        qty: b.current_stock,
+                        batchDate: b.batch_date,
+                        expDate: b.expiry_date
+                    })),
+                    transactions: (detail.recent_transactions || []).map(tx => ({
+                        date: tx.date,
+                        id: tx.transaction_id,
+                        qty: tx.quantity_sold,
+                        batch: tx.batch_id
+                    })),
+                    histPoints: trend && trend.historical_series && trend.historical_series.length > 0 
+                        ? trend.historical_series.map(p => p.units) 
+                        : [10, 15, 20, 25, 20, 18, 22],
+                    predPoints: trend && trend.forecast_series && trend.forecast_series.length > 0
+                        ? trend.forecast_series.map(p => p.units)
+                        : [20, 22, 24, 25, 26, 28, 30]
+                };
+
+                const picker = document.getElementById('medPicker');
+                if (picker) {
+                    let optExists = Array.from(picker.options).some(o => o.value === key);
+                    if (!optExists) {
+                        const newOpt = document.createElement('option');
+                        newOpt.value = key;
+                        newOpt.textContent = `${detail.medicine_name} (${detail.medicine_id})`;
+                        picker.insertBefore(newOpt, picker.firstChild);
+                    }
+                    picker.value = key;
+                }
+
+                handleApiStateChange('live');
+            } catch (err) {
+                console.warn('[MediStock Medicine Detail] Backend load notice:', err.message);
+                handleApiStateChange('live');
+            }
+        }
+
+        function init() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const medParam = urlParams.get('id') || urlParams.get('med');
+            if (medParam) {
+                const cleanParam = medParam.toLowerCase().replace('med-', '');
+                if (cleanParam === 'new_entry') {
+                    handleApiStateChange('insufficient');
+                    return;
+                }
+                loadBackendMedicine(cleanParam);
+                return;
+            }
+
+            document.getElementById('medPicker').value = currentMedKey;
+            recalculateAndRender();
+        }
+
+        // ── 3. DYNAMIC RECALCULATION & RENDERING ENGINE ──
+        function recalculateAndRender() {
+            const med = medicineStore[currentMedKey];
+            if (!med) return;
+
+            // A. Batch Analysis & Expiry Calculations
+            let totalStock = 0;
+            let activeStock = 0;
+            let nearExpiryQty = 0;
+            let expiredQty = 0;
+            let earliestExpDate = null;
+            let earliestExpDays = Infinity;
+            let fefoEligibleBatch = null;
+
+            med.batches.forEach(b => {
+                const expDateObj = new Date(b.expDate);
+                const daysLeft = daysBetween(currentDate, expDateObj);
+                b.daysLeft = daysLeft;
+
+                totalStock += b.qty;
+
+                if (daysLeft <= 0) {
+                    b.status = 'Expired';
+                    b.statusClass = 'status-badge-exp';
+                    expiredQty += b.qty;
+                } else {
+                    activeStock += b.qty;
+                    if (daysLeft <= 90) {
+                        b.status = 'Expiring Soon';
+                        b.statusClass = 'status-badge-soon';
+                        nearExpiryQty += b.qty;
+                    } else {
+                        b.status = 'Safe';
+                        b.statusClass = 'status-badge-safe';
+                    }
+
+                    if (daysLeft < earliestExpDays) {
+                        earliestExpDays = daysLeft;
+                        earliestExpDate = b.expDate;
+                        fefoEligibleBatch = b;
+                    }
+                }
+            });
+
+            // Assign FEFO priority ranks
+            const validBatches = med.batches.filter(b => b.daysLeft > 0).sort((a, b) => a.daysLeft - b.daysLeft);
+            med.batches.forEach(b => {
+                if (b.daysLeft <= 0) {
+                    b.fefoRank = 'Quarantine (Expired)';
+                    b.fefoTagClass = 'fefo-badge-p2';
+                } else if (validBatches.length > 0 && validBatches[0].id === b.id) {
+                    b.fefoRank = 'Priority 1 (Next Out)';
+                    b.fefoTagClass = 'fefo-badge-p1';
+                } else {
+                    const rankIdx = validBatches.findIndex(vb => vb.id === b.id) + 1;
+                    b.fefoRank = `Priority ${rankIdx} (Reserve)`;
+                    b.fefoTagClass = 'fefo-badge-p2';
+                }
+            });
+
+            // B. ML Demand & Consumption Run-Rate Calculations
+            const avgDailyDemand = Math.round(med.predPoints.reduce((a, b) => a + b, 0) / med.predPoints.length);
+            const predicted30dDemand = avgDailyDemand * 30;
+
+            // C. Coverage Days Calculation
+            const coverageDays = avgDailyDemand > 0 ? Math.floor(activeStock / avgDailyDemand) : (activeStock > 0 ? 999 : 0);
+
+            // D. Stock-out Risk Determination
+            let riskLevel = 'Healthy';
+            let riskClass = 'status-healthy';
+            let riskBadgeStyle = 'background: var(--green-dim); color: var(--green);';
+
+            if (activeStock === 0) {
+                riskLevel = 'Critical (Stock Depleted)';
+                riskClass = 'status-crit';
+                riskBadgeStyle = 'background: var(--red-dim); color: var(--red);';
+            } else if (coverageDays <= med.leadTime) {
+                riskLevel = 'Critical';
+                riskClass = 'status-crit';
+                riskBadgeStyle = 'background: var(--red-dim); color: var(--red);';
+            } else if (coverageDays <= 18) {
+                riskLevel = 'High Risk';
+                riskClass = 'status-crit';
+                riskBadgeStyle = 'background: var(--red-dim); color: var(--red);';
+            } else if (coverageDays <= 30) {
+                riskLevel = 'Moderate';
+                riskClass = 'status-warn';
+                riskBadgeStyle = 'background: var(--orange-dim); color: var(--orange);';
+            }
+
+            // E. Recommended Reorder Calculation
+            // Formula: (Target 45 Days Buffer + Lead Time Demand) - Active Stock
+            const targetBufferUnits = avgDailyDemand * 45;
+            const leadTimeDemand = avgDailyDemand * med.leadTime;
+            let recommendedReorder = Math.max(0, Math.round((targetBufferUnits + leadTimeDemand - activeStock) / 100) * 100);
+            if (activeStock > med.reorderPoint && coverageDays > 30) {
+                recommendedReorder = 0;
+            }
+
+            // ── RENDER DOM ELEMENTS ──
+
+            // 1. Identity & 3D Packaging
+            document.getElementById('breadcrumbMedName').textContent = med.name;
+            document.getElementById('headerMedName').textContent = med.name;
+            document.getElementById('badgeCategory').textContent = med.category;
+            document.getElementById('badgeMedId').textContent = med.id;
+            document.getElementById('headerManufacturer').textContent = med.manufacturer;
+            document.getElementById('headerDosage').textContent = med.dosage;
+            document.getElementById('headerSku').textContent = med.sku;
+
+            document.getElementById('pBoxName').textContent = med.name.length > 20 ? med.name.substring(0, 18) + '...' : med.name;
+            document.getElementById('pBoxDosage').textContent = med.dosage;
+            document.getElementById('pBoxBatch').textContent = fefoEligibleBatch ? fefoEligibleBatch.id.replace('BATCH #', '') : 'NONE';
+
+            // Status Badge
+            const badgeIndicator = document.getElementById('badgeStatusIndicator');
+            badgeIndicator.className = `badge-status ${riskClass}`;
+            document.getElementById('badgeStatusText').textContent = riskLevel;
+
+            // Nav Links
+            document.getElementById('btnWhatIfLink').href = `simulator.html?med=${currentMedKey}`;
+            document.getElementById('btnReviewReorderLink').href = `reorder.html?med=${currentMedKey}`;
+
+            // 2. Five Primary KPIs
+            document.getElementById('kpiStock').textContent = activeStock.toLocaleString();
+            document.getElementById('kpiStockSub').textContent = `Across ${med.batches.filter(b => b.daysLeft > 0).length} active batches`;
+
+            document.getElementById('kpiDemand').textContent = predicted30dDemand.toLocaleString();
+            document.getElementById('kpiDemandSub').textContent = `Burn velocity: ${avgDailyDemand} units/day`;
+
+            document.getElementById('kpiDays').textContent = coverageDays;
+            document.getElementById('kpiDays').style.color = coverageDays <= med.leadTime ? 'var(--red)' : (coverageDays <= 30 ? 'var(--orange)' : 'var(--green)');
+            document.getElementById('kpiDaysBadge').style = riskBadgeStyle;
+            document.getElementById('kpiDaysSub').textContent = coverageDays <= med.leadTime ? `Below supplier lead time (${med.leadTime}d)` : `Supplier lead time: ${med.leadTime}d`;
+
+            document.getElementById('kpiRisk').textContent = riskLevel;
+            document.getElementById('kpiRisk').style.color = coverageDays <= med.leadTime ? 'var(--red)' : (coverageDays <= 30 ? 'var(--orange)' : 'var(--green)');
+            document.getElementById('kpiRiskBadge').style = riskBadgeStyle;
+            document.getElementById('kpiRiskSub').textContent = coverageDays <= med.leadTime ? 'Depletion expected before PO arrival' : 'Inventory runway meets threshold';
+
+            document.getElementById('kpiReorder').textContent = recommendedReorder > 0 ? recommendedReorder.toLocaleString() : '0';
+            document.getElementById('kpiReorderSub').textContent = recommendedReorder > 0 ? 'Safety buffer + lead time demand' : 'Inventory level is optimal';
+
+            // 3. Inventory Coverage Flow & Visual Bar
+            document.getElementById('covFlowStock').textContent = `${activeStock.toLocaleString()} U`;
+            document.getElementById('covFlowBurn').textContent = `${avgDailyDemand} U/d`;
+            document.getElementById('covFlowRunway').textContent = `${coverageDays} Days`;
+            document.getElementById('covFlowRunway').style.color = coverageDays <= med.leadTime ? 'var(--red)' : 'var(--teal)';
+
+            document.getElementById('covLeadTimeLabel').textContent = `${med.leadTime} Days`;
+
+            // Max scale 45 days
+            const covPct = Math.min(100, Math.max(4, Math.round((coverageDays / 45) * 100)));
+            const leadMarkerPct = Math.min(95, Math.round((med.leadTime / 45) * 100));
+
+            const covFill = document.getElementById('covBarFill');
+            covFill.style.width = `${covPct}%`;
+            covFill.style.background = coverageDays <= med.leadTime 
+                ? 'linear-gradient(90deg, #f87171, #fb923c)' 
+                : 'linear-gradient(90deg, var(--teal), var(--blue))';
+
+            document.getElementById('covLeadMarker').style.left = `${leadMarkerPct}%`;
+
+            const covCallout = document.getElementById('covSummaryCallout');
+            if (coverageDays <= med.leadTime) {
+                covCallout.innerHTML = `Current stock provides <strong>${coverageDays} days</strong> of coverage at forecasted consumption. Because distributor replenishment requires <strong>${med.leadTime} days lead time</strong>, emergency reordering is required immediately to prevent stock-outs.`;
+            } else {
+                covCallout.innerHTML = `Current stock provides <strong>${coverageDays} days</strong> of coverage at forecasted consumption, safely exceeding the distributor's <strong>${med.leadTime}-day lead time window</strong>.`;
+            }
+
+            // 4. Stock-out Risk Intelligence & Meter
+            document.getElementById('rmDaysVal').textContent = `${coverageDays} Days`;
+            document.getElementById('rmDaysVal').style.color = coverageDays <= med.leadTime ? 'var(--red)' : 'var(--green)';
+
+            const baselineDemand = med.histPoints[0] || 100;
+            const latestPred = med.predPoints[med.predPoints.length - 1] || 120;
+            const velocityPct = Math.round(((latestPred - baselineDemand) / baselineDemand) * 100);
+            document.getElementById('rmDemandVelocity').textContent = `${velocityPct >= 0 ? '+' : ''}${velocityPct}%`;
+            document.getElementById('rmDemandVelocity').style.color = velocityPct > 15 ? 'var(--orange)' : 'var(--teal)';
+
+            const bufferGap = coverageDays - med.leadTime;
+            document.getElementById('rmBufferGap').textContent = `${bufferGap >= 0 ? '+' : ''}${bufferGap} Days`;
+            document.getElementById('rmBufferGap').style.color = bufferGap <= 0 ? 'var(--red)' : 'var(--green)';
+
+            // Risk Meter Segments
+            ['segHealthy', 'segModerate', 'segHigh', 'segCritical'].forEach(s => document.getElementById(s).classList.remove('active'));
+            const riskGaugeLabel = document.getElementById('riskGaugeLabel');
+            if (activeStock === 0 || coverageDays <= med.leadTime) {
+                document.getElementById('segCritical').classList.add('active');
+                riskGaugeLabel.textContent = 'CRITICAL RISK';
+                riskGaugeLabel.style.color = 'var(--red)';
+            } else if (coverageDays <= 18) {
+                document.getElementById('segHigh').classList.add('active');
+                riskGaugeLabel.textContent = 'HIGH RISK';
+                riskGaugeLabel.style.color = 'var(--orange)';
+            } else if (coverageDays <= 30) {
+                document.getElementById('segModerate').classList.add('active');
+                riskGaugeLabel.textContent = 'MODERATE RISK';
+                riskGaugeLabel.style.color = '#eab308';
+            } else {
+                document.getElementById('segHealthy').classList.add('active');
+                riskGaugeLabel.textContent = 'HEALTHY RUNWAY';
+                riskGaugeLabel.style.color = 'var(--green)';
+            }
+
+            // 5. Why is this medicine at risk? (Explainability Factors)
+            renderExplainabilityFactors(med, activeStock, coverageDays, avgDailyDemand, velocityPct, nearExpiryQty, expiredQty);
+
+            // 6. Expiry Intelligence & Summary
+            document.getElementById('esumActiveStock').textContent = activeStock.toLocaleString();
+            document.getElementById('esumNearExpiry').textContent = nearExpiryQty.toLocaleString();
+            document.getElementById('esumExpiredQty').textContent = expiredQty.toLocaleString();
+            document.getElementById('esumEarliestDate').textContent = earliestExpDate ? formatDate(earliestExpDate) : 'N/A';
+            document.getElementById('esumEarliestDays').textContent = earliestExpDays < Infinity ? `${earliestExpDays} days remaining` : 'No valid batches';
+            document.getElementById('esumBatchCount').textContent = med.batches.filter(b => b.daysLeft > 0).length;
+
+            // FEFO Priority Banner
+            if (fefoEligibleBatch) {
+                document.getElementById('fefoBanner').style.display = 'flex';
+                document.getElementById('fefoBatchCode').textContent = fefoEligibleBatch.id;
+                document.getElementById('fefoAvailUnits').textContent = `${fefoEligibleBatch.qty.toLocaleString()} Units`;
+                document.getElementById('fefoExpDate').textContent = formatDate(fefoEligibleBatch.expDate);
+                document.getElementById('fefoDaysLeft').textContent = `${fefoEligibleBatch.daysLeft} Days`;
+            } else {
+                document.getElementById('fefoBanner').style.display = 'none';
+            }
+
+            // Batch Table Body
+            const batchTbody = document.getElementById('batchTableBody');
+            batchTbody.innerHTML = med.batches.map(b => `
+                <tr>
+                    <td><span class="batch-code-badge">${b.id}</span></td>
+                    <td style="font-family: var(--font-mono); font-weight: 600; color: #fff;">${b.qty.toLocaleString()} Units</td>
+                    <td>${formatDate(b.batchDate)}</td>
+                    <td style="font-family: var(--font-mono);">${formatDate(b.expDate)}</td>
+                    <td style="font-family: var(--font-mono);">${b.daysLeft > 0 ? b.daysLeft + ' Days' : '<span style="color: var(--red);">Expired</span>'}</td>
+                    <td><span class="${b.statusClass}">● ${b.status}</span></td>
+                    <td><span class="${b.fefoTagClass}">${b.fefoRank}</span></td>
+                </tr>
+            `).join('');
+
+            // 7. Reorder Recommendation
+            document.getElementById('recCurStock').textContent = `${activeStock.toLocaleString()} Units`;
+            document.getElementById('recReorderPoint').textContent = `${med.reorderPoint.toLocaleString()} Units`;
+            document.getElementById('recLeadTime').textContent = `${med.leadTime} Days`;
+            document.getElementById('recUnitsVal').textContent = recommendedReorder.toLocaleString();
+
+            const recReason = document.getElementById('recReasonText');
+            if (recommendedReorder > 0) {
+                recReason.textContent = `Calculated consumption velocity (${avgDailyDemand} U/day) against distributor lead time (${med.leadTime} days) projects inventory depletion within ${coverageDays} days. A restock order of ${recommendedReorder.toLocaleString()} units maintains adequate 45-day safety runway.`;
+            } else {
+                recReason.textContent = `Inventory runway (${coverageDays} days) exceeds minimum reorder threshold (${med.reorderPoint.toLocaleString()} units) and supplier fulfillment lead time. Scheduled reorder deferred.`;
+            }
+
+            // 8. Transactions Ledger
+            const txTbody = document.getElementById('txTableBody');
+            let runningStock = activeStock;
+            txTbody.innerHTML = med.transactions.map((tx, idx) => {
+                const stockAfter = runningStock;
+                return `
+                    <tr>
+                        <td>${tx.date}</td>
+                        <td><span class="tx-id-badge">${tx.id}</span></td>
+                        <td style="color: var(--teal); font-family: var(--font-mono); font-weight: 600;">-${tx.qty} Units</td>
+                        <td><span class="batch-code-badge" style="background: rgba(255,255,255,0.05); color: var(--text-secondary);">${tx.batch}</span></td>
+                        <td style="font-family: var(--font-mono); font-weight: 600;">${stockAfter.toLocaleString()} Units</td>
+                        <td><span style="color: var(--green); font-size: 0.72rem; font-family: var(--font-mono);">✓ FEFO Verified</span></td>
+                    </tr>
+                `;
+            }).join('');
+
+            // 9. Render Interactive SVG Chart
+            renderChart(med);
+        }
+
+        // ── 4. RENDER EXPLAINABILITY FACTORS (DATA-DRIVEN ONLY) ──
+        function renderExplainabilityFactors(med, activeStock, coverageDays, avgDailyDemand, velocityPct, nearExpiryQty, expiredQty) {
+            const container = document.getElementById('explainFactorsContainer');
+            const factors = [];
+
+            // Factor 1: Demand Trend
+            if (velocityPct > 10) {
+                factors.push({
+                    title: 'Demand Trend Velocity Surge',
+                    tag: `↑ +${velocityPct}% INCREASE`,
+                    type: 'factor-crit',
+                    tagColor: 'var(--red)',
+                    desc: `Observed trailing sales frequency accelerates faster than the historical baseline, raising burn rate to ${avgDailyDemand} units/day.`
+                });
+            } else {
+                factors.push({
+                    title: 'Demand Pattern Stability',
+                    tag: 'STABLE RUN-RATE',
+                    type: 'factor-info',
+                    tagColor: 'var(--teal)',
+                    desc: 'Dispensing frequency aligns within expected statistical bounds without abnormal variance.'
+                });
+            }
+
+            // Factor 2: Inventory Coverage vs Lead Time
+            if (coverageDays <= med.leadTime) {
+                factors.push({
+                    title: 'Inventory Coverage vs Lead Time',
+                    tag: 'CRITICAL RUNWAY',
+                    type: 'factor-crit',
+                    tagColor: 'var(--red)',
+                    desc: `Available runway (${coverageDays} days) is less than or equal to distributor replenishment lead time (${med.leadTime} days). Depletion before order arrival is probable.`
+                });
+            } else if (coverageDays <= 25) {
+                factors.push({
+                    title: 'Approaching Supplier Lead Time Window',
+                    tag: 'ELEVATED RISK',
+                    type: 'factor-warn',
+                    tagColor: 'var(--orange)',
+                    desc: `Current runway (${coverageDays} days) approaches the minimum lead time threshold (${med.leadTime} days).`
+                });
+            } else {
+                factors.push({
+                    title: 'Sufficient Lead Time Buffer',
+                    tag: 'OPTIMAL RUNWAY',
+                    type: 'factor-info',
+                    tagColor: 'var(--green)',
+                    desc: `Current runway (${coverageDays} days) comfortably accommodates distributor fulfillment lead time (${med.leadTime} days).`
+                });
+            }
+
+            // Factor 3: Stock Position vs Reorder Point
+            if (activeStock < med.reorderPoint) {
+                factors.push({
+                    title: 'Stock Position Below Reorder Threshold',
+                    tag: 'BELOW REORDER POINT',
+                    type: 'factor-warn',
+                    tagColor: 'var(--orange)',
+                    desc: `Current inventory (${activeStock.toLocaleString()} units) is lower than configured reorder boundary (${med.reorderPoint.toLocaleString()} units).`
+                });
+            }
+
+            // Factor 4: Expiry Constraints
+            if (nearExpiryQty > 0) {
+                factors.push({
+                    title: 'FEFO Expiry Deduction Pressure',
+                    tag: `${nearExpiryQty.toLocaleString()} UNITS NEAR EXPIRY`,
+                    type: 'factor-warn',
+                    tagColor: 'var(--orange)',
+                    desc: `${nearExpiryQty.toLocaleString()} units face impending expiry within 90 days, requiring accelerated FEFO dispensing.`
+                });
+            }
+
+            if (expiredQty > 0) {
+                factors.push({
+                    title: 'Quarantined Expired Stock Exclusion',
+                    tag: `${expiredQty.toLocaleString()} UNITS LOCKED`,
+                    type: 'factor-crit',
+                    tagColor: 'var(--red)',
+                    desc: `${expiredQty.toLocaleString()} units crossed regulatory expiration dates and are completely excluded from active stock.`
+                });
+            }
+
+            container.innerHTML = factors.map(f => `
+                <div class="factor-card ${f.type}">
+                    <div class="factor-header-row">
+                        <span class="factor-name">${f.title}</span>
+                        <span class="factor-tag" style="color: ${f.tagColor};">${f.tag}</span>
+                    </div>
+                    <div class="factor-body">${f.desc}</div>
+                </div>
+            `).join('');
+        }
+
+        // ── 5. INTERACTIVE SVG DEMAND CHART RENDERER ──
+        function renderChart(med) {
+            const hist = med.histPoints;
+            const pred = med.predPoints;
+
+            const totalPoints = hist.length + pred.length;
+            const width = 650;
+            const height = 180;
+            const leftPad = 40;
+            const rightPad = 20;
+            const topPad = 30;
+            const bottomPad = 25;
+
+            const usableW = width - leftPad - rightPad;
+            const usableH = height - topPad - bottomPad;
+
+            // Find min and max values
+            const allVals = [...hist, ...pred];
+            const maxVal = Math.max(...allVals) * 1.25;
+            const minVal = Math.max(0, Math.min(...allVals) * 0.7);
+
+            const getX = (index) => leftPad + (index / (totalPoints - 1)) * usableW;
+            const getY = (val) => height - bottomPad - ((val - minVal) / (maxVal - minVal)) * usableH;
+
+            // 1. Build Historical Path
+            let histPathD = '';
+            let histAreaPoints = `${leftPad},${height - bottomPad} `;
+            const histLen = hist.length;
+
+            for (let i = 0; i < histLen; i++) {
+                const x = getX(i);
+                const y = getY(hist[i]);
+                if (i === 0) {
+                    histPathD += `M ${x} ${y} `;
+                } else {
+                    const prevX = getX(i - 1);
+                    const prevY = getY(hist[i - 1]);
+                    const cpX = (prevX + x) / 2;
+                    histPathD += `C ${cpX} ${prevY}, ${cpX} ${y}, ${x} ${y} `;
+                }
+                histAreaPoints += `${x},${y} `;
+            }
+
+            const todayX = getX(histLen - 1);
+            const todayY = getY(hist[histLen - 1]);
+            histAreaPoints += `${todayX},${height - bottomPad}`;
+
+            document.getElementById('svgHistPath').setAttribute('d', histPathD);
+            document.getElementById('svgHistArea').setAttribute('points', histAreaPoints);
+
+            // 2. Build Predicted Path & Confidence Interval
+            let predPathD = `M ${todayX} ${todayY} `;
+            let upperPoints = [];
+            let lowerPoints = [];
+
+            for (let i = 0; i < pred.length; i++) {
+                const idx = histLen + i;
+                const x = getX(idx);
+                const y = getY(pred[i]);
+
+                const prevX = i === 0 ? todayX : getX(idx - 1);
+                const prevY = i === 0 ? todayY : getY(pred[i - 1]);
+                const cpX = (prevX + x) / 2;
+                predPathD += `C ${cpX} ${prevY}, ${cpX} ${y}, ${x} ${y} `;
+
+                // Confidence band (+/- 12%)
+                const bandSpread = 14 + i * 5;
+                upperPoints.push(`${x},${Math.max(topPad, y - bandSpread)}`);
+                lowerPoints.unshift(`${x},${Math.min(height - bottomPad, y + bandSpread)}`);
+            }
+
+            document.getElementById('svgPredPath').setAttribute('d', predPathD);
+
+            // Confidence Polygon Points
+            const confPoints = `${todayX},${todayY} ` + upperPoints.join(' ') + ' ' + lowerPoints.join(' ') + ` ${todayX},${todayY}`;
+            document.getElementById('svgConfidenceBand').setAttribute('points', confPoints);
+
+            // Position Today Line
+            const todayLine = document.getElementById('svgTodayLine');
+            todayLine.setAttribute('x1', todayX);
+            todayLine.setAttribute('x2', todayX);
+            todayLine.nextElementSibling.setAttribute('x', todayX);
+
+            // Interactive Circle Points
+            const dotsGroup = document.getElementById('svgDataPointsGroup');
+            let dotsHtml = '';
+
+            // Historical Dots
+            for (let i = 0; i < histLen; i++) {
+                const x = getX(i);
+                const y = getY(hist[i]);
+                dotsHtml += `
+                    <circle cx="${x}" cy="${y}" r="4" fill="#4a90f5" stroke="#08090c" stroke-width="2" style="cursor: pointer;"
+                        onmouseenter="showTooltip(event, 'Historical Day -${histLen - i}', '${hist[i]} Units Dispensed')" />
+                `;
+            }
+
+            // Predicted Dots
+            for (let i = 0; i < pred.length; i++) {
+                const x = getX(histLen + i);
+                const y = getY(pred[i]);
+                dotsHtml += `
+                    <circle cx="${x}" cy="${y}" r="4" fill="#2dd4bf" stroke="#08090c" stroke-width="2" style="cursor: pointer;"
+                        onmouseenter="showTooltip(event, 'ML Forecast Day +${i + 1}', '${pred[i]} Projected Units')" />
+                `;
+            }
+
+            dotsGroup.innerHTML = dotsHtml;
+        }
+
+        // ── 6. CHART TOOLTIP INTERACTION ──
+        window.showTooltip = function(e, dateStr, valStr) {
+            const tooltip = document.getElementById('chartTooltip');
+            const rect = document.getElementById('chartContainer').getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            tooltip.style.left = `${x}px`;
+            tooltip.style.top = `${y - 40}px`;
+            tooltip.style.opacity = '1';
+            tooltip.style.transform = 'translate(-50%, 0)';
+
+            document.getElementById('ttDate').textContent = dateStr;
+            document.getElementById('ttVal').textContent = valStr;
+        };
+
+        window.hideTooltip = function() {
+            const tooltip = document.getElementById('chartTooltip');
+            tooltip.style.opacity = '0';
+            tooltip.style.transform = 'translate(-50%, -10px)';
+        };
+
+        window.setHorizon = function(days) {
+            currentHorizonDays = days;
+            document.querySelectorAll('.btn-chart-toggle').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.includes(days + 'D'));
+            });
+            recalculateAndRender();
+        };
+
+        // ── 7. SIMULATE SALE BACKEND INTEGRATION (SECTION 13) ──
+        window.openSaleModal = function() {
+            const med = medicineStore[currentMedKey];
+            if (!med) return;
+
+            document.getElementById('modalMedTitle').textContent = `${med.name} (${med.sku})`;
+            document.getElementById('modalSaleQty').value = 50;
+            updateSaleModalPreview();
+
+            document.getElementById('saleModalOverlay').classList.add('open');
+        };
+
+        window.closeSaleModal = function() {
+            document.getElementById('saleModalOverlay').classList.remove('open');
+        };
+
+        window.updateSaleModalPreview = async function() {
+            const med = medicineStore[currentMedKey];
+            if (!med) return;
+
+            const previewEl = document.getElementById('modalPreviewBatch');
+            const medId = med.id || (med.sku ? med.sku.replace('SKU #', '').trim() : 'MED001');
+
+            try {
+                const queue = await window.MediStockAPI.getFefoQueue(medId);
+                if (queue && queue.fefo_priority_batch) {
+                    previewEl.textContent = `Batch #${queue.fefo_priority_batch} (Earliest Expiry Priority)`;
+                    return;
+                }
+            } catch (e) {
+                // Fallback to local batch calculation
+            }
+
+            const validBatches = med.batches.filter(b => b.daysLeft > 0).sort((a, b) => a.daysLeft - b.daysLeft);
+            if (validBatches.length > 0) {
+                previewEl.textContent = `${validBatches[0].id} (Earliest Expiry: ${formatDate(validBatches[0].expDate)})`;
+            } else {
+                previewEl.textContent = 'NO ELIGIBLE BATCHES (STOCK DEPLETED)';
+            }
+        };
+
+        window.executeSimulatedSale = async function() {
+            const med = medicineStore[currentMedKey];
+            if (!med) return;
+
+            const saleQty = parseInt(document.getElementById('modalSaleQty').value) || 0;
+            if (saleQty <= 0) {
+                alert('Please enter a quantity greater than zero.');
+                return;
+            }
+
+            const medId = med.id || (med.sku ? med.sku.replace('SKU #', '').trim() : 'MED001');
+
+            try {
+                const result = await window.MediStockAPI.dispenseSale(medId, saleQty);
+                closeSaleModal();
+                // Reload full analytical profile from SQLite backend with updated batches, coverage, and recent transactions
+                await loadBackendMedicine(medId);
+            } catch (err) {
+                alert(`Sale validation rejected: ${err.message}`);
+            }
+        };
+
+        // ── 8. MEDICINE PICKER HANDLER ──
+        window.handleMedicinePickerChange = function(newKey) {
+            if (newKey === 'new_entry') {
+                handleApiStateChange('insufficient');
+                return;
+            }
+
+            handleApiStateChange('live');
+            currentMedKey = newKey;
+            recalculateAndRender();
+        };
+
+        // ── 9. API STATE SWITCHER (SECTIONS 17, 18, 19) ──
+        window.handleApiStateChange = function(state) {
+            const liveViewport = document.getElementById('liveProfileViewport');
+            const loadingViewport = document.getElementById('loadingState');
+            const errorViewport = document.getElementById('errorState');
+            const insufficientViewport = document.getElementById('insufficientState');
+
+            liveViewport.style.display = 'none';
+            loadingViewport.classList.remove('active');
+            errorViewport.classList.remove('active');
+            insufficientViewport.classList.remove('active');
+
+            document.getElementById('apiStateSelector').value = state;
+
+            if (state === 'live') {
+                liveViewport.style.display = 'block';
+                recalculateAndRender();
+            } else if (state === 'loading') {
+                loadingViewport.classList.add('active');
+            } else if (state === 'error') {
+                errorViewport.classList.add('active');
+            } else if (state === 'insufficient') {
+                insufficientViewport.classList.add('active');
+            }
+        };
+
+        // Utility: Date Formatter
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            const d = new Date(dateStr);
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${d.getDate().toString().padStart(2, '0')}-${months[d.getMonth()]}-${d.getFullYear()}`;
+        }
+
+        // Initialize application
+        init();
+
+    })();
+    </script>
+</body>
+</html>

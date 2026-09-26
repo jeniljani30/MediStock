@@ -1,0 +1,5 @@
+Location_ID,Location_Name,City,State,Storage_Location
+LOC001,Mumbai Central Pharmacy,Mumbai,Maharashtra,LOC-WH01
+LOC002,Pune City Pharmacy,Pune,Maharashtra,LOC-WH02
+LOC003,Bengaluru Health Store,Bengaluru,Karnataka,LOC-WH03
+LOC004,Delhi Care Pharmacy,Delhi,Delhi,LOC-WH04
